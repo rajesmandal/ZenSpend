@@ -1,85 +1,81 @@
 package com.android.zenspend.feature.dashboard.presentation.viewmodel
 
-import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.android.zenspend.data.ai.GeminiManager
-import com.android.zenspend.feature.dashboard.presentation.model.TransactionUi
-import com.android.zenspend.feature.transaction.domain.model.Transaction
-import com.android.zenspend.feature.transaction.domain.usecase.AddTransactionUseCase
-import com.android.zenspend.feature.transaction.domain.usecase.GetTransactionsUseCase
+import com.android.zenspend.feature.dashboard.domain.usecase.ObserveDashboardSummaryUseCase
+import com.android.zenspend.feature.dashboard.presentation.contract.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import org.json.JSONObject
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    private val geminiManager: GeminiManager,
-    private val getTransactionsUseCase: GetTransactionsUseCase,
-    private val addTransactionUseCase: AddTransactionUseCase
+    private val observeDashboardSummaryUseCase: ObserveDashboardSummaryUseCase
 ) : ViewModel() {
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    private val _uiState = MutableStateFlow(DashboardUiState())
+    val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
 
-    val allTransactions = getTransactionsUseCase().map { transactions ->
-        transactions.map { it.toUi() }
+    private val _uiEffect = Channel<DashboardUiEffect>()
+    val uiEffect: Flow<DashboardUiEffect> = _uiEffect.receiveAsFlow()
+
+    private var summaryJob: Job? = null
+
+    init {
+        handleEvent(DashboardUiEvent.LoadSummary)
     }
 
-    fun processExpenseText(text: String) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val jsonResponse = geminiManager.extractExpenseFromText(text)
-                saveResponseToDb(jsonResponse)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                _isLoading.value = false
+    fun handleEvent(event: DashboardUiEvent) {
+        when (event) {
+            is DashboardUiEvent.LoadSummary -> observeSummary()
+            is DashboardUiEvent.NextMonth -> changeMonth(1)
+            is DashboardUiEvent.PreviousMonth -> changeMonth(-1)
+            is DashboardUiEvent.Refresh -> observeSummary()
+        }
+    }
+
+    private fun observeSummary() {
+        summaryJob?.cancel()
+        
+        val calendar = _uiState.value.selectedMonth
+        val (start, end) = getMonthRange(calendar)
+
+        summaryJob = observeDashboardSummaryUseCase(start, end)
+            .onStart { _uiState.update { it.copy(isLoading = true) } }
+            .onEach { summary ->
+                _uiState.update { it.copy(isLoading = false, summary = summary, error = null) }
             }
-        }
-    }
-
-    fun processExpenseImage(bitmap: Bitmap) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val jsonResponse = geminiManager.extractExpenseFromImage(bitmap)
-                saveResponseToDb(jsonResponse)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                _isLoading.value = false
+            .catch { error ->
+                _uiState.update { it.copy(isLoading = false, error = error.message) }
             }
-        }
+            .launchIn(viewModelScope)
     }
 
-    private suspend fun saveResponseToDb(json: JSONObject?) {
-        json?.let {
-            val transaction = Transaction(
-                title = it.optString("title", "Unknown"),
-                amount = it.optDouble("amount", 0.0),
-                category = it.optString("category", "General"),
-                date = System.currentTimeMillis(),
-                note = ""
-            )
-            addTransactionUseCase(transaction)
+    private fun changeMonth(delta: Int) {
+        _uiState.update { state ->
+            val newCalendar = state.selectedMonth.clone() as Calendar
+            newCalendar.add(Calendar.MONTH, delta)
+            state.copy(selectedMonth = newCalendar)
         }
+        observeSummary()
     }
 
-    private fun Transaction.toUi(): TransactionUi {
-        return TransactionUi(
-            id = id,
-            title = title,
-            amount = "$amount", // Simple formatting for now
-            category = category,
-            date = "$date",   // Simple formatting for now
-            note = note
-        )
+    private fun getMonthRange(calendar: Calendar): Pair<Long, Long> {
+        val start = calendar.clone() as Calendar
+        start.set(Calendar.DAY_OF_MONTH, 1)
+        start.set(Calendar.HOUR_OF_DAY, 0)
+        start.set(Calendar.MINUTE, 0)
+        start.set(Calendar.SECOND, 0)
+        start.set(Calendar.MILLISECOND, 0)
+
+        val end = start.clone() as Calendar
+        end.add(Calendar.MONTH, 1)
+        end.add(Calendar.MILLISECOND, -1)
+
+        return start.timeInMillis to end.timeInMillis
     }
 }

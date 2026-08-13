@@ -7,6 +7,15 @@ sealed interface AppError {
         data class GenericError(val message: String) : DatabaseError
     }
 
+    sealed interface ValidationError : AppError {
+        object InvalidAmount : ValidationError
+        object MissingSourceWallet : ValidationError
+        object MissingDestinationWallet : ValidationError
+        object SameWalletTransfer : ValidationError
+        object MissingCategory : ValidationError
+        data class GenericError(val message: String) : ValidationError
+    }
+
     sealed interface NetworkError : AppError {
         object NoInternet : NetworkError
         object ServerError : NetworkError

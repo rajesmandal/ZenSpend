@@ -5,28 +5,86 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
+@Immutable
+data class CustomColors(
+    val income: Color = Color.Unspecified,
+    val expense: Color = Color.Unspecified,
+    val transfer: Color = Color.Unspecified,
+    val creditCard: Color = Color.Unspecified,
+    val neutral: Color = Color.Unspecified
+)
+
+val LocalCustomColors = staticCompositionLocalOf { CustomColors() }
+
 private val LightColorScheme = lightColorScheme(
-    primary = LightPrimary,
-    onPrimary = LightOnPrimary,
-    secondary = LightSecondary,
-    onSecondary = LightOnSecondary,
-    background = LightBackground,
-    surface = LightSurface,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F)
+    primary = PrimaryLight,
+    onPrimary = OnPrimaryLight,
+    primaryContainer = PrimaryContainerLight,
+    onPrimaryContainer = OnPrimaryContainerLight,
+    secondary = SecondaryLight,
+    onSecondary = OnSecondaryLight,
+    secondaryContainer = SecondaryContainerLight,
+    onSecondaryContainer = OnSecondaryContainerLight,
+    tertiary = TertiaryLight,
+    onTertiary = OnTertiaryLight,
+    tertiaryContainer = TertiaryContainerLight,
+    onTertiaryContainer = OnTertiaryContainerLight,
+    error = ErrorLight,
+    onError = OnErrorLight,
+    errorContainer = ErrorContainerLight,
+    onErrorContainer = OnErrorContainerLight,
+    background = BackgroundLight,
+    surface = SurfaceLight,
+    onSurface = OnSurfaceLight,
+    surfaceVariant = SurfaceVariantLight,
+    onSurfaceVariant = OnSurfaceVariantLight,
+    outline = OutlineLight
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = DarkPrimary,
-    onPrimary = DarkOnPrimary,
-    secondary = DarkSecondary,
-    onSecondary = DarkOnSecondary,
-    background = DarkBackground,
-    surface = DarkSurface,
-    onBackground = Color(0xFFE6E1E5),
-    onSurface = Color(0xFFE6E1E5)
+    primary = PrimaryDark,
+    onPrimary = OnPrimaryDark,
+    primaryContainer = PrimaryContainerDark,
+    onPrimaryContainer = OnPrimaryContainerDark,
+    secondary = SecondaryDark,
+    onSecondary = OnSecondaryDark,
+    secondaryContainer = SecondaryContainerDark,
+    onSecondaryContainer = OnSecondaryContainerDark,
+    tertiary = TertiaryDark,
+    onTertiary = OnTertiaryDark,
+    tertiaryContainer = TertiaryContainerDark,
+    onTertiaryContainer = OnTertiaryContainerDark,
+    error = ErrorDark,
+    onError = OnErrorDark,
+    errorContainer = ErrorContainerDark,
+    onErrorContainer = OnErrorContainerDark,
+    background = BackgroundDark,
+    surface = SurfaceDark,
+    onSurface = OnSurfaceDark,
+    surfaceVariant = SurfaceVariantDark,
+    onSurfaceVariant = OnSurfaceVariantDark,
+    outline = OutlineDark
+)
+
+private val LightCustomColors = CustomColors(
+    income = IncomeGreen,
+    expense = ExpenseRed,
+    transfer = TransferBlue,
+    creditCard = CreditCardGold,
+    neutral = NeutralGrey
+)
+
+private val DarkCustomColors = CustomColors(
+    income = IncomeGreenDark,
+    expense = ExpenseRedDark,
+    transfer = TransferBlueDark,
+    creditCard = CreditCardGoldDark,
+    neutral = NeutralGrey
 )
 
 @Composable
@@ -35,10 +93,20 @@ fun ZenSpendTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val customColors = if (darkTheme) DarkCustomColors else LightCustomColors
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(LocalCustomColors provides customColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            shapes = Shapes,
+            content = content
+        )
+    }
+}
+
+object ZenSpendTheme {
+    val colors: CustomColors
+        @Composable
+        get() = LocalCustomColors.current
 }
