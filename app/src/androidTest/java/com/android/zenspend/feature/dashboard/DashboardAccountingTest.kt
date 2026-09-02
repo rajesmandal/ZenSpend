@@ -91,8 +91,6 @@ class DashboardAccountingTest {
                 isExcludedFromReports = false
             )
         )
-        // Manually update balance cache for testing dashboard summary
-        walletDao.updateBalance(hdfcId, -2000000L)
 
         // Verify individual Flow
         val expenseTotal = txRepo.getTotalExpense(start, end).first()
@@ -119,8 +117,6 @@ class DashboardAccountingTest {
                 isExcludedFromReports = false
             )
         )
-        walletDao.updateBalance(sbiId, 4200000L)
-        walletDao.updateBalance(hdfcId, -1200000L)
         
         summary = useCase(start, end).filter { it.netWorth.assets < 5000000 }.first()
         assertEquals(4200000L, summary.netWorth.assets) // 50k - 8k
@@ -142,7 +138,6 @@ class DashboardAccountingTest {
                 isExcludedFromReports = false
             )
         )
-        walletDao.updateBalance(hdfcId, -1000000L)
         
         summary = useCase(start, end).filter { it.netWorth.liabilities < 1200000 }.first()
         assertEquals(1000000L, summary.netWorth.liabilities) // 12k - 2k

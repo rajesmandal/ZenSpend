@@ -5,13 +5,13 @@ import com.android.zenspend.feature.backup.domain.model.*
 
 fun WalletEntity.toBackup() = BackupWallet(
     id = id, name = name, type = type, openingBalance = openingBalance,
-    currentBalance = currentBalance, currency = currency, isActive = isActive,
+    currentBalance = 0, currency = currency, isActive = isActive,
     createdAt = createdAt, updatedAt = updatedAt
 )
 
 fun BackupWallet.toEntity() = WalletEntity(
     id = id, name = name, type = type, openingBalance = openingBalance,
-    currentBalance = currentBalance, currency = currency, isActive = isActive,
+    currency = currency, isActive = isActive,
     createdAt = createdAt, updatedAt = updatedAt
 )
 
@@ -121,4 +121,26 @@ fun BudgetEntity.toBackup() = BackupBudget(
 fun BackupBudget.toEntity() = BudgetEntity(
     id = id, categoryId = categoryId, amount = amount, period = period,
     startDate = startDate, endDate = endDate, isActive = isActive
+)
+
+fun com.android.zenspend.feature.sms.data.entity.SmsDraftEntity.toBackup() = BackupSmsDraft(
+    id = id, amount = amount, type = type, date = date, merchant = merchant,
+    accountLast4 = accountLast4, sender = sender, fingerprint = fingerprint,
+    status = status, createdAt = createdAt
+)
+
+fun BackupSmsDraft.toEntity() = com.android.zenspend.feature.sms.data.entity.SmsDraftEntity(
+    id = id, amount = amount, type = type, date = date, merchant = merchant,
+    accountLast4 = accountLast4, sender = sender, fingerprint = fingerprint,
+    status = status, createdAt = createdAt
+)
+
+fun com.android.zenspend.feature.category.data.entity.MerchantCategoryPreferenceEntity.toBackup() = BackupMerchantPreference(
+    normalizedMerchant = normalizedMerchant, categoryId = categoryId,
+    usageCount = usageCount, lastUsedAt = lastUsedAt
+)
+
+fun BackupMerchantPreference.toEntity() = com.android.zenspend.feature.category.data.entity.MerchantCategoryPreferenceEntity(
+    normalizedMerchant = normalizedMerchant, categoryId = categoryId,
+    usageCount = usageCount, lastUsedAt = lastUsedAt
 )

@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TransactionDao {
-    @Query("SELECT * FROM transactions ORDER BY date DESC")
+    @Query("SELECT * FROM transactions WHERE isDeleted = 0 ORDER BY date DESC")
     fun getAllTransactions(): Flow<List<TransactionEntity>>
 
     @Query("SELECT * FROM transactions WHERE sourceWalletId = :walletId OR destinationWalletId = :walletId ORDER BY date DESC")
@@ -21,6 +21,9 @@ interface TransactionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTransaction(transaction: TransactionEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTransactions(transactions: List<TransactionEntity>)
 
     @Transaction
     suspend fun insertTransactionAndUpdateBalance(
@@ -39,14 +42,12 @@ interface TransactionDao {
     @Delete
     suspend fun deleteTransaction(transaction: TransactionEntity)
 
-    // Calculated balance: Opening Balance + Income - Expenses - Transfers Out + Transfers In
+    // Calculated balance: Opening Balance + Total Incoming - Total Outgoing
     @Query("""
         SELECT 
             (SELECT openingBalance FROM wallets WHERE id = :walletId) +
-            COALESCE((SELECT SUM(amount) FROM transactions WHERE sourceWalletId = :walletId AND type = 'INCOME' AND status = 'COMPLETED'), 0) +
-            COALESCE((SELECT SUM(amount) FROM transactions WHERE destinationWalletId = :walletId AND (type = 'TRANSFER' OR type = 'CREDIT_CARD_PAYMENT' OR type = 'REFUND') AND status = 'COMPLETED'), 0) -
-            COALESCE((SELECT SUM(amount) FROM transactions WHERE sourceWalletId = :walletId AND (type = 'EXPENSE' OR type = 'TRANSFER' OR type = 'CREDIT_CARD_PAYMENT') AND status = 'COMPLETED'), 0) +
-            COALESCE((SELECT SUM(amount) FROM transactions WHERE sourceWalletId = :walletId AND type = 'REFUND' AND status = 'COMPLETED'), 0)
+            COALESCE((SELECT SUM(amount) FROM transactions WHERE destinationWalletId = :walletId AND status = 'COMPLETED'), 0) -
+            COALESCE((SELECT SUM(amount) FROM transactions WHERE sourceWalletId = :walletId AND status = 'COMPLETED'), 0)
     """)
     fun getCalculatedBalance(walletId: Long): Flow<Long?>
 

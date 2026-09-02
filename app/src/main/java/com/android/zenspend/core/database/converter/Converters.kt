@@ -57,4 +57,10 @@ class Converters {
 
     @TypeConverter
     fun toSmsDraftStatus(value: String) = com.android.zenspend.feature.sms.data.entity.SmsDraftStatus.valueOf(value)
+
+    @TypeConverter
+    fun fromSyncState(value: SyncState) = value.name
+
+    @TypeConverter
+    fun toSyncState(value: String) = SyncState.valueOf(value)
 }

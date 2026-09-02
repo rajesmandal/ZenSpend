@@ -28,6 +28,7 @@ class TransactionViewModelTest {
     private val categoryRepository: CategoryRepository = mockk()
     private val getCategorySuggestionUseCase: com.android.zenspend.feature.category.domain.usecase.GetCategorySuggestionUseCase = mockk()
     private val updateMerchantPreferenceUseCase: com.android.zenspend.feature.category.domain.usecase.UpdateMerchantPreferenceUseCase = mockk()
+    private val adController: com.android.zenspend.core.monetization.presentation.AdController = mockk(relaxed = true)
     
     private lateinit var viewModel: TransactionViewModel
 
@@ -48,7 +49,8 @@ class TransactionViewModelTest {
             observeWalletsUseCase,
             categoryRepository,
             getCategorySuggestionUseCase,
-            updateMerchantPreferenceUseCase
+            updateMerchantPreferenceUseCase,
+            adController
         )
     }
 

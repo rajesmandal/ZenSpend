@@ -41,7 +41,14 @@ class BudgetViewModel @Inject constructor(
             is BudgetUiEvent.OnAmountChange -> _uiState.update { it.copy(amountText = event.amount) }
             is BudgetUiEvent.OnCategoryChange -> _uiState.update { it.copy(selectedCategoryId = event.categoryId) }
             is BudgetUiEvent.SaveBudget -> saveBudget()
-            is BudgetUiEvent.DeleteBudget -> {} // TODO
+            is BudgetUiEvent.DeleteBudget -> deleteBudget(event.id)
+        }
+    }
+
+    private fun deleteBudget(id: Long) {
+        viewModelScope.launch {
+            deleteBudgetUseCase(id)
+            _uiEffect.send(BudgetUiEffect.ShowSnackbar("Budget deleted"))
         }
     }
 

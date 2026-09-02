@@ -27,7 +27,9 @@ class BackupRepositoryImpl @Inject constructor(
             transactions = backupDao.getAllTransactions().map { it.toBackup() },
             transactionTags = backupDao.getAllTransactionTags().map { it.toBackup() },
             attachments = backupDao.getAllAttachments().map { it.toBackup() },
-            budgets = backupDao.getAllBudgets().map { it.toBackup() }
+            budgets = backupDao.getAllBudgets().map { it.toBackup() },
+            smsDrafts = backupDao.getAllSmsDrafts().map { it.toBackup() },
+            merchantPreferences = backupDao.getAllMerchantPreferences().map { it.toBackup() }
         )
     }
 
@@ -50,6 +52,9 @@ class BackupRepositoryImpl @Inject constructor(
             
             backupDao.insertTransactionTags(data.transactionTags.map { it.toEntity() })
             backupDao.insertAttachments(data.attachments.map { it.toEntity() })
+
+            backupDao.insertSmsDrafts(data.smsDrafts.map { it.toEntity() })
+            backupDao.insertMerchantPreferences(data.merchantPreferences.map { it.toEntity() })
         }
     }
 

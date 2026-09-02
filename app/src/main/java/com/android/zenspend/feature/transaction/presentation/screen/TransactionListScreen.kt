@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -48,8 +47,8 @@ fun TransactionListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Transactions", fontWeight = FontWeight.Bold) },
+            ZenTopAppBar(
+                title = "Transactions",
                 actions = {
                     IconButton(onClick = { /* Open Search */ }) {
                         Icon(Icons.Default.Search, contentDescription = "Search")
@@ -60,12 +59,7 @@ fun TransactionListScreen(
                 }
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        floatingActionButton = {
-            FloatingActionButton(onClick = onNavigateToAdd) {
-                Icon(Icons.Default.Add, contentDescription = "Add Transaction")
-            }
-        }
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         if (state.isLoading) {
             LoadingState(modifier = Modifier.padding(padding))
@@ -89,6 +83,15 @@ fun TransactionListScreen(
                     TransactionItem(
                         transaction = transaction,
                         onClick = { onNavigateToDetails(transaction.id) }
+                    )
+                }
+
+                item {
+                    com.android.zenspend.core.monetization.presentation.components.BannerAd(
+                        adController = viewModel.adController,
+                        unitId = com.android.zenspend.core.monetization.AdConfig.TRANSACTION_LIST_BANNER_ID,
+                        currentRoute = "transactions",
+                        modifier = Modifier.padding(Dimensions.SpacingLarge)
                     )
                 }
             }

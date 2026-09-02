@@ -18,7 +18,7 @@ class BudgetRepositoryImpl @Inject constructor(
         }
 
     override suspend fun getBudgetById(id: Long): Budget? =
-        null // TODO: Implement in DAO if needed
+        budgetDao.getBudgetById(id)?.toDomain()
 
     override suspend fun insertBudget(budget: Budget): Long =
         budgetDao.insertBudget(budget.toEntity())

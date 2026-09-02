@@ -30,7 +30,8 @@ class TransactionViewModel @Inject constructor(
     private val observeWalletsUseCase: ObserveWalletsUseCase,
     private val categoryRepository: CategoryRepository,
     private val getCategorySuggestionUseCase: com.android.zenspend.feature.category.domain.usecase.GetCategorySuggestionUseCase,
-    private val updateMerchantPreferenceUseCase: com.android.zenspend.feature.category.domain.usecase.UpdateMerchantPreferenceUseCase
+    private val updateMerchantPreferenceUseCase: com.android.zenspend.feature.category.domain.usecase.UpdateMerchantPreferenceUseCase,
+    val adController: com.android.zenspend.core.monetization.presentation.AdController
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TransactionUiState())

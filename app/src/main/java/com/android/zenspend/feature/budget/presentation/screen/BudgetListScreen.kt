@@ -4,12 +4,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,12 +29,7 @@ fun BudgetListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Budgets", fontWeight = FontWeight.Bold) })
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = onNavigateToAdd) {
-                Icon(Icons.Default.Add, contentDescription = "Add Budget")
-            }
+            ZenTopAppBar(title = "Budgets")
         }
     ) { padding ->
         if (state.isLoading && state.overallBudget == null && state.categoryBudgets.isEmpty()) {
@@ -86,8 +79,7 @@ fun BudgetListScreen(
 
 @Composable
 fun BudgetOverviewCard(progress: BudgetProgress) {
-    ZenCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(Dimensions.SpacingLarge)) {
+    ZenSurfaceCard(modifier = Modifier.fillMaxWidth()) {
             Text("Monthly Budget", style = MaterialTheme.typography.labelMedium)
             Spacer(modifier = Modifier.height(Dimensions.SpacingSmall))
             Row(
@@ -110,7 +102,8 @@ fun BudgetOverviewCard(progress: BudgetProgress) {
             LinearProgressIndicator(
                 progress = { progress.progress.coerceIn(0f, 1f) },
                 modifier = Modifier.fillMaxWidth(),
-                color = if (progress.isOverBudget) ZenSpendTheme.colors.expense else MaterialTheme.colorScheme.primary
+                color = if (progress.isOverBudget) ZenSpendTheme.colors.expense else MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.outlineVariant
             )
             if (progress.isOverBudget) {
                 Text(
@@ -120,7 +113,6 @@ fun BudgetOverviewCard(progress: BudgetProgress) {
                     modifier = Modifier.padding(top = Dimensions.SpacingXSmall)
                 )
             }
-        }
     }
 }
 
@@ -142,7 +134,8 @@ fun CategoryBudgetBar(progress: BudgetProgress) {
         LinearProgressIndicator(
             progress = { progress.progress.coerceIn(0f, 1f) },
             modifier = Modifier.fillMaxWidth(),
-            color = if (progress.isOverBudget) ZenSpendTheme.colors.expense else MaterialTheme.colorScheme.primary
+            color = if (progress.isOverBudget) ZenSpendTheme.colors.expense else MaterialTheme.colorScheme.primary,
+            trackColor = MaterialTheme.colorScheme.outlineVariant
         )
     }
 }

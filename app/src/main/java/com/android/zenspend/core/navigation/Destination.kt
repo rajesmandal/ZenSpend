@@ -25,7 +25,11 @@ sealed class Destination(val route: String) {
     }
 
     object Emis : Destination("emis_list")
-    object AddEmi : Destination("add_emi")
+    data class AddEmi(val creditCardId: Long) : Destination("add_emi/$creditCardId") {
+        companion object {
+            const val ROUTE = "add_emi/{creditCardId}"
+        }
+    }
 
     object Budgets : Destination("budgets_list")
     object AddBudget : Destination("add_budget")
@@ -73,6 +77,8 @@ sealed class Destination(val route: String) {
     object Premium : Destination("premium")
     object SmsDrafts : Destination("sms_drafts")
     object AiAssistant : Destination("ai_assistant")
+    object Login : Destination("login")
+    object SharedCashbook : Destination("shared_cashbook")
     data class SmsReview(val draftId: Long) : Destination("sms_review/$draftId") {
         companion object {
             const val ROUTE = "sms_review/{draftId}"

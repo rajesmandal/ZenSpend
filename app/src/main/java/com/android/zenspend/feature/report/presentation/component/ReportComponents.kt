@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.android.zenspend.core.ui.theme.Dimensions
+import com.android.zenspend.core.ui.theme.ZenSpendTheme
 
 @Composable
 fun ReportSummarySection(
@@ -69,7 +70,7 @@ fun ReportMiniCard(
             Text(label, style = MaterialTheme.typography.labelSmall)
             Text(amount, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             if (comparison != null) {
-                val color = if (comparison >= 0) com.android.zenspend.core.ui.theme.IncomeGreen else com.android.zenspend.core.ui.theme.ExpenseRed
+                val color = if (comparison >= 0) ZenSpendTheme.colors.income else ZenSpendTheme.colors.expense
                 val prefix = if (comparison >= 0) "+" else ""
                 Text(
                     text = "$prefix${"%.1f".format(comparison)}%",
@@ -147,6 +148,9 @@ fun TrendLineView(
     modifier: Modifier = Modifier
 ) {
     if (points.isEmpty()) return
+
+    val incomeColor = ZenSpendTheme.colors.income
+    val expenseColor = ZenSpendTheme.colors.expense
     
     com.android.zenspend.core.ui.designsystem.component.ZenCard(modifier = modifier.fillMaxWidth().height(200.dp)) {
         androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -172,8 +176,8 @@ fun TrendLineView(
                 }
             }
 
-            drawPath(incomePath, color = com.android.zenspend.core.ui.theme.IncomeGreen, style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx()))
-            drawPath(expensePath, color = com.android.zenspend.core.ui.theme.ExpenseRed, style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx()))
+            drawPath(incomePath, color = incomeColor, style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx()))
+            drawPath(expensePath, color = expenseColor, style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx()))
         }
     }
 }

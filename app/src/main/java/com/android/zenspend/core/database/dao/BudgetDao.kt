@@ -9,6 +9,9 @@ interface BudgetDao {
     @Query("SELECT * FROM budgets WHERE isActive = 1")
     fun getAllActiveBudgets(): Flow<List<BudgetEntity>>
 
+    @Query("SELECT * FROM budgets WHERE id = :id")
+    suspend fun getBudgetById(id: Long): BudgetEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBudget(budget: BudgetEntity): Long
 

@@ -9,7 +9,7 @@ fun WalletEntity.toDomain(): Wallet {
         name = name,
         type = type,
         openingBalance = openingBalance,
-        currentBalance = currentBalance,
+        currentBalance = 0, // Should be populated by repository if needed
         currency = currency,
         isActive = isActive
     )
@@ -21,7 +21,6 @@ fun Wallet.toEntity(): WalletEntity {
         name = name,
         type = type,
         openingBalance = openingBalance,
-        currentBalance = currentBalance,
         currency = currency,
         isActive = isActive
     )

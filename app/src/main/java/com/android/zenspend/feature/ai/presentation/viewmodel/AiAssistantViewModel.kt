@@ -29,7 +29,9 @@ sealed class AiAssistantEvent {
 @HiltViewModel
 class AiAssistantViewModel @Inject constructor(
     private val chatWithAiUseCase: ChatWithAiUseCase,
-    private val aiPreferences: AiPreferences
+    private val aiPreferences: AiPreferences,
+    private val aiQuotaManager: com.android.zenspend.feature.ai.domain.AiQuotaManager,
+    val entitlementManager: com.android.zenspend.core.monetization.domain.EntitlementManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AiAssistantState())
@@ -63,42 +65,51 @@ class AiAssistantViewModel @Inject constructor(
     private fun sendMessage(query: String) {
         if (query.isBlank()) return
 
-        val userMessage = AiMessage(UUID.randomUUID().toString(), query, AiRole.USER)
-        _uiState.update { it.copy(
-            messages = it.messages + userMessage,
-            query = "",
-            isLoading = true,
-            error = null
-        ) }
+        viewModelScope.launch {
+            if (!aiQuotaManager.canExecuteQuery()) {
+                _uiState.update { it.copy(error = "Daily limit reached. Upgrade to Premium for unlimited access!") }
+                return@launch
+            }
 
-        chatWithAiUseCase(query)
-            .onEach { response ->
-                when (response) {
-                    is AiResponse.Success -> {
-                        val assistantMessage = AiMessage(
-                            id = UUID.randomUUID().toString(),
-                            content = response.content,
-                            role = AiRole.ASSISTANT
-                        )
-                        _uiState.update { it.copy(
-                            messages = it.messages + assistantMessage,
-                            isLoading = false
-                        ) }
-                    }
-                    is AiResponse.Error -> {
-                        _uiState.update { it.copy(
-                            error = response.message,
-                            isLoading = false
-                        ) }
-                    }
-                    AiResponse.Loading -> {
-                        _uiState.update { it.copy(isLoading = true) }
+            val userMessage = AiMessage(UUID.randomUUID().toString(), query, AiRole.USER)
+            _uiState.update { it.copy(
+                messages = it.messages + userMessage,
+                query = "",
+                isLoading = true,
+                error = null
+            ) }
+
+            chatWithAiUseCase(query)
+                .onEach { response ->
+                    when (response) {
+                        is AiResponse.Success -> {
+                            aiQuotaManager.recordQuery()
+                            val remaining = aiQuotaManager.getRemainingQuota()
+                            val assistantMessage = AiMessage(
+                                id = UUID.randomUUID().toString(),
+                                content = response.content + if (remaining < 5) "\n\n(Daily quota remaining: $remaining)" else "",
+                                role = AiRole.ASSISTANT
+                            )
+                            _uiState.update { it.copy(
+                                messages = it.messages + assistantMessage,
+                                isLoading = false
+                            ) }
+                        }
+                        is AiResponse.Error -> {
+                            _uiState.update { it.copy(
+                                error = response.message,
+                                isLoading = false
+                            ) }
+                        }
+                        AiResponse.Loading -> {
+                            _uiState.update { it.copy(isLoading = true) }
+                        }
                     }
                 }
-            }
-            .catch { e ->
-                _uiState.update { it.copy(error = e.message, isLoading = false) }
-            }
-            .launchIn(viewModelScope)
+                .catch { e ->
+                    _uiState.update { it.copy(error = e.message, isLoading = false) }
+                }
+                .launchIn(viewModelScope)
+        }
     }
 }

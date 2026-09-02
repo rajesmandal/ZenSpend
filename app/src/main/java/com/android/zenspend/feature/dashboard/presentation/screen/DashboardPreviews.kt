@@ -19,7 +19,8 @@ fun DashboardPreview() {
         topCategories = listOf(
             CategorySpending(1, "Food", 1250000, 0.4f),
             CategorySpending(2, "Shopping", 820000, 0.25f),
-            CategorySpending(3, "Bills", 670000, 0.2f)
+            CategorySpending(3, "Transport", 450000, 0.15f),
+            CategorySpending(4, "Bills", 670000, 0.2f)
         ),
         creditCardSummary = CreditCardDashboardSummary(
             totalOutstanding = 4250000,
@@ -31,6 +32,7 @@ fun DashboardPreview() {
             budget = com.android.zenspend.feature.budget.domain.model.Budget(amount = 5000000, categoryId = null, startDate = 0, endDate = 0),
             spentAmount = 3200000
         ),
+        upcomingRecurring = emptyList(),
         recentTransactions = listOf(
             Transaction(title = "Starbucks", amount = 45000, date = System.currentTimeMillis(), type = TransactionType.EXPENSE, sourceWalletId = 1, note = null),
             Transaction(title = "Salary", amount = 5000000, date = System.currentTimeMillis(), type = TransactionType.INCOME, sourceWalletId = 2, note = null)
@@ -41,6 +43,21 @@ fun DashboardPreview() {
         Surface {
             DashboardContent(
                 state = DashboardUiState(summary = summary),
+                onEvent = {},
+                onNavigateToRecurring = {},
+                onNavigateToTransactions = {}
+            )
+        }
+    }
+}
+
+@Preview(showSystemUi = true, name = "Empty Dashboard")
+@Composable
+fun EmptyDashboardPreview() {
+    ZenSpendTheme {
+        Surface {
+            DashboardContent(
+                state = DashboardUiState(summary = null),
                 onEvent = {},
                 onNavigateToRecurring = {},
                 onNavigateToTransactions = {}

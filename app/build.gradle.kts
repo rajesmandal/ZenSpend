@@ -19,13 +19,21 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        
-        buildConfigField("String", "GEMINI_API_KEY", "\"AIzaSyBcOOUe08btiDtCuKfdv2BkATKG97Lxufo\"")
+
+        val hasGoogleServices = file("google-services.json").exists()
+        buildConfigField("boolean", "FIREBASE_CONFIGURED", hasGoogleServices.toString())
+
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"\"")
+        buildConfigField("boolean", "USE_FIREBASE_EMULATORS", "false")
     }
 
     buildTypes {
+        debug {
+            buildConfigField("boolean", "USE_FIREBASE_EMULATORS", "true")
+        }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -90,13 +98,37 @@ dependencies {
     // DataStore
     implementation(libs.androidx.datastore.preferences)
 
+    // Monetization
+    implementation(libs.billing.ktx)
+    implementation(libs.play.services.ads)
+    implementation(libs.user.messaging.platform)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.functions.ktx)
+
+    // WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+
+    // Google Sign-In (Credential Manager)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+}
+
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
 }

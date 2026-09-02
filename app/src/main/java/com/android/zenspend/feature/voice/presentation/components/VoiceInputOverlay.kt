@@ -10,9 +10,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.android.zenspend.core.ui.theme.ZenSpendTheme
 import com.android.zenspend.feature.voice.data.manager.VoiceInputState
 import com.android.zenspend.feature.voice.domain.model.ParsingStatus
 import com.android.zenspend.feature.voice.domain.model.VoiceTransactionDraft
@@ -55,6 +56,13 @@ fun VoiceInputOverlay(
 
             when (val inputState = state.inputState) {
                 is VoiceInputState.Idle -> {
+                    Text(
+                        text = "ZenSpend uses your microphone to transcribe transaction details into a draft. Audio is processed locally on your device.",
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = { permissionLauncher.launch(Manifest.permission.RECORD_AUDIO) },
                         shape = MaterialTheme.shapes.extraLarge,
@@ -128,7 +136,7 @@ fun ParsedDraftPreview(
             }
             
             if (draft.parsingStatus == ParsingStatus.SUCCESS) {
-                Text("Ready to add!", color = Color(0xFF4CAF50), style = MaterialTheme.typography.bodySmall)
+                Text("Ready to add!", color = ZenSpendTheme.colors.income, style = MaterialTheme.typography.bodySmall)
             } else {
                 Text(
                     "Missing: ${draft.missingFields.joinToString { it.name }}",

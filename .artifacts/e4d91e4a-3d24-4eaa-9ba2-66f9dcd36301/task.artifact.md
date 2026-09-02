@@ -1,0 +1,3 @@
+- [x] Redesign `DashboardScreen.kt` UI
+- [x] Update `DashboardPreviews.kt`
+- [x] Verify build and UI appearance

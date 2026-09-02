@@ -11,11 +11,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.android.zenspend.core.ui.designsystem.component.*
 import com.android.zenspend.core.ui.theme.Dimensions
+import com.android.zenspend.core.ui.theme.ZenSpendTheme
 import com.android.zenspend.feature.wallet.presentation.contract.WalletDetailsState
 import com.android.zenspend.feature.wallet.presentation.contract.WalletUiEffect
 import com.android.zenspend.feature.wallet.presentation.contract.WalletUiEvent
@@ -50,13 +50,10 @@ fun WalletDetailsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Wallet Details") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
+            ZenTopAppBar(
+                title = "Wallet Details",
+                showBack = true,
+                onBackClick = onNavigateBack,
                 actions = {
                     IconButton(onClick = { onNavigateToEdit(walletId) }) {
                         Icon(Icons.Default.Edit, contentDescription = "Edit")
@@ -140,7 +137,7 @@ fun DetailHeader(
             Text(
                 text = "₹$balance",
                 style = MaterialTheme.typography.displayLarge,
-                color = if (isLiability) Color(0xFFD32F2F) else MaterialTheme.colorScheme.onSurface
+                color = if (isLiability) ZenSpendTheme.colors.expense else MaterialTheme.colorScheme.onSurface
             )
         }
     }

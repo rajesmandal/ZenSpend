@@ -35,6 +35,12 @@ interface BackupDao {
     @Query("SELECT * FROM budgets")
     suspend fun getAllBudgets(): List<BudgetEntity>
 
+    @Query("SELECT * FROM sms_drafts")
+    suspend fun getAllSmsDrafts(): List<com.android.zenspend.feature.sms.data.entity.SmsDraftEntity>
+
+    @Query("SELECT * FROM merchant_category_preferences")
+    suspend fun getAllMerchantPreferences(): List<com.android.zenspend.feature.category.data.entity.MerchantCategoryPreferenceEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWallets(wallets: List<WalletEntity>)
 
@@ -64,6 +70,12 @@ interface BackupDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBudgets(budgets: List<BudgetEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSmsDrafts(drafts: List<com.android.zenspend.feature.sms.data.entity.SmsDraftEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMerchantPreferences(prefs: List<com.android.zenspend.feature.category.data.entity.MerchantCategoryPreferenceEntity>)
 
     @Query("""
         SELECT 

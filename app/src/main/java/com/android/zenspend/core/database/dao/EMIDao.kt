@@ -10,6 +10,12 @@ interface EMIDao {
     @Query("SELECT * FROM emis WHERE status = :status")
     fun getEMIsByStatus(status: EMIStatus = EMIStatus.ACTIVE): Flow<List<EMIEntity>>
 
+    @Query("SELECT * FROM emis WHERE walletId = :walletId AND status = :status")
+    fun getEMIsByWalletId(walletId: Long, status: EMIStatus = EMIStatus.ACTIVE): Flow<List<EMIEntity>>
+
+    @Query("SELECT COUNT(*) FROM emis WHERE walletId = :walletId AND status = :status")
+    fun observeActiveEmiCountByWalletId(walletId: Long, status: EMIStatus = EMIStatus.ACTIVE): Flow<Int>
+
     @Query("SELECT * FROM emis WHERE id = :id")
     suspend fun getEMIById(id: Long): EMIEntity?
 

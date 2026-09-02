@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
 import com.android.zenspend.feature.ai.domain.model.AiMessage
 import com.android.zenspend.feature.ai.domain.model.AiRole
 import com.android.zenspend.feature.ai.presentation.viewmodel.AiAssistantEvent
@@ -26,6 +27,7 @@ import com.android.zenspend.feature.ai.presentation.viewmodel.AiAssistantViewMod
 @Composable
 fun AiAssistantScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToPremium: () -> Unit,
     viewModel: AiAssistantViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -36,68 +38,70 @@ fun AiAssistantScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Ask ZenSpend") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
+            ZenTopAppBar(
+                title = "Ask ZenSpend",
+                showBack = true,
+                onBackClick = onNavigateBack
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
+        com.android.zenspend.core.ui.designsystem.component.PremiumFeatureGate(
+            entitlementManager = viewModel.entitlementManager,
+            onUpgradeClick = onNavigateToPremium
         ) {
-            LazyColumn(
+            Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(vertical = 16.dp)
+                    .fillMaxSize()
+                    .padding(padding)
             ) {
-                if (state.messages.isEmpty()) {
-                    item {
-                        WelcomeSection()
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(vertical = 16.dp)
+                ) {
+                    if (state.messages.isEmpty()) {
+                        item {
+                            WelcomeSection()
+                        }
                     }
-                }
 
-                items(state.messages) { message ->
-                    AiMessageBubble(message)
-                }
+                    items(state.messages) { message ->
+                        AiMessageBubble(message)
+                    }
 
-                if (state.isLoading) {
-                    item {
-                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    if (state.isLoading) {
+                        item {
+                            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
+                                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                            }
+                        }
+                    }
+
+                    if (state.error != null) {
+                        item {
+                            Text(
+                                text = state.error!!,
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
                         }
                     }
                 }
 
-                if (state.error != null) {
-                    item {
-                        Text(
-                            text = state.error!!,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
-                    }
-                }
+                SuggestedQuestions(
+                    onQuestionClick = { viewModel.handleEvent(AiAssistantEvent.OnSuggestedQuestionClicked(it)) }
+                )
+
+                ChatInput(
+                    query = state.query,
+                    onQueryChange = { viewModel.handleEvent(AiAssistantEvent.OnQueryChanged(it)) },
+                    onSend = { viewModel.handleEvent(AiAssistantEvent.OnSendClicked) },
+                    enabled = !state.isLoading
+                )
             }
-
-            SuggestedQuestions(
-                onQuestionClick = { viewModel.handleEvent(AiAssistantEvent.OnSuggestedQuestionClicked(it)) }
-            )
-
-            ChatInput(
-                query = state.query,
-                onQueryChange = { viewModel.handleEvent(AiAssistantEvent.OnQueryChanged(it)) },
-                onSend = { viewModel.handleEvent(AiAssistantEvent.OnSendClicked) },
-                enabled = !state.isLoading
-            )
         }
     }
 }
@@ -106,8 +110,16 @@ fun AiAssistantScreen(
 fun AiMessageBubble(message: AiMessage) {
     val isUser = message.role == AiRole.USER
     val alignment = if (isUser) Alignment.End else Alignment.Start
-    val containerColor = if (isUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
-    val contentColor = if (isUser) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+    val containerColor = if (isUser) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.surfaceContainer
+    }
+    val contentColor = if (isUser) {
+        MaterialTheme.colorScheme.onPrimary
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),

@@ -16,7 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.android.zenspend.core.ui.theme.ZenSpendTheme
+import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
+import com.android.zenspend.core.ui.designsystem.component.ZenSurfaceCard
+import com.android.zenspend.core.ui.theme.Dimensions
 import com.android.zenspend.feature.backup.presentation.state.BackupEffect
 import com.android.zenspend.feature.backup.presentation.state.BackupEvent
 import com.android.zenspend.feature.backup.presentation.viewmodel.BackupViewModel
@@ -75,13 +77,10 @@ fun BackupScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Backup & Data") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
+            ZenTopAppBar(
+                title = "Backup & Data",
+                showBack = true,
+                onBackClick = onNavigateBack
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -96,8 +95,8 @@ fun BackupScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = Dimensions.ScreenPadding),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.SectionGap)
         ) {
             item {
                 BackupActionCard(
@@ -142,14 +141,9 @@ private fun BackupActionCard(
     icon: ImageVector,
     onClick: () -> Unit
 ) {
-    ElevatedCard(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    ZenSurfaceCard(onClick = onClick) {
         Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -158,10 +152,14 @@ private fun BackupActionCard(
                 modifier = Modifier.size(32.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(Dimensions.SpacingLarge))
             Column {
                 Text(text = title, style = MaterialTheme.typography.titleMedium)
-                Text(text = description, style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }

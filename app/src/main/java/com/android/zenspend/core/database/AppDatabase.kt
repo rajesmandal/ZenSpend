@@ -22,9 +22,12 @@ import com.android.zenspend.core.database.entity.*
         TransactionTagCrossRef::class,
         AttachmentEntity::class,
         com.android.zenspend.feature.sms.data.entity.SmsDraftEntity::class,
-        com.android.zenspend.feature.category.data.entity.MerchantCategoryPreferenceEntity::class
+        com.android.zenspend.feature.category.data.entity.MerchantCategoryPreferenceEntity::class,
+        HouseholdEntity::class,
+        HouseholdMemberEntity::class,
+        SyncCursorEntity::class
     ],
-    version = 5,
+    version = 7,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -41,6 +44,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun backupDao(): BackupDao
     abstract fun smsDraftDao(): com.android.zenspend.feature.sms.data.dao.SmsDraftDao
     abstract fun merchantPreferenceDao(): com.android.zenspend.feature.category.data.dao.MerchantCategoryPreferenceDao
+    abstract fun householdDao(): HouseholdDao
+    abstract fun syncCursorDao(): SyncCursorDao
+    abstract fun syncQueueDao(): SyncQueueDao
 
     companion object {
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -166,6 +172,81 @@ abstract class AppDatabase : RoomDatabase() {
                         `usageCount` INTEGER NOT NULL, 
                         `lastUsedAt` INTEGER NOT NULL, 
                         PRIMARY KEY(`normalizedMerchant`)
+                    )
+                """)
+            }
+        }
+
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Drop currentBalance from wallets
+                db.execSQL("CREATE TABLE `wallets_new` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `openingBalance` INTEGER NOT NULL, `currency` TEXT NOT NULL, `isActive` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)")
+                db.execSQL("INSERT INTO `wallets_new` (`id`, `name`, `type`, `openingBalance`, `currency`, `isActive`, `createdAt`, `updatedAt`) SELECT `id`, `name`, `type`, `openingBalance`, `currency`, `isActive`, `createdAt`, `updatedAt` FROM `wallets` ")
+                db.execSQL("DROP TABLE `wallets` ")
+                db.execSQL("ALTER TABLE `wallets_new` RENAME TO `wallets` ")
+            }
+        }
+
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                val now = System.currentTimeMillis()
+                val syncTablesWithTimestamps = listOf(
+                    "wallets", "transactions", "recurring_transactions"
+                )
+                val syncTablesNewTimestamps = listOf(
+                    "categories", "budgets", "credit_cards", "emis"
+                )
+
+                fun addSyncColumns(table: String, addTimestamps: Boolean) {
+                    db.execSQL("ALTER TABLE `$table` ADD COLUMN `remoteId` TEXT")
+                    db.execSQL("ALTER TABLE `$table` ADD COLUMN `householdId` TEXT")
+                    db.execSQL("ALTER TABLE `$table` ADD COLUMN `createdByUserId` TEXT")
+                    db.execSQL("ALTER TABLE `$table` ADD COLUMN `updatedByUserId` TEXT")
+                    db.execSQL("ALTER TABLE `$table` ADD COLUMN `isDeleted` INTEGER NOT NULL DEFAULT 0")
+                    db.execSQL("ALTER TABLE `$table` ADD COLUMN `syncState` TEXT NOT NULL DEFAULT 'SYNCED'")
+                    if (addTimestamps) {
+                        db.execSQL("ALTER TABLE `$table` ADD COLUMN `createdAt` INTEGER NOT NULL DEFAULT $now")
+                        db.execSQL("ALTER TABLE `$table` ADD COLUMN `updatedAt` INTEGER NOT NULL DEFAULT $now")
+                    }
+                    db.execSQL("CREATE INDEX IF NOT EXISTS `index_${table}_householdId` ON `$table` (`householdId`)")
+                    db.execSQL("CREATE INDEX IF NOT EXISTS `index_${table}_remoteId` ON `$table` (`remoteId`)")
+                    db.execSQL("CREATE INDEX IF NOT EXISTS `index_${table}_syncState` ON `$table` (`syncState`)")
+                }
+
+                syncTablesWithTimestamps.forEach { addSyncColumns(it, addTimestamps = false) }
+                syncTablesNewTimestamps.forEach { addSyncColumns(it, addTimestamps = true) }
+
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_transactions_createdByUserId` ON `transactions` (`createdByUserId`)")
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `household_cache` (
+                        `id` TEXT NOT NULL PRIMARY KEY,
+                        `name` TEXT NOT NULL,
+                        `ownerUserId` TEXT NOT NULL,
+                        `memberLimit` INTEGER NOT NULL DEFAULT 2,
+                        `createdAt` INTEGER NOT NULL,
+                        `updatedAt` INTEGER NOT NULL
+                    )
+                """)
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `household_members_cache` (
+                        `householdId` TEXT NOT NULL,
+                        `userId` TEXT NOT NULL,
+                        `role` TEXT NOT NULL,
+                        `displayName` TEXT NOT NULL,
+                        `joinedAt` INTEGER NOT NULL,
+                        `status` TEXT NOT NULL DEFAULT 'ACTIVE',
+                        PRIMARY KEY(`householdId`, `userId`)
+                    )
+                """)
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `sync_cursors` (
+                        `householdId` TEXT NOT NULL,
+                        `entityType` TEXT NOT NULL,
+                        `lastRemoteUpdatedAt` INTEGER NOT NULL DEFAULT 0,
+                        PRIMARY KEY(`householdId`, `entityType`)
                     )
                 """)
             }

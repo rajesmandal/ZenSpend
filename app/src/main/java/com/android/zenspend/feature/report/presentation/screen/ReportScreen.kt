@@ -10,10 +10,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.android.zenspend.core.ui.designsystem.component.LoadingState
-import com.android.zenspend.core.ui.designsystem.component.ZenCard
+import com.android.zenspend.core.ui.designsystem.component.ZenSurfaceCard
+import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
 import com.android.zenspend.core.ui.theme.Dimensions
-import com.android.zenspend.core.ui.theme.ExpenseRed
-import com.android.zenspend.core.ui.theme.IncomeGreen
 import com.android.zenspend.core.ui.theme.ZenSpendTheme
 import com.android.zenspend.feature.dashboard.presentation.screen.MonthSelector
 import com.android.zenspend.feature.report.presentation.component.CategoryReportItem
@@ -33,7 +32,7 @@ fun ReportScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Insights", fontWeight = FontWeight.Bold) })
+            ZenTopAppBar(title = "Insights")
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
@@ -79,7 +78,7 @@ fun ReportScreen(
                             
                             state.emiReport?.let { emi ->
                                 item {
-                                    ZenCard(modifier = Modifier.fillMaxWidth()) {
+                                    ZenSurfaceCard(modifier = Modifier.fillMaxWidth()) {
                                         Column(modifier = Modifier.padding(Dimensions.SpacingMedium)) {
                                             Text("EMI Burden", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                                             Spacer(modifier = Modifier.height(Dimensions.SpacingSmall))
@@ -157,18 +156,18 @@ fun ReportScreen(
                         }
                         4 -> {
                             items(state.creditCards) { card ->
-                                ZenCard(modifier = Modifier.fillMaxWidth()) {
+                                ZenSurfaceCard(modifier = Modifier.fillMaxWidth()) {
                                     Column(modifier = Modifier.padding(Dimensions.SpacingMedium)) {
                                         Text(card.cardName, style = MaterialTheme.typography.titleMedium)
                                         Spacer(modifier = Modifier.height(Dimensions.SpacingSmall))
                                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                            Text("Outstanding: ₹${formatAmount(card.outstanding)}", color = ExpenseRed, style = MaterialTheme.typography.bodySmall)
+                                            Text("Outstanding: ₹${formatAmount(card.outstanding)}", color = ZenSpendTheme.colors.expense, style = MaterialTheme.typography.bodySmall)
                                             Text("Utilization: ${"%.1f".format(card.utilization)}%", style = MaterialTheme.typography.bodySmall)
                                         }
                                         LinearProgressIndicator(
                                             progress = { card.utilization / 100f },
                                             modifier = Modifier.fillMaxWidth().padding(top = Dimensions.SpacingXSmall),
-                                            color = if (card.utilization > 80) ExpenseRed else MaterialTheme.colorScheme.primary
+                                            color = if (card.utilization > 80) ZenSpendTheme.colors.expense else MaterialTheme.colorScheme.primary
                                         )
                                     }
                                 }
@@ -176,12 +175,12 @@ fun ReportScreen(
                         }
                         5 -> {
                             items(state.walletActivity) { activity ->
-                                ZenCard(modifier = Modifier.fillMaxWidth()) {
+                                ZenSurfaceCard(modifier = Modifier.fillMaxWidth()) {
                                     Column(modifier = Modifier.padding(Dimensions.SpacingMedium)) {
                                         Text(activity.walletName, style = MaterialTheme.typography.titleMedium)
                                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                            Text("In: ₹${formatAmount(activity.incomeAmount)}", color = IncomeGreen, style = MaterialTheme.typography.bodySmall)
-                                            Text("Out: ₹${formatAmount(activity.expenseAmount)}", color = ExpenseRed, style = MaterialTheme.typography.bodySmall)
+                                            Text("In: ₹${formatAmount(activity.incomeAmount)}", color = ZenSpendTheme.colors.income, style = MaterialTheme.typography.bodySmall)
+                                            Text("Out: ₹${formatAmount(activity.expenseAmount)}", color = ZenSpendTheme.colors.expense, style = MaterialTheme.typography.bodySmall)
                                         }
                                     }
                                 }

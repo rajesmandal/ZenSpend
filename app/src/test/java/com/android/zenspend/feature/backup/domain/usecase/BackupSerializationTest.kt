@@ -39,7 +39,9 @@ class BackupSerializationTest {
             ),
             transactionTags = emptyList(),
             attachments = emptyList(),
-            budgets = emptyList()
+            budgets = emptyList(),
+            smsDrafts = emptyList(),
+            merchantPreferences = emptyList()
         )
 
         val json = Json { prettyPrint = true }

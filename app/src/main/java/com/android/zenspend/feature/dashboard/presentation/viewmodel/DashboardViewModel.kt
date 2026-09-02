@@ -14,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    private val observeDashboardSummaryUseCase: ObserveDashboardSummaryUseCase
+    private val observeDashboardSummaryUseCase: ObserveDashboardSummaryUseCase,
+    val adController: com.android.zenspend.core.monetization.presentation.AdController
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DashboardUiState())

@@ -16,13 +16,13 @@ class WalletRepositoryImpl @Inject constructor(
 ) : WalletRepository {
 
     override fun getAllActiveWallets(): Flow<List<Wallet>> {
-        return walletDao.getAllActiveWallets().map { entities ->
-            entities.map { it.toDomain() }
+        return walletDao.getAllActiveWallets().map { list ->
+            list.map { it.wallet.toDomain().copy(currentBalance = it.currentBalance) }
         }
     }
 
     override suspend fun getWalletById(id: Long): Wallet? {
-        return walletDao.getWalletById(id)?.toDomain()
+        return walletDao.getWalletById(id)?.let { it.wallet.toDomain().copy(currentBalance = it.currentBalance) }
     }
 
     override suspend fun insertWallet(wallet: Wallet): Long {

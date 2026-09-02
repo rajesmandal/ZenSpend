@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
@@ -18,8 +17,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.android.zenspend.core.ui.designsystem.component.LoadingState
 import com.android.zenspend.core.ui.designsystem.component.ZenCard
 import com.android.zenspend.core.ui.theme.Dimensions
-import com.android.zenspend.core.ui.theme.ExpenseRed
-import com.android.zenspend.core.ui.theme.IncomeGreen
+import com.android.zenspend.core.ui.theme.ZenSpendTheme
 import com.android.zenspend.feature.recurring.domain.model.RecurringTransaction
 import com.android.zenspend.feature.recurring.presentation.contract.RecurringUiEvent
 import com.android.zenspend.feature.recurring.presentation.viewmodel.RecurringViewModel
@@ -46,11 +44,6 @@ fun RecurringTransactionListScreen(
                     }
                 }
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = onNavigateToAdd) {
-                Icon(Icons.Default.Add, contentDescription = "Add Rule")
-            }
         }
     ) { padding ->
         if (state.isLoading) {
@@ -120,7 +113,7 @@ fun RecurringRuleCard(
                     text = "₹${formatAmount(rule.amount)}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if (rule.type == com.android.zenspend.core.database.model.TransactionType.INCOME) IncomeGreen else ExpenseRed
+                    color = if (rule.type == com.android.zenspend.core.database.model.TransactionType.INCOME) ZenSpendTheme.colors.income else ZenSpendTheme.colors.expense
                 )
             }
             

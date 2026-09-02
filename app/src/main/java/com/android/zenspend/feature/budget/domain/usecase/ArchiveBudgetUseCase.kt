@@ -6,7 +6,9 @@ import javax.inject.Inject
 class ArchiveBudgetUseCase @Inject constructor(
     private val repository: BudgetRepository
 ) {
-    suspend operator fun invoke(budget: com.android.zenspend.feature.budget.domain.model.Budget) {
-        repository.updateBudget(budget.copy(isActive = false))
+    suspend operator fun invoke(budgetId: Long) {
+        repository.getBudgetById(budgetId)?.let { budget ->
+            repository.updateBudget(budget.copy(isActive = false))
+        }
     }
 }

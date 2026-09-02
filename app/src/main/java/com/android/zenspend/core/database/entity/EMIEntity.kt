@@ -5,6 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.android.zenspend.core.database.model.EMIStatus
+import com.android.zenspend.core.database.model.SyncState
 
 @Entity(
     tableName = "emis",
@@ -16,13 +17,18 @@ import com.android.zenspend.core.database.model.EMIStatus
             onDelete = ForeignKey.SET_NULL
         )
     ],
-    indices = [Index(value = ["walletId"])]
+    indices = [
+        Index(value = ["walletId"]),
+        Index(value = ["householdId"]),
+        Index(value = ["remoteId"]),
+        Index(value = ["syncState"])
+    ]
 )
 data class EMIEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val name: String,
-    val walletId: Long?, // Linked account/card
+    val walletId: Long?,
     val principalAmount: Long,
     val emiAmount: Long,
     val interestRate: Double?,
@@ -31,5 +37,13 @@ data class EMIEntity(
     val startDate: Long,
     val endDate: Long,
     val dueDay: Int,
-    val status: EMIStatus = EMIStatus.ACTIVE
+    val status: EMIStatus = EMIStatus.ACTIVE,
+    val createdAt: Long = System.currentTimeMillis(),
+    val updatedAt: Long = System.currentTimeMillis(),
+    val remoteId: String? = null,
+    val householdId: String? = null,
+    val createdByUserId: String? = null,
+    val updatedByUserId: String? = null,
+    val isDeleted: Boolean = false,
+    val syncState: SyncState = SyncState.SYNCED
 )

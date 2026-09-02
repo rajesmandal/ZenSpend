@@ -10,10 +10,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.android.zenspend.core.ui.theme.ZenSpendTheme
 import com.android.zenspend.feature.sms.domain.model.SmsTransactionDraft
 import com.android.zenspend.feature.sms.presentation.viewmodel.SmsDraftListEvent
 import com.android.zenspend.feature.sms.presentation.viewmodel.SmsDraftListViewModel
@@ -97,7 +97,7 @@ fun SmsDraftCard(
                 Text(
                     text = "₹${draft.amount / 100.0}",
                     style = MaterialTheme.typography.titleMedium,
-                    color = if (draft.type == com.android.zenspend.core.database.model.TransactionType.INCOME) Color(0xFF4CAF50) else Color(0xFFF44336)
+                    color = if (draft.type == com.android.zenspend.core.database.model.TransactionType.INCOME) ZenSpendTheme.colors.income else ZenSpendTheme.colors.expense
                 )
             }
             

@@ -29,7 +29,9 @@ data class BackupData(
     val transactions: List<BackupTransaction>,
     val transactionTags: List<BackupTransactionTag>,
     val attachments: List<BackupAttachment>,
-    val budgets: List<BackupBudget>
+    val budgets: List<BackupBudget>,
+    val smsDrafts: List<BackupSmsDraft>,
+    val merchantPreferences: List<BackupMerchantPreference>
 )
 
 @Serializable
@@ -42,7 +44,8 @@ data class BackupWallet(
     val currency: String,
     val isActive: Boolean,
     val createdAt: Long,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val sync: BackupSyncMetadata = BackupSyncMetadata()
 )
 
 @Serializable
@@ -133,7 +136,8 @@ data class BackupTransaction(
     val isUserConfirmed: Boolean,
     val isExcludedFromReports: Boolean,
     val createdAt: Long,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val sync: BackupSyncMetadata = BackupSyncMetadata()
 )
 
 @Serializable
@@ -160,4 +164,26 @@ data class BackupBudget(
     val startDate: Long,
     val endDate: Long,
     val isActive: Boolean
+)
+
+@Serializable
+data class BackupSmsDraft(
+    val id: Long,
+    val amount: Long,
+    val type: TransactionType,
+    val date: Long,
+    val merchant: String?,
+    val accountLast4: String?,
+    val sender: String,
+    val fingerprint: String,
+    val status: com.android.zenspend.feature.sms.data.entity.SmsDraftStatus,
+    val createdAt: Long
+)
+
+@Serializable
+data class BackupMerchantPreference(
+    val normalizedMerchant: String,
+    val categoryId: Long,
+    val usageCount: Int,
+    val lastUsedAt: Long
 )

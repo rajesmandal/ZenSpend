@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.android.zenspend.core.ui.theme.Dimensions
+import com.android.zenspend.core.ui.theme.ZenSpendTheme
 import com.android.zenspend.feature.recurring.presentation.contract.RecurringUiEvent
 import com.android.zenspend.feature.recurring.presentation.viewmodel.RecurringViewModel
 import java.text.SimpleDateFormat
@@ -74,7 +75,7 @@ fun RecurringTransactionDetailsScreen(
                 Text(
                     text = "₹${"%.2f".format(rule.amount / 100.0)}",
                     style = MaterialTheme.typography.headlineSmall,
-                    color = if (rule.type == com.android.zenspend.core.database.model.TransactionType.INCOME) com.android.zenspend.core.ui.theme.IncomeGreen else com.android.zenspend.core.ui.theme.ExpenseRed
+                    color = if (rule.type == com.android.zenspend.core.database.model.TransactionType.INCOME) ZenSpendTheme.colors.income else ZenSpendTheme.colors.expense
                 )
                 
                 Divider()

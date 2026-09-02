@@ -12,5 +12,6 @@ data class CreditCardUiModel(
     val utilization: Float,
     val billingDate: String,
     val dueDate: String,
-    val rawOutstanding: Long
+    val rawOutstanding: Long,
+    val activeEmiCount: Int = 0
 )

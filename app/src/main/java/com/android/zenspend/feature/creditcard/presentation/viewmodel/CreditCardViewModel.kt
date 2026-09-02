@@ -92,7 +92,8 @@ class CreditCardViewModel @Inject constructor(
         utilization = utilization.toFloat(),
         billingDate = card.billingCycleDate.toString(),
         dueDate = card.paymentDueDate.toString(),
-        rawOutstanding = outstanding
+        rawOutstanding = outstanding,
+        activeEmiCount = activeEmiCount
     )
 
     private fun formatAmount(amount: Long): String {

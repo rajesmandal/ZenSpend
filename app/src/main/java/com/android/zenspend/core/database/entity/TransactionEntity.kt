@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.android.zenspend.core.database.model.SyncState
 import com.android.zenspend.core.database.model.TransactionSource
 import com.android.zenspend.core.database.model.TransactionStatus
 import com.android.zenspend.core.database.model.TransactionType
@@ -51,7 +52,11 @@ import com.android.zenspend.core.database.model.TransactionType
         Index(value = ["recurringOccurrenceKey"], unique = true),
         Index(value = ["date"]),
         Index(value = ["type"]),
-        Index(value = ["externalReference"])
+        Index(value = ["externalReference"]),
+        Index(value = ["householdId"]),
+        Index(value = ["remoteId"]),
+        Index(value = ["syncState"]),
+        Index(value = ["createdByUserId"])
     ]
 )
 data class TransactionEntity(
@@ -60,7 +65,7 @@ data class TransactionEntity(
     val title: String,
     val amount: Long, // in minor units
     val date: Long, // Timestamp
-    val note: String?,
+    val note: String? = null,
     val type: TransactionType,
     val status: TransactionStatus = TransactionStatus.COMPLETED,
     val source: TransactionSource = TransactionSource.MANUAL,
@@ -80,5 +85,11 @@ data class TransactionEntity(
     val isExcludedFromReports: Boolean = false,
     
     val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    val remoteId: String? = null,
+    val householdId: String? = null,
+    val createdByUserId: String? = null,
+    val updatedByUserId: String? = null,
+    val isDeleted: Boolean = false,
+    val syncState: SyncState = SyncState.SYNCED
 )

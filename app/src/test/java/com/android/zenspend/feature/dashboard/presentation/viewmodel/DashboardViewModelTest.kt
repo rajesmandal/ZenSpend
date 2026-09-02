@@ -18,6 +18,7 @@ import java.util.Calendar
 class DashboardViewModelTest {
 
     private val observeDashboardSummaryUseCase: ObserveDashboardSummaryUseCase = mockk()
+    private val adController: com.android.zenspend.core.monetization.presentation.AdController = mockk(relaxed = true)
     private lateinit var viewModel: DashboardViewModel
 
     private val testDispatcher = UnconfinedTestDispatcher()
@@ -26,7 +27,7 @@ class DashboardViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         every { observeDashboardSummaryUseCase(any(), any()) } returns flowOf(mockk())
-        viewModel = DashboardViewModel(observeDashboardSummaryUseCase)
+        viewModel = DashboardViewModel(observeDashboardSummaryUseCase, adController)
     }
 
     @After

@@ -5,6 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.android.zenspend.core.database.model.RecurrenceType
+import com.android.zenspend.core.database.model.SyncState
 import com.android.zenspend.core.database.model.TransactionType
 
 @Entity(
@@ -32,7 +33,10 @@ import com.android.zenspend.core.database.model.TransactionType
     indices = [
         Index(value = ["sourceWalletId"]),
         Index(value = ["destinationWalletId"]),
-        Index(value = ["categoryId"])
+        Index(value = ["categoryId"]),
+        Index(value = ["householdId"]),
+        Index(value = ["remoteId"]),
+        Index(value = ["syncState"])
     ]
 )
 data class RecurringTransactionEntity(
@@ -51,5 +55,11 @@ data class RecurringTransactionEntity(
     val isActive: Boolean = true,
     val note: String?,
     val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    val remoteId: String? = null,
+    val householdId: String? = null,
+    val createdByUserId: String? = null,
+    val updatedByUserId: String? = null,
+    val isDeleted: Boolean = false,
+    val syncState: SyncState = SyncState.SYNCED
 )

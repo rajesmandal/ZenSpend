@@ -17,6 +17,14 @@ class EMIRepositoryImpl @Inject constructor(
             entities.map { it.toDomain() }
         }
 
+    override fun getActiveEMIsByWalletId(walletId: Long): Flow<List<EMI>> =
+        emiDao.getEMIsByWalletId(walletId).map { entities ->
+            entities.map { it.toDomain() }
+        }
+
+    override fun observeActiveEmiCountByWalletId(walletId: Long): Flow<Int> =
+        emiDao.observeActiveEmiCountByWalletId(walletId)
+
     override suspend fun getEMIById(id: Long): EMI? =
         emiDao.getEMIById(id)?.toDomain()
 

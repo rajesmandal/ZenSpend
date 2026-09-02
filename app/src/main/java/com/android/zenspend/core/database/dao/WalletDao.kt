@@ -6,20 +6,33 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WalletDao {
-    @Query("SELECT * FROM wallets WHERE isActive = 1")
-    fun getAllActiveWallets(): Flow<List<WalletEntity>>
+    @Query("""
+        SELECT 
+            *,
+            openingBalance + 
+            COALESCE((SELECT SUM(amount) FROM transactions WHERE destinationWalletId = wallets.id AND status = 'COMPLETED'), 0) -
+            COALESCE((SELECT SUM(amount) FROM transactions WHERE sourceWalletId = wallets.id AND status = 'COMPLETED'), 0) as currentBalance
+        FROM wallets
+        WHERE isActive = 1
+    """)
+    fun getAllActiveWallets(): Flow<List<com.android.zenspend.core.database.model.WalletWithBalance>>
 
-    @Query("SELECT * FROM wallets WHERE id = :id")
-    suspend fun getWalletById(id: Long): WalletEntity?
+    @Query("""
+        SELECT 
+            *,
+            openingBalance + 
+            COALESCE((SELECT SUM(amount) FROM transactions WHERE destinationWalletId = wallets.id AND status = 'COMPLETED'), 0) -
+            COALESCE((SELECT SUM(amount) FROM transactions WHERE sourceWalletId = wallets.id AND status = 'COMPLETED'), 0) as currentBalance
+        FROM wallets
+        WHERE id = :id
+    """)
+    suspend fun getWalletById(id: Long): com.android.zenspend.core.database.model.WalletWithBalance?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWallet(wallet: WalletEntity): Long
 
     @Update
     suspend fun updateWallet(wallet: WalletEntity)
-
-    @Query("UPDATE wallets SET currentBalance = :newBalance, updatedAt = :updatedAt WHERE id = :id")
-    suspend fun updateBalance(id: Long, newBalance: Long, updatedAt: Long = System.currentTimeMillis())
 
     @Query("UPDATE wallets SET isActive = 0 WHERE id = :id")
     suspend fun softDeleteWallet(id: Long)

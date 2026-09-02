@@ -1,23 +1,33 @@
 package com.android.zenspend.feature.main.presentation
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.android.zenspend.R
 import com.android.zenspend.core.navigation.Destination
 import com.android.zenspend.core.navigation.NavEvent
+import com.android.zenspend.core.navigation.NavigationChrome
 import com.android.zenspend.core.navigation.Navigator
+import com.android.zenspend.core.sync.domain.model.SyncStatus
+import com.android.zenspend.core.ui.designsystem.component.ZenNavItem
+import com.android.zenspend.core.ui.designsystem.component.ZenNavigationBar
+import com.android.zenspend.core.ui.designsystem.component.ZenStatusBanner
+import com.android.zenspend.core.ui.theme.Dimensions
+import com.android.zenspend.feature.auth.presentation.screen.LoginScreen
+import com.android.zenspend.feature.household.presentation.screen.SharedCashbookScreen
 import com.android.zenspend.feature.backup.presentation.screen.BackupScreen
 import com.android.zenspend.feature.ai.presentation.screen.AiAssistantScreen
+import com.android.zenspend.feature.premium.presentation.screen.PremiumScreen
 import com.android.zenspend.feature.sms.presentation.screen.SmsDraftListScreen
 import com.android.zenspend.feature.sms.presentation.screen.SmsDraftReviewScreen
 import com.android.zenspend.feature.settings.presentation.screen.SettingsScreen
@@ -25,7 +35,9 @@ import com.android.zenspend.feature.dashboard.presentation.screen.DashboardScree
 import com.android.zenspend.feature.budget.presentation.screen.AddEditBudgetScreen
 import com.android.zenspend.feature.budget.presentation.screen.BudgetListScreen
 import com.android.zenspend.feature.creditcard.presentation.screen.AddEditCreditCardScreen
+import com.android.zenspend.feature.creditcard.presentation.screen.CreditCardDetailsScreen
 import com.android.zenspend.feature.creditcard.presentation.screen.CreditCardListScreen
+import com.android.zenspend.feature.emi.presentation.screen.AddEditEMIScreen
 import com.android.zenspend.feature.emi.presentation.screen.EMIListScreen
 import com.android.zenspend.feature.recurring.presentation.screen.AddEditRecurringTransactionScreen
 import com.android.zenspend.feature.recurring.presentation.screen.RecurringTransactionDetailsScreen
@@ -37,27 +49,40 @@ import com.android.zenspend.feature.transaction.presentation.screen.TransactionL
 import com.android.zenspend.feature.wallet.presentation.screen.WalletAddEditScreen
 import com.android.zenspend.feature.wallet.presentation.screen.WalletDetailsScreen
 import com.android.zenspend.feature.wallet.presentation.screen.WalletListScreen
+import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 
-sealed class BottomNavItem(
-    val route: String,
-    val title: String,
-    val icon: ImageVector
-) {
-    object Dashboard : BottomNavItem(Destination.Dashboard.route, "Home", Icons.Default.Dashboard)
-    object Transactions : BottomNavItem(Destination.Transactions.route, "History", Icons.Default.History)
-    object Wallets : BottomNavItem(Destination.Wallets.route, "Wallets", Icons.Default.Wallet)
-    object Reports : BottomNavItem(Destination.Reports.route, "Insights", Icons.Default.PieChart)
-    object Settings : BottomNavItem(Destination.Settings.route, "More", Icons.Default.Settings)
-}
+private val bottomNavItems = listOf(
+    ZenNavItem("Home", R.drawable.ic_nav_home),
+    ZenNavItem("History", R.drawable.ic_nav_history),
+    ZenNavItem("Wallets", R.drawable.ic_nav_wallets),
+    ZenNavItem("Insights", R.drawable.ic_nav_insights),
+    ZenNavItem("More", R.drawable.ic_nav_more)
+)
+
+private val bottomNavRoutes = listOf(
+    Destination.Dashboard.route,
+    Destination.Transactions.route,
+    Destination.Wallets.route,
+    Destination.Reports.route,
+    Destination.Settings.route
+)
 
 @Composable
 fun ZenSpendApp(
-    navigator: Navigator
+    navigator: Navigator,
+    shellViewModel: MainShellViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
+    val currentRoute = navBackStackEntry?.destination?.route
+    val activeHouseholdId by shellViewModel.scopeManager.activeHouseholdId.collectAsState()
+    val ledgerScope by shellViewModel.scopeManager.scope.collectAsState()
+    val syncStatus by shellViewModel.syncStatusManager.status.collectAsState(initial = SyncStatus.SYNCED)
+
+    val selectedTabIndex = bottomNavRoutes.indexOfFirst { route ->
+        navBackStackEntry?.destination?.hierarchy?.any { it.route == route } == true
+    }.coerceAtLeast(0)
 
     LaunchedEffect(Unit) {
         navigator.navEvents.collectLatest { event ->
@@ -74,24 +99,35 @@ fun ZenSpendApp(
         }
     }
 
+    val showBottomBar = NavigationChrome.showsBottomBar(currentRoute)
+    val showFab = NavigationChrome.showsFab(currentRoute)
+
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
-            NavigationBar {
-                val items = listOf(
-                    BottomNavItem.Dashboard,
-                    BottomNavItem.Transactions,
-                    BottomNavItem.Wallets,
-                    BottomNavItem.Reports,
-                    BottomNavItem.Settings
-                )
-                items.forEach { item ->
-                    val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
-                    NavigationBarItem(
-                        icon = { Icon(item.icon, contentDescription = item.title) },
-                        label = { Text(item.title) },
-                        selected = selected,
-                        onClick = {
-                            navController.navigate(item.route) {
+            if (showBottomBar) {
+                Column {
+                    if (activeHouseholdId != null) {
+                        val syncMessage = when (syncStatus) {
+                            SyncStatus.SYNCED -> "Synced"
+                            SyncStatus.SYNCING -> "Syncing..."
+                            SyncStatus.OFFLINE -> "Offline — saved on this device"
+                            SyncStatus.FAILED -> "Sync failed — will retry"
+                        }
+                        ZenStatusBanner(
+                            message = syncMessage,
+                            isError = syncStatus == SyncStatus.FAILED,
+                            modifier = Modifier.padding(
+                                horizontal = Dimensions.ScreenPadding,
+                                vertical = Dimensions.SpacingSmall
+                            )
+                        )
+                    }
+                    ZenNavigationBar(
+                        selectedIndex = selectedTabIndex,
+                        items = bottomNavItems,
+                        onItemSelected = { index ->
+                            navController.navigate(bottomNavRoutes[index]) {
                                 popUpTo(navController.graph.findStartDestination().id) {
                                     saveState = true
                                 }
@@ -104,12 +140,16 @@ fun ZenSpendApp(
             }
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navigator.navigate(Destination.AddTransaction) },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Transaction")
+            if (showFab) {
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        navigator.navigate(NavigationChrome.fabDestination(currentRoute))
+                    },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    text = { Text(NavigationChrome.fabLabel(currentRoute)) }
+                )
             }
         },
         floatingActionButtonPosition = FabPosition.Center
@@ -122,7 +162,10 @@ fun ZenSpendApp(
             composable(Destination.Dashboard.route) {
                 DashboardScreen(
                     onNavigateToRecurring = { navigator.navigate(Destination.RecurringTransactions) },
-                    onNavigateToTransactions = { navigator.navigate(Destination.Transactions) }
+                    onNavigateToTransactions = { navigator.navigate(Destination.Transactions) },
+                    ledgerScope = ledgerScope,
+                    onLedgerScopeChange = { scope -> shellViewModel.scopeManager.setScope(scope) },
+                    showScopeToggle = activeHouseholdId != null
                 )
             }
             composable(Destination.Transactions.route) {
@@ -150,12 +193,8 @@ fun ZenSpendApp(
             }
             composable(Destination.EditWallet.ROUTE) { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("walletId")?.toLongOrNull() ?: 0L
-                WalletAddEditScreen(
-                    onNavigateBack = { navigator.navigateUp() },
-                    walletId = id
-                )
+                WalletAddEditScreen(onNavigateBack = { navigator.navigateUp() }, walletId = id)
             }
-
             composable(Destination.CreditCards.route) {
                 CreditCardListScreen(
                     onNavigateToAdd = { navigator.navigate(Destination.AddCreditCard) },
@@ -165,11 +204,24 @@ fun ZenSpendApp(
             composable(Destination.AddCreditCard.route) {
                 AddEditCreditCardScreen(onNavigateBack = { navigator.navigateUp() })
             }
-
-            composable(Destination.Emis.route) {
-                EMIListScreen(onNavigateToAdd = { navigator.navigate(Destination.AddEmi) })
+            composable(Destination.CreditCardDetails.ROUTE) { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("cardId")?.toLongOrNull() ?: 0L
+                CreditCardDetailsScreen(
+                    cardId = id,
+                    onNavigateBack = { navigator.navigateUp() },
+                    onNavigateToAddEmi = { cardId -> navigator.navigate(Destination.AddEmi(cardId)) }
+                )
             }
-
+            composable(Destination.AddEmi.ROUTE) { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("creditCardId")?.toLongOrNull() ?: 0L
+                AddEditEMIScreen(
+                    creditCardId = id,
+                    onNavigateBack = { navigator.navigateUp() }
+                )
+            }
+            composable(Destination.Emis.route) {
+                EMIListScreen(onNavigateToAdd = { navigator.navigate(Destination.CreditCards) })
+            }
             composable(Destination.Budgets.route) {
                 BudgetListScreen(onNavigateToAdd = { navigator.navigate(Destination.AddBudget) })
             }
@@ -183,7 +235,6 @@ fun ZenSpendApp(
                     onNavigateBack = { navigator.navigateUp() }
                 )
             }
-
             composable(Destination.RecurringTransactions.route) {
                 RecurringTransactionListScreen(
                     onNavigateToAdd = { navigator.navigate(Destination.AddRecurringTransaction) },
@@ -202,13 +253,9 @@ fun ZenSpendApp(
                     onNavigateToEdit = { navigator.navigate(Destination.EditRecurring(it)) }
                 )
             }
-            composable(Destination.EditRecurring.ROUTE) { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("recurringId")?.toLongOrNull() ?: 0L
-                AddEditRecurringTransactionScreen(
-                    onNavigateBack = { navigator.navigateUp() }
-                )
+            composable(Destination.EditRecurring.ROUTE) {
+                AddEditRecurringTransactionScreen(onNavigateBack = { navigator.navigateUp() })
             }
-
             composable(Destination.AddTransaction.route) {
                 TransactionAddEditScreen(onNavigateBack = { navigator.navigateUp() })
             }
@@ -220,28 +267,42 @@ fun ZenSpendApp(
                     onNavigateToEdit = { navigator.navigate(Destination.EditTransaction(it)) }
                 )
             }
-            composable(Destination.EditTransaction.ROUTE) { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("transactionId")?.toLongOrNull() ?: 0L
+            composable(Destination.EditTransaction.ROUTE) {
                 TransactionAddEditScreen(onNavigateBack = { navigator.navigateUp() })
             }
-            
-            composable(Destination.Reports.route) { 
-                ReportScreen()
-            }
+            composable(Destination.Reports.route) { ReportScreen() }
             composable(Destination.Settings.route) {
                 SettingsScreen(
                     onNavigateToBackup = { navigator.navigate(Destination.Backup) },
                     onNavigateToSmsDrafts = { navigator.navigate(Destination.SmsDrafts) },
                     onNavigateToAiAssistant = { navigator.navigate(Destination.AiAssistant) },
                     onNavigateToPremium = { navigator.navigate(Destination.Premium) },
+                    onNavigateToSharedCashbook = { navigator.navigate(Destination.SharedCashbook) },
+                    onNavigateToCreditCards = { navigator.navigate(Destination.CreditCards) },
                     onNavigateToAbout = { }
+                )
+            }
+            composable(Destination.Login.route) {
+                LoginScreen(
+                    onAuthenticated = { navigator.navigateUp() },
+                    onNavigateBack = { navigator.navigateUp() }
+                )
+            }
+            composable(Destination.SharedCashbook.route) {
+                SharedCashbookScreen(
+                    onNavigateToLogin = { navigator.navigate(Destination.Login) },
+                    onNavigateBack = { navigator.navigateUp() },
+                    onNavigateToPremium = { navigator.navigate(Destination.Premium) }
                 )
             }
             composable(Destination.Backup.route) {
                 BackupScreen(onNavigateBack = { navigator.navigateUp() })
             }
             composable(Destination.AiAssistant.route) {
-                AiAssistantScreen(onNavigateBack = { navigator.navigateUp() })
+                AiAssistantScreen(
+                    onNavigateBack = { navigator.navigateUp() },
+                    onNavigateToPremium = { navigator.navigate(Destination.Premium) }
+                )
             }
             composable(Destination.SmsDrafts.route) {
                 SmsDraftListScreen(
@@ -256,7 +317,7 @@ fun ZenSpendApp(
                 )
             }
             composable(Destination.Premium.route) {
-                Text("Premium Screen")
+                PremiumScreen(onNavigateBack = { navigator.navigateUp() })
             }
         }
     }

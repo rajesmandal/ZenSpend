@@ -20,7 +20,7 @@ fun ZenCard(
             modifier = modifier,
             shape = CardShape,
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
             ),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = Dimensions.CardElevation
@@ -33,7 +33,7 @@ fun ZenCard(
             modifier = modifier,
             shape = CardShape,
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
             ),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = Dimensions.CardElevation

@@ -18,6 +18,6 @@ class RemoteAiProvider @Inject constructor() : AiProvider {
 
     override suspend fun generateResponse(query: String, toolResult: String): String {
         // In a real app, this would use Retrofit to call POST /api/v1/ai/generate-response
-        return "Remote AI service not configured. Please use Development provider for testing."
+        return "ZenSpend AI is currently warming up and will be available to analyze your finances soon. Please check back later!"
     }
 }

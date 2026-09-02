@@ -2,15 +2,15 @@ package com.android.zenspend.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Primary Palette - Clean & Financial
+// Premium fintech teal palette — refined, softer surfaces
 val PrimaryLight = Color(0xFF006666)
 val OnPrimaryLight = Color(0xFFFFFFFF)
-val PrimaryContainerLight = Color(0xFF70F3F3)
+val PrimaryContainerLight = Color(0xFFE0F5F4)
 val OnPrimaryContainerLight = Color(0xFF002020)
 
 val SecondaryLight = Color(0xFF4A6363)
 val OnSecondaryLight = Color(0xFFFFFFFF)
-val SecondaryContainerLight = Color(0xFFCCE8E7)
+val SecondaryContainerLight = Color(0xFFD8EBEA)
 val OnSecondaryContainerLight = Color(0xFF051F1F)
 
 val TertiaryLight = Color(0xFF4B607C)
@@ -23,18 +23,27 @@ val OnErrorLight = Color(0xFFFFFFFF)
 val ErrorContainerLight = Color(0xFFFFDAD6)
 val OnErrorContainerLight = Color(0xFF410002)
 
-val BackgroundLight = Color(0xFFF4FBFA)
-val SurfaceLight = Color(0xFFF4FBFA)
+val BackgroundLight = Color(0xFFF6FAFA)
+val SurfaceLight = Color(0xFFF6FAFA)
 val OnSurfaceLight = Color(0xFF161D1D)
+val OnBackgroundLight = Color(0xFF161D1D)
 val SurfaceVariantLight = Color(0xFFDAE5E4)
 val OnSurfaceVariantLight = Color(0xFF3F4948)
 val OutlineLight = Color(0xFF6F7979)
+val OutlineVariantLight = Color(0xFFBEC9C8)
+val SurfaceContainerLowestLight = Color(0xFFFFFFFF)
+val SurfaceContainerLowLight = Color(0xFFF0F7F6)
+val SurfaceContainerLight = Color(0xFFEAF3F2)
+val SurfaceContainerHighLight = Color(0xFFE4EEED)
+val SurfaceContainerHighestLight = Color(0xFFDEE9E8)
+val InverseSurfaceLight = Color(0xFF2B3232)
+val InverseOnSurfaceLight = Color(0xFFECF2F1)
+val ScrimLight = Color(0x99000000)
 
-// Dark Theme variants
 val PrimaryDark = Color(0xFF4EDCDC)
 val OnPrimaryDark = Color(0xFF003737)
 val PrimaryContainerDark = Color(0xFF004F4F)
-val OnPrimaryContainerDark = Color(0xFF70F3F3)
+val OnPrimaryContainerDark = Color(0xFF9EF0F0)
 
 val SecondaryDark = Color(0xFFB0CCCC)
 val OnSecondaryDark = Color(0xFF1B3435)
@@ -54,15 +63,25 @@ val OnErrorContainerDark = Color(0xFFFFDAD6)
 val BackgroundDark = Color(0xFF0E1414)
 val SurfaceDark = Color(0xFF0E1414)
 val OnSurfaceDark = Color(0xFFDEE3E3)
+val OnBackgroundDark = Color(0xFFDEE3E3)
 val SurfaceVariantDark = Color(0xFF3F4948)
 val OnSurfaceVariantDark = Color(0xFFBEC9C8)
 val OutlineDark = Color(0xFF899392)
+val OutlineVariantDark = Color(0xFF3F4948)
+val SurfaceContainerLowestDark = Color(0xFF090E0E)
+val SurfaceContainerLowDark = Color(0xFF141A1A)
+val SurfaceContainerDark = Color(0xFF1A2121)
+val SurfaceContainerHighDark = Color(0xFF242B2B)
+val SurfaceContainerHighestDark = Color(0xFF2F3636)
+val InverseSurfaceDark = Color(0xFFDEE3E3)
+val InverseOnSurfaceDark = Color(0xFF2B3232)
+val ScrimDark = Color(0x99000000)
 
-// Semantic Financial Colors
+// Semantic financial colors
 val IncomeGreen = Color(0xFF2E7D32)
 val ExpenseRed = Color(0xFFD32F2F)
 val TransferBlue = Color(0xFF1976D2)
-val CreditCardGold = Color(0xFFFBC02D)
+val CreditCardGold = Color(0xFFF9A825)
 val NeutralGrey = Color(0xFF757575)
 
 val IncomeGreenDark = Color(0xFF81C784)

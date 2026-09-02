@@ -124,4 +124,25 @@ class MigrationTest {
 
         dbV5.close()
     }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate6To7() {
+        val dbV6 = helper.createDatabase(TEST_DB, 6)
+        dbV6.execSQL("INSERT INTO wallets (name, type, openingBalance, currency, isActive, createdAt, updatedAt) VALUES ('Wallet 6', 'CASH', 0, 'INR', 1, 1000, 1000)")
+        dbV6.close()
+
+        val dbV7 = helper.runMigrationsAndValidate(TEST_DB, 7, true, AppDatabase.MIGRATION_6_7)
+
+        val walletCursor = dbV7.query("SELECT householdId, syncState FROM wallets")
+        assertTrue(walletCursor.moveToFirst())
+        assertEquals("SYNCED", walletCursor.getString(walletCursor.getColumnIndex("syncState")))
+        walletCursor.close()
+
+        val householdTable = dbV7.query("SELECT name FROM sqlite_master WHERE type='table' AND name='household_cache'")
+        assertTrue(householdTable.moveToFirst())
+        householdTable.close()
+
+        dbV7.close()
+    }
 }
