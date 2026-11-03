@@ -7,6 +7,7 @@ import com.android.zenspend.core.common.result.Resource
 import com.android.zenspend.core.database.model.TransactionSource
 import com.android.zenspend.core.database.model.TransactionStatus
 import com.android.zenspend.core.database.model.TransactionType
+import com.android.zenspend.core.database.model.WalletType
 import com.android.zenspend.feature.category.domain.model.Category
 import com.android.zenspend.feature.category.domain.repository.CategoryRepository
 import com.android.zenspend.feature.creditcard.domain.model.CreditCard
@@ -45,6 +46,8 @@ data class SmsDraftReviewState(
 
 sealed class SmsDraftReviewEvent {
     data class WalletSelected(val id: Long) : SmsDraftReviewEvent()
+    data class DestinationWalletSelected(val id: Long) : SmsDraftReviewEvent()
+    data class TypeChanged(val type: TransactionType) : SmsDraftReviewEvent()
     data class CategorySelected(val id: Long) : SmsDraftReviewEvent()
     data class AmountChanged(val amount: String) : SmsDraftReviewEvent()
     data class TitleChanged(val title: String) : SmsDraftReviewEvent()
@@ -82,9 +85,8 @@ class SmsDraftReviewViewModel @Inject constructor(
             val cards = creditCardRepository.getAllActiveCreditCards().first()
             
             if (draft != null) {
-                val matchedWallet = wallets.find { it.name.contains(draft.accountLast4 ?: "", ignoreCase = true) }
-                val matchedCard = cards.find { it.lastFourDigits == draft.accountLast4 }
-                
+                val (walletId, destinationId) = matchAccounts(draft, draft.type, wallets, cards)
+
                 val suggestion = getCategorySuggestionUseCase(
                     merchant = draft.merchant,
                     title = draft.merchant,
@@ -99,8 +101,8 @@ class SmsDraftReviewViewModel @Inject constructor(
                     amount = (draft.amount / 100.0).toString(),
                     title = draft.merchant ?: "Transaction from ${draft.sender}",
                     type = draft.type,
-                    selectedWalletId = matchedWallet?.id,
-                    selectedCreditCardId = matchedCard?.id,
+                    selectedWalletId = walletId,
+                    selectedDestinationWalletId = destinationId,
                     selectedCategoryId = suggestion?.categoryId,
                     categorySuggestion = suggestion,
                     isLoading = false
@@ -114,6 +116,8 @@ class SmsDraftReviewViewModel @Inject constructor(
     fun onEvent(event: SmsDraftReviewEvent) {
         when (event) {
             is SmsDraftReviewEvent.WalletSelected -> _state.update { it.copy(selectedWalletId = event.id) }
+            is SmsDraftReviewEvent.DestinationWalletSelected -> _state.update { it.copy(selectedDestinationWalletId = event.id) }
+            is SmsDraftReviewEvent.TypeChanged -> changeType(event.type)
             is SmsDraftReviewEvent.CategorySelected -> _state.update { it.copy(selectedCategoryId = event.id) }
             is SmsDraftReviewEvent.AmountChanged -> _state.update { it.copy(amount = event.amount) }
             is SmsDraftReviewEvent.TitleChanged -> _state.update { it.copy(title = event.title) }
@@ -121,9 +125,55 @@ class SmsDraftReviewViewModel @Inject constructor(
         }
     }
 
+    private fun changeType(type: TransactionType) {
+        _state.update { current ->
+            val draft = current.draft ?: return@update current.copy(type = type)
+            val (walletId, destinationId) = matchAccounts(draft, type, current.wallets, current.creditCards)
+            current.copy(
+                type = type,
+                selectedWalletId = walletId,
+                selectedDestinationWalletId = destinationId
+            )
+        }
+    }
+
+    /**
+     * Picks the most likely wallet using the last 4 digits found in the SMS.
+     *  - A registered credit card with those digits -> the card's wallet (card spend/refund/bill payment)
+     *  - Otherwise a bank/cash/UPI wallet whose name contains the digits
+     * For a credit card bill payment the card is the destination and the bank is the source.
+     */
+    private fun matchAccounts(
+        draft: SmsTransactionDraft,
+        type: TransactionType,
+        wallets: List<Wallet>,
+        cards: List<CreditCard>
+    ): Pair<Long?, Long?> {
+        val last4 = draft.accountLast4?.takeIf { it.isNotBlank() }
+        val cardWalletId = last4?.let { digits ->
+            cards.find { it.lastFourDigits == digits }?.walletId
+                ?: wallets.find { it.type == WalletType.CREDIT_CARD && it.name.contains(digits) }?.id
+        }
+        val bankWalletId = last4?.let { digits ->
+            wallets.find { it.type != WalletType.CREDIT_CARD && it.name.contains(digits, ignoreCase = true) }?.id
+        }
+
+        return when (type) {
+            TransactionType.CREDIT_CARD_PAYMENT -> {
+                // SMS is normally sent for the card; the paying bank account has to be chosen by the user
+                val card = cardWalletId ?: wallets.singleOrNull { it.type == WalletType.CREDIT_CARD }?.id
+                val bank = bankWalletId?.takeIf { it != card }
+                bank to card
+            }
+            else -> (cardWalletId ?: bankWalletId) to null
+        }
+    }
+
     private fun confirmDraft() {
         val currentState = _state.value
         val draft = currentState.draft ?: return
+        val selected = currentState.selectedWalletId
+        val destination = currentState.selectedDestinationWalletId
         
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
@@ -136,8 +186,18 @@ class SmsDraftReviewViewModel @Inject constructor(
                 type = currentState.type,
                 status = TransactionStatus.COMPLETED,
                 source = TransactionSource.SMS,
-                sourceWalletId = currentState.selectedWalletId,
-                destinationWalletId = currentState.selectedDestinationWalletId,
+                // EXPENSE: money leaves the selected wallet/card (subtracts)
+                // INCOME / REFUND: money enters the selected wallet/card (adds)
+                // CREDIT_CARD_PAYMENT: leaves the bank wallet, enters the card
+                sourceWalletId = when (currentState.type) {
+                    TransactionType.EXPENSE, TransactionType.CREDIT_CARD_PAYMENT, TransactionType.TRANSFER -> selected
+                    else -> null
+                },
+                destinationWalletId = when (currentState.type) {
+                    TransactionType.INCOME, TransactionType.REFUND -> selected
+                    TransactionType.CREDIT_CARD_PAYMENT, TransactionType.TRANSFER -> destination
+                    else -> null
+                },
                 categoryId = currentState.selectedCategoryId,
                 isAutoDetected = true
             )
@@ -152,7 +212,7 @@ class SmsDraftReviewViewModel @Inject constructor(
                     )
                     _state.update { it.copy(isLoading = false, isSuccess = true) }
                 }
-                is Resource.Error -> _state.update { it.copy(isLoading = false, error = "Failed to add transaction") }
+                is Resource.Error -> _state.update { it.copy(isLoading = false, error = "Failed to add transaction: ${result.error}") }
                 else -> {}
             }
         }

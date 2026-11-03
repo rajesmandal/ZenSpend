@@ -3,6 +3,7 @@ package com.android.zenspend.feature.sms.data.parser
 import com.android.zenspend.core.database.model.TransactionType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class SmsParserTest {
@@ -75,5 +76,35 @@ class SmsParserTest {
         assertEquals(TransactionType.REFUND, result?.type)
         assertEquals("1234", result?.accountLast4)
         assertEquals("AMAZON", result?.merchant)
+    }
+
+    @Test
+    fun `otp and promo messages are ignored`() {
+        assertNull(SmsParser.parse("123456 is your OTP for txn of Rs 500. Do not share.", "BANK", 1L))
+        assertNull(SmsParser.parse("Get pre-approved loan up to Rs 5,00,000 today", "BANK", 1L))
+    }
+
+    @Test
+    fun `first direction word wins when message has debit and credit`() {
+        val message = "Rs 700 debited from A/c XX4321 and credited to beneficiary RAHUL."
+        val result = SmsParser.parse(message, "BANK", 1L)
+        assertEquals(TransactionType.EXPENSE, result?.type)
+        assertEquals(70000L, result?.amount)
+    }
+
+    @Test
+    fun `credit card spend is an expense not a credit`() {
+        val message = "Rs 1,499.00 spent on your SBI Credit Card ending 8899 at MYNTRA on 01-11-26."
+        val result = SmsParser.parse(message, "SBICRD", 1L)
+        assertEquals(TransactionType.EXPENSE, result?.type)
+        assertEquals(149900L, result?.amount)
+        assertEquals("8899", result?.accountLast4)
+        assertEquals("MYNTRA", result?.merchant)
+    }
+
+    @Test
+    fun `money received from a person is income not card payment`() {
+        val message = "Rs 500 received in A/c XX1234 from RAMESH towards rent."
+        assertEquals(TransactionType.INCOME, SmsParser.parse(message, "BANK", 1L)?.type)
     }
 }

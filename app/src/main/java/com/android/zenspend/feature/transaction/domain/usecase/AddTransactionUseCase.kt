@@ -4,13 +4,15 @@ import com.android.zenspend.core.common.error.AppError
 import com.android.zenspend.core.common.result.Resource
 import com.android.zenspend.core.database.model.TransactionType
 import com.android.zenspend.feature.transaction.domain.model.Transaction
+import com.android.zenspend.feature.transaction.domain.model.withNormalizedWallets
 import com.android.zenspend.feature.transaction.domain.repository.TransactionRepository
 import javax.inject.Inject
 
 class AddTransactionUseCase @Inject constructor(
     private val repository: TransactionRepository
 ) {
-    suspend operator fun invoke(transaction: Transaction): Resource<Long> {
+    suspend operator fun invoke(rawTransaction: Transaction): Resource<Long> {
+        val transaction = rawTransaction.withNormalizedWallets()
         // 1. Common Validation
         if (transaction.amount <= 0) {
             return Resource.Error(AppError.ValidationError.InvalidAmount)

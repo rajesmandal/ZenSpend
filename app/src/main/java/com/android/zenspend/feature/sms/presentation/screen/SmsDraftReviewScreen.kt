@@ -9,6 +9,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.android.zenspend.core.database.model.TransactionType
+import com.android.zenspend.core.database.model.WalletType
 import com.android.zenspend.core.ui.designsystem.component.CategorySuggestionChip
 import com.android.zenspend.feature.sms.presentation.viewmodel.SmsDraftReviewEvent
 import com.android.zenspend.feature.sms.presentation.viewmodel.SmsDraftReviewViewModel
@@ -71,15 +73,61 @@ fun SmsDraftReviewScreen(
                 }
 
                 item {
-                    Text("Select Wallet", style = MaterialTheme.typography.labelLarge)
+                    Text("Transaction Type", style = MaterialTheme.typography.labelLarge)
                     Spacer(modifier = Modifier.height(8.dp))
-                    state.wallets.forEach { wallet ->
+                    val types = listOf(
+                        TransactionType.EXPENSE to "Debit",
+                        TransactionType.INCOME to "Credit",
+                        TransactionType.REFUND to "Refund",
+                        TransactionType.CREDIT_CARD_PAYMENT to "Card Bill"
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        types.forEach { (type, label) ->
+                            FilterChip(
+                                selected = state.type == type,
+                                onClick = { viewModel.onEvent(SmsDraftReviewEvent.TypeChanged(type)) },
+                                label = { Text(label) }
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    val isCardPayment = state.type == TransactionType.CREDIT_CARD_PAYMENT
+                    val label = when (state.type) {
+                        TransactionType.EXPENSE -> "Paid from (Bank / Card)"
+                        TransactionType.CREDIT_CARD_PAYMENT -> "Paid from (Bank)"
+                        else -> "Credited to (Bank / Card)"
+                    }
+                    Text(label, style = MaterialTheme.typography.labelLarge)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val walletOptions = if (isCardPayment) {
+                        state.wallets.filter { it.type != WalletType.CREDIT_CARD }
+                    } else state.wallets
+                    walletOptions.forEach { wallet ->
                         Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                             RadioButton(
                                 selected = state.selectedWalletId == wallet.id,
                                 onClick = { viewModel.onEvent(SmsDraftReviewEvent.WalletSelected(wallet.id)) }
                             )
-                            Text(wallet.name)
+                            val kind = if (wallet.type == WalletType.CREDIT_CARD) "Card" else "Bank/Wallet"
+                            Text("${wallet.name} ($kind)")
+                        }
+                    }
+                }
+
+                if (state.type == TransactionType.CREDIT_CARD_PAYMENT) {
+                    item {
+                        Text("Credit Card paid", style = MaterialTheme.typography.labelLarge)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        state.wallets.filter { it.type == WalletType.CREDIT_CARD }.forEach { wallet ->
+                            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                                RadioButton(
+                                    selected = state.selectedDestinationWalletId == wallet.id,
+                                    onClick = { viewModel.onEvent(SmsDraftReviewEvent.DestinationWalletSelected(wallet.id)) }
+                                )
+                                Text(wallet.name)
+                            }
                         }
                     }
                 }
@@ -111,7 +159,8 @@ fun SmsDraftReviewScreen(
                     Button(
                         onClick = { viewModel.onEvent(SmsDraftReviewEvent.ConfirmClicked) },
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = state.selectedWalletId != null && state.selectedCategoryId != null
+                        enabled = state.selectedWalletId != null &&
+                            (state.type != TransactionType.CREDIT_CARD_PAYMENT || state.selectedDestinationWalletId != null)
                     ) {
                         Text("Confirm & Add Transaction")
                     }

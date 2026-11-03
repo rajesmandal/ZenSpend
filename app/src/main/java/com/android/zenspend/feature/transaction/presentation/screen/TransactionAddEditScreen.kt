@@ -91,15 +91,15 @@ fun TransactionAddEditScreen(
 
             // Dynamic Wallet Selectors
             when (form.type) {
-                TransactionType.EXPENSE, TransactionType.REFUND -> {
+                TransactionType.EXPENSE -> {
                     WalletSelector(
-                        label = if (form.type == TransactionType.EXPENSE) "From Wallet" else "To Wallet",
+                        label = "From Wallet",
                         selectedId = form.sourceWalletId,
                         wallets = state.wallets,
                         onWalletSelected = { viewModel.handleEvent(TransactionUiEvent.OnSourceWalletChange(it)) }
                     )
                 }
-                TransactionType.INCOME -> {
+                TransactionType.INCOME, TransactionType.REFUND -> {
                     WalletSelector(
                         label = "To Wallet",
                         selectedId = form.destinationWalletId ?: 0L,
