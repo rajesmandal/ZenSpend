@@ -1,6 +1,16 @@
 package com.android.zenspend.feature.sms.presentation.screen
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.PaddingValues
@@ -49,6 +59,16 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+private val SMS_PERMISSIONS = arrayOf(Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS)
+
+/** SMS permissions, plus notification permission on Android 13+ so the "transaction detected" alert can show. */
+private fun requestedPermissions(): Array<String> =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        SMS_PERMISSIONS + Manifest.permission.POST_NOTIFICATIONS
+    } else {
+        SMS_PERMISSIONS
+    }
+
 @Composable
 fun SmsDraftListScreen(
     onNavigateBack: () -> Unit,
@@ -56,6 +76,23 @@ fun SmsDraftListScreen(
     viewModel: SmsDraftListViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
+
+    fun hasSmsAccess() = SMS_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+    }
+
+    var smsAccess by remember { mutableStateOf(hasSmsAccess()) }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        smsAccess = hasSmsAccess()
+    }
+
+    // Once access exists (already granted, or just granted) turn detection on and import SMS.
+    LaunchedEffect(smsAccess) {
+        if (smsAccess) viewModel.onEvent(SmsDraftListEvent.AccessGranted)
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -73,6 +110,17 @@ fun SmsDraftListScreen(
         }
     ) { padding ->
         when {
+            !smsAccess -> EmptyState(
+                title = stringResource(R.string.sms_permission_title),
+                message = stringResource(R.string.sms_permission_body),
+                action = {
+                    ZenPrimaryButton(
+                        text = stringResource(R.string.sms_permission_grant),
+                        onClick = { permissionLauncher.launch(requestedPermissions()) }
+                    )
+                },
+                modifier = Modifier.padding(padding)
+            )
             state.isLoading -> LoadingState(modifier = Modifier.padding(padding))
             state.drafts.isEmpty() -> EmptyState(
                 title = stringResource(R.string.sms_title),

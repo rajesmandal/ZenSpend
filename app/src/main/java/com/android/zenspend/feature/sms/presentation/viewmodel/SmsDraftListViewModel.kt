@@ -19,6 +19,8 @@ data class SmsDraftListState(
 
 sealed class SmsDraftListEvent {
     object SyncHistoricalRequested : SmsDraftListEvent()
+    /** SMS permission is granted: make sure detection is on and import existing messages. */
+    object AccessGranted : SmsDraftListEvent()
     data class IgnoreRequested(val id: Long) : SmsDraftListEvent()
     data class ConfirmRequested(val draft: SmsTransactionDraft) : SmsDraftListEvent()
 }
@@ -27,7 +29,8 @@ sealed class SmsDraftListEvent {
 class SmsDraftListViewModel @Inject constructor(
     private val getSmsDraftsUseCase: GetSmsDraftsUseCase,
     private val ignoreSmsDraftUseCase: IgnoreSmsDraftUseCase,
-    private val syncHistoricalSmsUseCase: SyncHistoricalSmsUseCase
+    private val syncHistoricalSmsUseCase: SyncHistoricalSmsUseCase,
+    private val aiPreferences: com.android.zenspend.core.datastore.AiPreferences
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SmsDraftListState())
@@ -48,6 +51,10 @@ class SmsDraftListViewModel @Inject constructor(
     fun onEvent(event: SmsDraftListEvent) {
         when (event) {
             SmsDraftListEvent.SyncHistoricalRequested -> syncHistorical()
+            SmsDraftListEvent.AccessGranted -> viewModelScope.launch {
+                aiPreferences.setSmsDetectionEnabled(true)
+                syncHistorical()
+            }
             is SmsDraftListEvent.IgnoreRequested -> ignoreDraft(event.id)
             is SmsDraftListEvent.ConfirmRequested -> { /* Handled by navigation to review screen */ }
         }

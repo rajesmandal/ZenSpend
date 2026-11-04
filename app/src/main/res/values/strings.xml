@@ -191,6 +191,9 @@
         <item quantity="other">%1$d drafts</item>
     </plurals>
     <string name="sms_review">Review</string>
+    <string name="sms_permission_title">Allow SMS access</string>
+    <string name="sms_permission_body">ZenSpend needs permission to read bank SMS so it can detect debits and credits. Messages stay on your device.</string>
+    <string name="sms_permission_grant">Allow access</string>
     <string name="sms_account_line">%1$s • A/c XXXX%2$s</string>
     <string name="sms_account_unknown">****</string>
 

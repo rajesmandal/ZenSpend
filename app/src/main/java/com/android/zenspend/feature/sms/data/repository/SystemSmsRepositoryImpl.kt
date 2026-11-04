@@ -17,6 +17,7 @@ class SystemSmsRepositoryImpl @Inject constructor(
         val uri = Uri.parse("content://sms/inbox")
         val projection = arrayOf(Telephony.TextBasedSmsColumns.BODY, Telephony.TextBasedSmsColumns.ADDRESS, Telephony.TextBasedSmsColumns.DATE)
         
+        try {
         context.contentResolver.query(
             uri,
             projection,
@@ -35,7 +36,10 @@ class SystemSmsRepositoryImpl @Inject constructor(
                 messages.add(SmsMessage(body, address, date))
             }
         }
-        
+        } catch (e: SecurityException) {
+            // READ_SMS not granted (yet): nothing to import.
+        }
+
         return messages
     }
 }
