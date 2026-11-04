@@ -19,6 +19,7 @@ class RecurringViewModel @Inject constructor(
     private val addRecurringTransactionUseCase: AddRecurringTransactionUseCase,
     private val updateRecurringTransactionUseCase: UpdateRecurringTransactionUseCase,
     private val setRecurringStatusUseCase: SetRecurringStatusUseCase,
+    private val archiveRecurringTransactionUseCase: ArchiveRecurringTransactionUseCase,
     private val confirmRecurringOccurrenceUseCase: ConfirmRecurringOccurrenceUseCase
 ) : ViewModel() {
 
@@ -36,6 +37,7 @@ class RecurringViewModel @Inject constructor(
         when (event) {
             is RecurringUiEvent.LoadRecurring -> observeRecurring()
             is RecurringUiEvent.ToggleActive -> toggleStatus(event.id, event.current)
+            is RecurringUiEvent.Archive -> viewModelScope.launch { archiveRecurringTransactionUseCase(event.id) }
             is RecurringUiEvent.ConfirmOccurrence -> confirmOccurrence(event.id, event.date)
             
             is RecurringUiEvent.OnNameChange -> _uiState.update { it.copy(formState = it.formState.copy(name = event.name)) }

@@ -6,10 +6,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RecurringTransactionDao {
-    @Query("SELECT * FROM recurring_transactions WHERE isActive = 1")
+    @Query("SELECT * FROM recurring_transactions WHERE isActive = 1 AND isDeleted = 0")
     fun getAllActiveRecurringTransactions(): Flow<List<RecurringTransactionEntity>>
 
-    @Query("SELECT * FROM recurring_transactions ORDER BY createdAt DESC")
+    @Query("SELECT * FROM recurring_transactions WHERE isDeleted = 0 ORDER BY createdAt DESC")
     fun getAllRecurringTransactions(): Flow<List<RecurringTransactionEntity>>
 
     @Query("SELECT * FROM recurring_transactions WHERE id = :id")
@@ -21,8 +21,8 @@ interface RecurringTransactionDao {
     @Update
     suspend fun updateRecurringTransaction(recurring: RecurringTransactionEntity)
 
-    @Query("UPDATE recurring_transactions SET isActive = 0 WHERE id = :id")
-    suspend fun archiveRecurringTransaction(id: Long)
+    @Query("UPDATE recurring_transactions SET isDeleted = 1, isActive = 0, updatedAt = :updatedAt WHERE id = :id")
+    suspend fun archiveRecurringTransaction(id: Long, updatedAt: Long)
 
     @Query("UPDATE recurring_transactions SET isActive = :isActive WHERE id = :id")
     suspend fun setRecurringTransactionStatus(id: Long, isActive: Boolean)

@@ -13,13 +13,17 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +57,25 @@ fun RecurringTransactionDetailsScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val rule = state.recurringTransactions.find { it.id == recurringId }
+    var showArchiveDialog by remember { mutableStateOf(false) }
+
+    if (showArchiveDialog) {
+        AlertDialog(
+            onDismissRequest = { showArchiveDialog = false },
+            title = { Text(stringResource(R.string.recurring_archive_title)) },
+            text = { Text(stringResource(R.string.recurring_archive_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showArchiveDialog = false
+                    viewModel.handleEvent(RecurringUiEvent.Archive(recurringId))
+                    onNavigateBack()
+                }) { Text(stringResource(R.string.action_archive), color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showArchiveDialog = false }) { Text(stringResource(R.string.action_cancel)) }
+            }
+        )
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -71,9 +94,7 @@ fun RecurringTransactionDetailsScreen(
                         val icon = if (rule?.isActive == true) Icons.Default.Pause else Icons.Default.PlayArrow
                         Icon(icon, contentDescription = stringResource(R.string.recurring_toggle_status))
                     }
-                    IconButton(onClick = {
-                        viewModel.handleEvent(RecurringUiEvent.ToggleActive(recurringId, true)) // Simplified: should be archive
-                    }) {
+                    IconButton(onClick = { showArchiveDialog = true }) {
                         Icon(
                             Icons.Default.Delete,
                             contentDescription = stringResource(R.string.action_archive),

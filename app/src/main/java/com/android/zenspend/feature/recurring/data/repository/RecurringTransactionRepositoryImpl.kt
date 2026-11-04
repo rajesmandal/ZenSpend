@@ -38,7 +38,7 @@ class RecurringTransactionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun archiveRecurringTransaction(id: Long) {
-        dao.archiveRecurringTransaction(id)
+        dao.archiveRecurringTransaction(id, System.currentTimeMillis())
     }
 
     override suspend fun setRecurringTransactionStatus(id: Long, isActive: Boolean) {

@@ -239,6 +239,8 @@
     <string name="recurring_status">Status</string>
     <string name="recurring_pause">Pause rule</string>
     <string name="recurring_resume">Resume rule</string>
+    <string name="recurring_archive_title">Archive this rule?</string>
+    <string name="recurring_archive_body">It will stop creating transactions and disappear from this list. Existing transactions are kept.</string>
 
     <!-- SMS review -->
     <string name="sms_review_title">Review transaction</string>

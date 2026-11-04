@@ -31,6 +31,7 @@ data class RecurringFormState(
 sealed interface RecurringUiEvent {
     object LoadRecurring : RecurringUiEvent
     data class ToggleActive(val id: Long, val current: Boolean) : RecurringUiEvent
+    data class Archive(val id: Long) : RecurringUiEvent
     data class ConfirmOccurrence(val id: Long, val date: Long) : RecurringUiEvent
     
     // Form events
