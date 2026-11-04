@@ -1,24 +1,50 @@
 package com.android.zenspend.feature.creditcard.presentation.screen
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CreditCard
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.android.zenspend.core.ui.designsystem.component.*
+import com.android.zenspend.R
+import com.android.zenspend.core.ui.designsystem.component.EmptyState
+import com.android.zenspend.core.ui.designsystem.component.LoadingState
+import com.android.zenspend.core.ui.designsystem.component.ZenPrimaryButton
+import com.android.zenspend.core.ui.designsystem.component.ZenProgressBar
+import com.android.zenspend.core.ui.designsystem.component.ZenStat
+import com.android.zenspend.core.ui.designsystem.component.ZenTile
+import com.android.zenspend.core.ui.designsystem.component.ZenTileCaption
+import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
 import com.android.zenspend.core.ui.theme.Dimensions
+import com.android.zenspend.core.ui.theme.PillShape
 import com.android.zenspend.core.ui.theme.ZenSpendTheme
+import com.android.zenspend.core.ui.theme.ZenTone
 import com.android.zenspend.feature.creditcard.presentation.model.CreditCardUiModel
 import com.android.zenspend.feature.creditcard.presentation.viewmodel.CreditCardViewModel
+
+/** Utilization above this fraction is shown in the "expense" colour. */
+internal const val UTILIZATION_ALERT_FRACTION = 0.8f
 
 @Composable
 fun CreditCardListScreen(
@@ -32,101 +58,106 @@ fun CreditCardListScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             ZenTopAppBar(
-                title = "Credit Cards",
-                subtitle = "Limits, outstanding & EMIs"
-            )
-        },
-        floatingActionButton = {
-            if (state.cards.isNotEmpty()) {
-                FloatingActionButton(
-                    onClick = onNavigateToAdd,
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add credit card")
+                title = stringResource(R.string.cards_title),
+                subtitle = stringResource(R.string.cards_subtitle),
+                actions = {
+                    if (state.cards.isNotEmpty()) {
+                        IconButton(onClick = onNavigateToAdd) {
+                            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.cards_add))
+                        }
+                    }
                 }
-            }
+            )
         }
     ) { padding ->
-        if (state.isLoading) {
-            LoadingState(modifier = Modifier.padding(padding))
-        } else if (state.cards.isEmpty()) {
-            EmptyState(
-                title = "No Credit Cards",
-                message = "Add your credit cards to track outstanding, limits, and EMIs",
+        when {
+            state.isLoading -> LoadingState(modifier = Modifier.padding(padding))
+            state.cards.isEmpty() -> EmptyState(
+                title = stringResource(R.string.cards_empty_title),
+                message = stringResource(R.string.cards_empty_body),
                 icon = Icons.Default.CreditCard,
-                action = { ZenPrimaryButton(text = "Add Card", onClick = onNavigateToAdd) },
+                action = { ZenPrimaryButton(text = stringResource(R.string.cards_add), onClick = onNavigateToAdd) },
                 modifier = Modifier.padding(padding)
             )
-        } else {
-            LazyColumn(
+            else -> LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
-                contentPadding = PaddingValues(Dimensions.ScreenPadding),
-                verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingLarge)
+                contentPadding = PaddingValues(
+                    start = Dimensions.ScreenPadding,
+                    end = Dimensions.ScreenPadding,
+                    top = Dimensions.SpacingLarge,
+                    bottom = Dimensions.SectionGap
+                ),
+                verticalArrangement = Arrangement.spacedBy(Dimensions.TileGap)
             ) {
                 items(state.cards, key = { it.id }) { card ->
-                    CreditCardItem(
-                        card = card,
-                        onClick = { onNavigateToDetails(card.id) }
-                    )
+                    CreditCardItem(card = card, onClick = { onNavigateToDetails(card.id) })
                 }
-                item { Spacer(modifier = Modifier.height(Dimensions.SpacingXXLarge)) }
             }
         }
     }
 }
 
+/** A credit card rendered as a bento tile. Its tone is derived from the card id, never hardcoded. */
 @Composable
 fun CreditCardItem(
     card: CreditCardUiModel,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    ZenSurfaceCard(onClick = onClick) {
+    val expenseColor = ZenSpendTheme.colors.expense
+    ZenTile(
+        modifier = modifier.fillMaxWidth(),
+        tone = ZenTone.forKey(card.id),
+        onClick = onClick,
+        contentPadding = PaddingValues(Dimensions.SpacingXLarge)
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(card.bankName, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(card.cardName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Text("•••• ${card.lastFourDigits}", style = MaterialTheme.typography.bodySmall)
+                ZenTileCaption(card.bankName)
+                Text(card.cardName, style = MaterialTheme.typography.titleLarge)
+                ZenTileCaption(stringResource(R.string.cards_last_four, card.lastFourDigits))
             }
             if (card.activeEmiCount > 0) {
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
+                val ink = ZenSpendTheme.colors.tone(ZenTone.Ink)
+                Surface(shape = PillShape, color = ink.container, contentColor = ink.content) {
                     Text(
-                        text = "${card.activeEmiCount} EMI${if (card.activeEmiCount == 1) "" else "s"}",
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        text = pluralStringResource(R.plurals.cards_emi_count, card.activeEmiCount, card.activeEmiCount),
+                        modifier = Modifier.padding(horizontal = Dimensions.SpacingMedium, vertical = Dimensions.SpacingXSmall),
+                        style = MaterialTheme.typography.labelMedium
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(Dimensions.SpacingMedium))
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("Outstanding", style = MaterialTheme.typography.labelSmall)
-                AmountText(amount = "₹${card.outstanding}", type = AmountType.EXPENSE)
-            }
-            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
-                Text("Available", style = MaterialTheme.typography.labelSmall)
-                AmountText(amount = "₹${card.availableLimit}", type = AmountType.INCOME)
-            }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = Dimensions.SpacingXLarge)
+        ) {
+            ZenStat(
+                caption = stringResource(R.string.cards_outstanding),
+                value = stringResource(R.string.amount_rupees, card.outstanding),
+                modifier = Modifier.weight(1f)
+            )
+            ZenStat(
+                caption = stringResource(R.string.cards_available),
+                value = stringResource(R.string.amount_rupees, card.availableLimit),
+                modifier = Modifier.weight(1f)
+            )
         }
 
-        Spacer(modifier = Modifier.height(Dimensions.SpacingMedium))
-        LinearProgressIndicator(
-            progress = { card.utilization.coerceIn(0f, 1f) },
-            modifier = Modifier.fillMaxWidth(),
-            color = if (card.utilization > 0.8f) ZenSpendTheme.colors.expense else MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.outlineVariant
+        ZenProgressBar(
+            progress = card.utilization.coerceIn(0f, 1f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = Dimensions.SpacingLarge),
+            fillColor = if (card.utilization > UTILIZATION_ALERT_FRACTION) expenseColor else Color.Unspecified
         )
     }
 }

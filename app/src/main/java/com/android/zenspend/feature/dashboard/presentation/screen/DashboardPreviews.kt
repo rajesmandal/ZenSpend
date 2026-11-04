@@ -44,8 +44,7 @@ fun DashboardPreview() {
             DashboardContent(
                 state = DashboardUiState(summary = summary),
                 onEvent = {},
-                onNavigateToRecurring = {},
-                onNavigateToTransactions = {}
+                navigation = DashboardNavigation()
             )
         }
     }
@@ -59,8 +58,7 @@ fun EmptyDashboardPreview() {
             DashboardContent(
                 state = DashboardUiState(summary = null),
                 onEvent = {},
-                onNavigateToRecurring = {},
-                onNavigateToTransactions = {}
+                navigation = DashboardNavigation()
             )
         }
     }

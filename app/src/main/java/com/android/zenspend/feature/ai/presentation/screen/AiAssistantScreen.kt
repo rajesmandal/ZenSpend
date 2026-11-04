@@ -1,29 +1,66 @@
 package com.android.zenspend.feature.ai.presentation.screen
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.android.zenspend.R
+import com.android.zenspend.core.ui.designsystem.component.PremiumFeatureGate
+import com.android.zenspend.core.ui.designsystem.component.ZenChip
 import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
+import com.android.zenspend.core.ui.theme.Dimensions
+import com.android.zenspend.core.ui.theme.InputShape
+import com.android.zenspend.core.ui.theme.ZenSpendTheme
+import com.android.zenspend.core.ui.theme.ZenTone
 import com.android.zenspend.feature.ai.domain.model.AiMessage
 import com.android.zenspend.feature.ai.domain.model.AiRole
 import com.android.zenspend.feature.ai.presentation.viewmodel.AiAssistantEvent
 import com.android.zenspend.feature.ai.presentation.viewmodel.AiAssistantViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** Chat bubble corner that points at the speaker. */
+private val BubbleTailRadius = 6.dp
+
+/** Suggestion prompts shown above the input. Labels are string resources. */
+private val suggestedQuestionRes = listOf(
+    R.string.ai_q_spent,
+    R.string.ai_q_biggest,
+    R.string.ai_q_saved,
+    R.string.ai_q_balance,
+    R.string.ai_q_category
+)
+
 @Composable
 fun AiAssistantScreen(
     onNavigateBack: () -> Unit,
@@ -37,15 +74,16 @@ fun AiAssistantScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             ZenTopAppBar(
-                title = "Ask ZenSpend",
+                title = stringResource(R.string.ai_title),
                 showBack = true,
                 onBackClick = onNavigateBack
             )
         }
     ) { padding ->
-        com.android.zenspend.core.ui.designsystem.component.PremiumFeatureGate(
+        PremiumFeatureGate(
             entitlementManager = viewModel.entitlementManager,
             onUpgradeClick = onNavigateToPremium
         ) {
@@ -57,35 +95,31 @@ fun AiAssistantScreen(
                 LazyColumn(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(vertical = 16.dp)
+                        .padding(horizontal = Dimensions.ScreenPadding),
+                    verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium),
+                    contentPadding = PaddingValues(vertical = Dimensions.SpacingLarge)
                 ) {
                     if (state.messages.isEmpty()) {
-                        item {
-                            WelcomeSection()
-                        }
+                        item { WelcomeSection() }
                     }
 
-                    items(state.messages) { message ->
-                        AiMessageBubble(message)
-                    }
+                    items(state.messages) { message -> AiMessageBubble(message) }
 
                     if (state.isLoading) {
                         item {
                             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                                CircularProgressIndicator(modifier = Modifier.size(Dimensions.IconSizeMedium))
                             }
                         }
                     }
 
-                    if (state.error != null) {
+                    state.error?.let { error ->
                         item {
                             Text(
-                                text = state.error!!,
+                                text = error,
                                 color = MaterialTheme.colorScheme.error,
                                 style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.padding(horizontal = 8.dp)
+                                modifier = Modifier.padding(horizontal = Dimensions.SpacingSmall)
                             )
                         }
                     }
@@ -107,37 +141,31 @@ fun AiAssistantScreen(
 }
 
 @Composable
-fun AiMessageBubble(message: AiMessage) {
+fun AiMessageBubble(message: AiMessage, modifier: Modifier = Modifier) {
     val isUser = message.role == AiRole.USER
-    val alignment = if (isUser) Alignment.End else Alignment.Start
-    val containerColor = if (isUser) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        MaterialTheme.colorScheme.surfaceContainer
-    }
-    val contentColor = if (isUser) {
-        MaterialTheme.colorScheme.onPrimary
-    } else {
-        MaterialTheme.colorScheme.onSurface
-    }
+    // User = Ink bubble, assistant = Sky bubble: both come from tones, not raw colours.
+    val tone = ZenSpendTheme.colors.tone(if (isUser) ZenTone.Ink else ZenTone.Sky)
+    val big = Dimensions.RadiusTile
+    val shape = RoundedCornerShape(
+        topStart = big,
+        topEnd = big,
+        bottomStart = if (isUser) big else BubbleTailRadius,
+        bottomEnd = if (isUser) BubbleTailRadius else big
+    )
 
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = alignment
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
     ) {
         Surface(
-            color = containerColor,
-            contentColor = contentColor,
-            shape = RoundedCornerShape(
-                topStart = 16.dp,
-                topEnd = 16.dp,
-                bottomStart = if (isUser) 16.dp else 4.dp,
-                bottomEnd = if (isUser) 4.dp else 16.dp
-            )
+            modifier = Modifier.widthIn(max = Dimensions.ChatBubbleMaxWidth),
+            color = tone.container,
+            contentColor = tone.content,
+            shape = shape
         ) {
             Text(
                 text = message.content,
-                modifier = Modifier.padding(12.dp),
+                modifier = Modifier.padding(horizontal = Dimensions.SpacingLarge, vertical = Dimensions.SpacingMedium),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -149,86 +177,71 @@ fun ChatInput(
     query: String,
     onQueryChange: (String) -> Unit,
     onSend: () -> Unit,
-    enabled: Boolean
+    enabled: Boolean,
+    modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        tonalElevation = 4.dp
+    val canSend = enabled && query.isNotBlank()
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = Dimensions.ScreenPadding, vertical = Dimensions.SpacingMedium),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
     ) {
-        Row(
-            modifier = Modifier
-                .padding(12.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+        OutlinedTextField(
+            value = query,
+            onValueChange = onQueryChange,
+            modifier = Modifier.weight(1f),
+            placeholder = { Text(stringResource(R.string.ai_placeholder)) },
+            maxLines = 3,
+            enabled = enabled,
+            shape = InputShape
+        )
+        val send = ZenSpendTheme.colors.tone(if (canSend) ZenTone.Lime else ZenTone.Surface)
+        Surface(
+            shape = CircleShape,
+            color = send.container,
+            contentColor = send.content
         ) {
-            OutlinedTextField(
-                value = query,
-                onValueChange = onQueryChange,
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("Ask anything about your finances...") },
-                maxLines = 3,
-                enabled = enabled,
-                shape = RoundedCornerShape(24.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            IconButton(
-                onClick = onSend,
-                enabled = enabled && query.isNotBlank()
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.Send,
-                    contentDescription = "Send",
-                    tint = if (enabled && query.isNotBlank()) MaterialTheme.colorScheme.primary else Color.Gray
-                )
+            IconButton(onClick = onSend, enabled = canSend, modifier = Modifier.size(Dimensions.MinTouchTarget)) {
+                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = stringResource(R.string.action_send))
             }
         }
     }
 }
 
 @Composable
-fun WelcomeSection() {
+fun WelcomeSection(modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(Dimensions.SpacingLarge),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Welcome to ZenSpend AI",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
+            text = stringResource(R.string.ai_welcome_title),
+            style = MaterialTheme.typography.headlineSmall
         )
-        Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "I can help you analyze your spending, check balances, and track budgets. Ask me anything!",
+            text = stringResource(R.string.ai_welcome_body),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = Dimensions.SpacingSmall)
         )
     }
 }
 
 @Composable
 fun SuggestedQuestions(onQuestionClick: (String) -> Unit) {
-    val questions = listOf(
-        "How much did I spend this month?",
-        "What was my biggest expense?",
-        "How much did I save?",
-        "What's my balance?",
-        "Which category cost me the most?"
-    )
+    val questions = suggestedQuestionRes.map { stringResource(it) }
     LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = Dimensions.ScreenPadding),
+        horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
     ) {
         items(questions) { question ->
-            SuggestionChip(
-                onClick = { onQuestionClick(question) },
-                label = { Text(question) }
-            )
+            ZenChip(label = question, selected = false, onClick = { onQuestionClick(question) })
         }
     }
 }
@@ -237,19 +250,10 @@ fun SuggestedQuestions(onQuestionClick: (String) -> Unit) {
 fun AiPrivacyDisclaimer(onAccept: () -> Unit) {
     AlertDialog(
         onDismissRequest = { },
-        title = { Text("Privacy & AI") },
-        text = {
-            Text(
-                "ZenSpend AI processes your financial data locally on this device to answer your questions.\n\n" +
-                "• Only anonymous aggregate totals for your specific query are shared with the AI service.\n" +
-                "• No personally identifiable information (PII), card numbers, or raw transcripts are ever shared.\n" +
-                "• The AI is read-only and cannot modify your financial records."
-            )
-        },
+        title = { Text(stringResource(R.string.ai_privacy_title)) },
+        text = { Text(stringResource(R.string.ai_privacy_body)) },
         confirmButton = {
-            Button(onClick = onAccept) {
-                Text("I Understand")
-            }
+            TextButton(onClick = onAccept) { Text(stringResource(R.string.ai_privacy_accept)) }
         }
     )
 }

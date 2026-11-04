@@ -64,7 +64,7 @@ fun ZenSecondaryButton(
         enabled = enabled,
         shape = ButtonShape,
         border = ButtonDefaults.outlinedButtonBorder.copy(
-            brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline)
+            brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.onSurface)
         )
     ) {
         if (icon != null) {
@@ -73,7 +73,7 @@ fun ZenSecondaryButton(
         Text(
             text = text,
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

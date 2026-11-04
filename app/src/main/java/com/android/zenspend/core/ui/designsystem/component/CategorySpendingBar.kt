@@ -26,11 +26,6 @@ fun CategorySpendingBar(
             Text(text = amount, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
         }
         Spacer(modifier = Modifier.height(Dimensions.SpacingXSmall))
-        LinearProgressIndicator(
-            progress = { percentage.coerceIn(0f, 1f) },
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.outlineVariant,
-        )
+        ZenProgressBar(progress = percentage)
     }
 }

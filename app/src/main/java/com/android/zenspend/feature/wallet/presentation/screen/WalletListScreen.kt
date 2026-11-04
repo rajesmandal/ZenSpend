@@ -1,27 +1,53 @@
 package com.android.zenspend.feature.wallet.presentation.screen
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Wallet
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.android.zenspend.core.database.model.WalletType
-import com.android.zenspend.core.ui.designsystem.component.*
+import com.android.zenspend.R
+import com.android.zenspend.core.ui.designsystem.component.AmountType
+import com.android.zenspend.core.ui.designsystem.component.EmptyState
+import com.android.zenspend.core.ui.designsystem.component.LoadingState
+import com.android.zenspend.core.ui.designsystem.component.ZenPrimaryButton
+import com.android.zenspend.core.ui.designsystem.component.ZenSectionHeader
+import com.android.zenspend.core.ui.designsystem.component.ZenTile
+import com.android.zenspend.core.ui.designsystem.component.ZenTileCaption
+import com.android.zenspend.core.ui.designsystem.component.ZenTileValue
+import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
+import com.android.zenspend.core.ui.designsystem.component.ZenTransactionRow
+import com.android.zenspend.core.ui.theme.AmountHero
+import com.android.zenspend.core.ui.theme.AmountMedium
 import com.android.zenspend.core.ui.theme.Dimensions
-import com.android.zenspend.core.ui.theme.ZenSpendTheme
+import com.android.zenspend.core.ui.theme.ZenTone
 import com.android.zenspend.feature.wallet.presentation.contract.WalletUiEffect
-import com.android.zenspend.feature.wallet.presentation.contract.WalletUiEvent
 import com.android.zenspend.feature.wallet.presentation.viewmodel.WalletViewModel
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletListScreen(
     onNavigateToAdd: () -> Unit,
@@ -42,8 +68,16 @@ fun WalletListScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            ZenTopAppBar(title = "My Wallets")
+            ZenTopAppBar(
+                title = stringResource(R.string.wallets_title),
+                actions = {
+                    IconButton(onClick = onNavigateToAdd) {
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.wallets_add))
+                    }
+                }
+            )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
@@ -51,11 +85,14 @@ fun WalletListScreen(
             LoadingState(modifier = Modifier.padding(padding))
         } else if (state.wallets.isEmpty()) {
             EmptyState(
-                title = "No Wallets",
-                message = "Add a wallet to start tracking your finances",
+                title = stringResource(R.string.wallets_empty_title),
+                message = stringResource(R.string.wallets_empty_body),
                 icon = Icons.Default.Wallet,
                 action = {
-                    ZenPrimaryButton(text = "Add Wallet", onClick = onNavigateToAdd)
+                    ZenPrimaryButton(
+                        text = stringResource(R.string.wallets_add),
+                        onClick = onNavigateToAdd
+                    )
                 },
                 modifier = Modifier.padding(padding)
             )
@@ -64,8 +101,11 @@ fun WalletListScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
-                contentPadding = PaddingValues(Dimensions.SpacingLarge),
-                verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium)
+                contentPadding = PaddingValues(
+                    horizontal = Dimensions.ScreenPadding,
+                    vertical = Dimensions.SpacingLarge
+                ),
+                verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
             ) {
                 item {
                     BalanceSummary(
@@ -75,13 +115,21 @@ fun WalletListScreen(
                     )
                 }
 
+                item {
+                    ZenSectionHeader(
+                        title = stringResource(R.string.wallets_all_accounts),
+                        modifier = Modifier.padding(top = Dimensions.SpacingMedium)
+                    )
+                }
+
                 items(state.wallets) { wallet ->
                     WalletItem(
                         name = wallet.name,
                         type = wallet.type.name,
                         balance = wallet.balance,
                         isLiability = wallet.isLiability,
-                        onClick = { onNavigateToDetails(wallet.id) }
+                        onClick = { onNavigateToDetails(wallet.id) },
+                        tone = ZenTone.forKey(wallet.id)
                     )
                 }
             }
@@ -95,28 +143,47 @@ fun BalanceSummary(
     assets: String,
     liabilities: String
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = Dimensions.SpacingLarge),
-        verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium)
+    androidx.compose.foundation.layout.Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(Dimensions.TileGap)
     ) {
-        SummaryCard(
-            title = "Net Worth",
-            amount = "₹$total",
-            modifier = Modifier.fillMaxWidth()
-        )
+        ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Ink) {
+            ZenTileCaption(stringResource(R.string.wallets_net_worth))
+            Spacer(Modifier.height(Dimensions.SpacingXSmall))
+            ZenTileValue(
+                text = stringResource(R.string.amount_rupees, total),
+                style = AmountHero
+            )
+        }
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(Dimensions.TileGap)
         ) {
-            ZenSurfaceCard(modifier = Modifier.weight(1f)) {
-                Text("Assets", style = MaterialTheme.typography.labelSmall)
-                AmountText(amount = "₹$assets", type = AmountType.INCOME)
+            ZenTile(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                tone = ZenTone.Lime
+            ) {
+                ZenTileCaption(stringResource(R.string.wallets_assets))
+                ZenTileValue(
+                    text = stringResource(R.string.amount_rupees, assets),
+                    style = AmountMedium
+                )
             }
-            ZenSurfaceCard(modifier = Modifier.weight(1f)) {
-                Text("Liabilities", style = MaterialTheme.typography.labelSmall)
-                AmountText(amount = "₹$liabilities", type = AmountType.EXPENSE)
+            ZenTile(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                tone = ZenTone.Coral
+            ) {
+                ZenTileCaption(stringResource(R.string.wallets_liabilities))
+                ZenTileValue(
+                    text = stringResource(R.string.amount_rupees, liabilities),
+                    style = AmountMedium
+                )
             }
         }
     }
@@ -128,28 +195,15 @@ fun WalletItem(
     type: String,
     balance: String,
     isLiability: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    tone: ZenTone = ZenTone.forKey(name)
 ) {
-    ZenCard(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(Dimensions.SpacingLarge)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(name, style = MaterialTheme.typography.titleMedium)
-                Text(type, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Text(
-                text = "₹$balance",
-                style = MaterialTheme.typography.titleLarge,
-                color = if (isLiability) ZenSpendTheme.colors.expense else MaterialTheme.colorScheme.onSurface
-            )
-        }
-    }
+    ZenTransactionRow(
+        title = name,
+        subtitle = type,
+        amount = stringResource(R.string.amount_rupees, balance),
+        amountType = if (isLiability) AmountType.EXPENSE else AmountType.NEUTRAL,
+        badgeTone = tone,
+        onClick = onClick
+    )
 }

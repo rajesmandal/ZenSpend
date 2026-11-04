@@ -2,89 +2,59 @@ package com.android.zenspend.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Premium fintech teal palette — refined, softer surfaces
-val PrimaryLight = Color(0xFF006666)
-val OnPrimaryLight = Color(0xFFFFFFFF)
-val PrimaryContainerLight = Color(0xFFE0F5F4)
-val OnPrimaryContainerLight = Color(0xFF002020)
+/**
+ * ZenSpend "Bento" palette — the ONLY place raw hex values live.
+ *
+ * Rule: UI code never references these directly. It reads colors through
+ * `MaterialTheme.colorScheme` or `ZenSpendTheme.colors` (see Theme.kt).
+ * To re-skin the whole app, change values here (or swap the mapping in Theme.kt).
+ */
 
-val SecondaryLight = Color(0xFF4A6363)
-val OnSecondaryLight = Color(0xFFFFFFFF)
-val SecondaryContainerLight = Color(0xFFD8EBEA)
-val OnSecondaryContainerLight = Color(0xFF051F1F)
+// ---- Neutrals (light) ------------------------------------------------------
+internal val Cream = Color(0xFFF6F1E7)          // canvas
+internal val CreamDeep = Color(0xFFEFE9DC)
+internal val CreamDeeper = Color(0xFFE8E1D2)
+internal val CreamDeepest = Color(0xFFE0D8C8)
+internal val Paper = Color(0xFFFFFFFF)          // card surface
+internal val Ink = Color(0xFF141414)            // primary text / dark tiles
+internal val InkSoft = Color(0xFF6F6A5E)        // secondary text
+internal val Stone = Color(0xFF8A857A)          // outline
+internal val Sand = Color(0xFFE4DDCE)           // hairlines
 
-val TertiaryLight = Color(0xFF4B607C)
-val OnTertiaryLight = Color(0xFFFFFFFF)
-val TertiaryContainerLight = Color(0xFFD3E4FF)
-val OnTertiaryContainerLight = Color(0xFF041C35)
+// ---- Neutrals (dark) -------------------------------------------------------
+internal val Night = Color(0xFF0E0E0E)
+internal val NightRaised = Color(0xFF1A1A1A)
+internal val NightRaised2 = Color(0xFF222222)
+internal val NightRaised3 = Color(0xFF2A2A2A)
+internal val NightRaised4 = Color(0xFF333333)
+internal val Bone = Color(0xFFF5F2EA)           // text on dark
+internal val BoneSoft = Color(0xFF9D998C)
+internal val NightLine = Color(0xFF2E2E2B)
 
-val ErrorLight = Color(0xFFBA1A1A)
-val OnErrorLight = Color(0xFFFFFFFF)
-val ErrorContainerLight = Color(0xFFFFDAD6)
-val OnErrorContainerLight = Color(0xFF410002)
+// ---- Accent pastels (shared by light + dark; always carry Ink text) --------
+internal val Lime = Color(0xFFCDF45C)
+internal val Coral = Color(0xFFFF7A59)
+internal val Lilac = Color(0xFFC9B8FF)
+internal val Sky = Color(0xFFA9D8FF)
+internal val Sun = Color(0xFFFFD166)
+internal val Mint = Color(0xFF9AE6B4)
 
-val BackgroundLight = Color(0xFFF6FAFA)
-val SurfaceLight = Color(0xFFF6FAFA)
-val OnSurfaceLight = Color(0xFF161D1D)
-val OnBackgroundLight = Color(0xFF161D1D)
-val SurfaceVariantLight = Color(0xFFDAE5E4)
-val OnSurfaceVariantLight = Color(0xFF3F4948)
-val OutlineLight = Color(0xFF6F7979)
-val OutlineVariantLight = Color(0xFFBEC9C8)
-val SurfaceContainerLowestLight = Color(0xFFFFFFFF)
-val SurfaceContainerLowLight = Color(0xFFF0F7F6)
-val SurfaceContainerLight = Color(0xFFEAF3F2)
-val SurfaceContainerHighLight = Color(0xFFE4EEED)
-val SurfaceContainerHighestLight = Color(0xFFDEE9E8)
-val InverseSurfaceLight = Color(0xFF2B3232)
-val InverseOnSurfaceLight = Color(0xFFECF2F1)
-val ScrimLight = Color(0x99000000)
+// ---- Status ----------------------------------------------------------------
+internal val ErrorRed = Color(0xFFD92D20)
+internal val ErrorRedContainer = Color(0xFFFFE1DA)
+internal val ErrorRedDark = Color(0xFFFF8A7A)
+internal val ErrorRedContainerDark = Color(0xFF5A1D14)
 
-val PrimaryDark = Color(0xFF4EDCDC)
-val OnPrimaryDark = Color(0xFF003737)
-val PrimaryContainerDark = Color(0xFF004F4F)
-val OnPrimaryContainerDark = Color(0xFF9EF0F0)
+// ---- Semantic financial colors --------------------------------------------
+internal val IncomeGreen = Color(0xFF1C9B57)
+internal val ExpenseRed = Color(0xFFE5484D)
+internal val TransferBlue = Color(0xFF2E7CF6)
+internal val CreditCardGold = Color(0xFFD98E04)
+internal val NeutralGrey = Color(0xFF8A857A)
 
-val SecondaryDark = Color(0xFFB0CCCC)
-val OnSecondaryDark = Color(0xFF1B3435)
-val SecondaryContainerDark = Color(0xFF324B4B)
-val OnSecondaryContainerDark = Color(0xFFCCE8E7)
+internal val IncomeGreenDark = Color(0xFF5BE39B)
+internal val ExpenseRedDark = Color(0xFFFF7A7F)
+internal val TransferBlueDark = Color(0xFF7DB2FF)
+internal val CreditCardGoldDark = Color(0xFFFFC857)
 
-val TertiaryDark = Color(0xFFB2C8E8)
-val OnTertiaryDark = Color(0xFF1C314B)
-val TertiaryContainerDark = Color(0xFF334863)
-val OnTertiaryContainerDark = Color(0xFFD3E4FF)
-
-val ErrorDark = Color(0xFFFFB4AB)
-val OnErrorDark = Color(0xFF690005)
-val ErrorContainerDark = Color(0xFF93000A)
-val OnErrorContainerDark = Color(0xFFFFDAD6)
-
-val BackgroundDark = Color(0xFF0E1414)
-val SurfaceDark = Color(0xFF0E1414)
-val OnSurfaceDark = Color(0xFFDEE3E3)
-val OnBackgroundDark = Color(0xFFDEE3E3)
-val SurfaceVariantDark = Color(0xFF3F4948)
-val OnSurfaceVariantDark = Color(0xFFBEC9C8)
-val OutlineDark = Color(0xFF899392)
-val OutlineVariantDark = Color(0xFF3F4948)
-val SurfaceContainerLowestDark = Color(0xFF090E0E)
-val SurfaceContainerLowDark = Color(0xFF141A1A)
-val SurfaceContainerDark = Color(0xFF1A2121)
-val SurfaceContainerHighDark = Color(0xFF242B2B)
-val SurfaceContainerHighestDark = Color(0xFF2F3636)
-val InverseSurfaceDark = Color(0xFFDEE3E3)
-val InverseOnSurfaceDark = Color(0xFF2B3232)
-val ScrimDark = Color(0x99000000)
-
-// Semantic financial colors
-val IncomeGreen = Color(0xFF2E7D32)
-val ExpenseRed = Color(0xFFD32F2F)
-val TransferBlue = Color(0xFF1976D2)
-val CreditCardGold = Color(0xFFF9A825)
-val NeutralGrey = Color(0xFF757575)
-
-val IncomeGreenDark = Color(0xFF81C784)
-val ExpenseRedDark = Color(0xFFE57373)
-val TransferBlueDark = Color(0xFF64B5F6)
-val CreditCardGoldDark = Color(0xFFFFF176)
+internal val ScrimColor = Color(0x99000000)

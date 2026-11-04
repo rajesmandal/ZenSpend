@@ -1,18 +1,25 @@
 package com.android.zenspend.core.ui.theme
 
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
-import androidx.compose.ui.unit.dp
 
 val Shapes = Shapes(
-    extraSmall = RoundedCornerShape(6.dp),
-    small = RoundedCornerShape(10.dp),
-    medium = RoundedCornerShape(14.dp),
-    large = RoundedCornerShape(20.dp),
-    extraLarge = RoundedCornerShape(28.dp)
+    extraSmall = RoundedCornerShape(Dimensions.SpacingSmall),
+    small = RoundedCornerShape(Dimensions.RadiusSmall),
+    medium = RoundedCornerShape(Dimensions.RadiusBadge),
+    large = RoundedCornerShape(Dimensions.RadiusCard),
+    extraLarge = RoundedCornerShape(Dimensions.RadiusTile)
 )
 
-val CardShape = RoundedCornerShape(20.dp)
-val ButtonShape = RoundedCornerShape(14.dp)
-val InputShape = RoundedCornerShape(14.dp)
-val ChipShape = RoundedCornerShape(12.dp)
+/** Big bento tiles (dashboard hero etc.). */
+val TileShape = RoundedCornerShape(Dimensions.RadiusTile)
+val CardShape = RoundedCornerShape(Dimensions.RadiusCard)
+val RowShape = RoundedCornerShape(Dimensions.RadiusRow)
+val BadgeShape = RoundedCornerShape(Dimensions.RadiusBadge)
+
+/** Fully rounded "pill" — buttons, chips, dock. */
+val PillShape = CircleShape
+val ButtonShape = PillShape
+val ChipShape = PillShape
+val InputShape = RoundedCornerShape(Dimensions.RadiusInput)

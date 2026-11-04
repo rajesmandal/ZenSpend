@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZenSpend – Redesign Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F7F7; --bg2:#E6EFEF; --card:#FFFFFF; --card2:#F0F6F6; --line:rgba(10,40,40,.08);
+  --text:#0E1B1B; --muted:#6B7C7C;
+  --brand:#0A8F8F; --brand2:#14C8B4; --brand-ink:#04302F;
+  --hero1:#063F3F; --hero2:#0A8F8F; --hero3:#18D2B5;
+  --income:#12B76A; --expense:#F04438; --amber:#F5A524; --violet:#7C5CFC; --sky:#2E90FA; --pink:#EE46BC;
+  --shadow:0 10px 30px -12px rgba(6,63,63,.25);
+  --glass:rgba(255,255,255,.14);
+  --stage:#0b1414;
+}
+[data-theme=dark]{
+  --bg:#071212; --bg2:#0C1B1B; --card:#0F2222; --card2:#132A2A; --line:rgba(255,255,255,.07);
+  --text:#EAF6F5; --muted:#8AA5A4; --brand:#3EE0CF; --brand2:#14C8B4; --brand-ink:#022120;
+  --hero1:#0A3A3A; --hero2:#0E7F7C; --hero3:#1FD8BC;
+  --shadow:0 12px 30px -14px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--stage);color:#fff;min-height:100vh;
+  background:radial-gradient(900px 500px at 20% 0%,#0f3b3b 0,transparent 60%),radial-gradient(800px 500px at 90% 100%,#143a4a 0,transparent 60%),#081010}
+.stage{display:grid;grid-template-columns:260px 390px 260px;gap:48px;justify-content:center;align-items:center;min-height:100vh;padding:32px 20px}
+.side h1{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.side h1 span{color:#3EE0CF}
+.side p{color:#8AA5A4;font-size:13px;margin:10px 0 22px;line-height:1.5}
+.nav-list{display:flex;flex-direction:column;gap:6px}
+.nav-list button{all:unset;cursor:pointer;padding:10px 14px;border-radius:12px;font-size:14px;font-weight:600;color:#a9c4c3;display:flex;gap:10px;align-items:center;transition:.2s}
+.nav-list button:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav-list button.on{background:linear-gradient(90deg,rgba(62,224,207,.22),rgba(62,224,207,.04));color:#fff;box-shadow:inset 2px 0 0 #3EE0CF}
+.right .box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;margin-bottom:14px;font-size:13px;color:#a9c4c3;line-height:1.55}
+.right h3{color:#fff;font-size:14px;margin-bottom:8px}
+.sw{display:flex;gap:8px;margin-top:6px}
+.sw i{flex:1;height:34px;border-radius:10px;display:block}
+.tgl{all:unset;cursor:pointer;width:100%;text-align:center;padding:12px;border-radius:14px;background:#3EE0CF;color:#022120;font-weight:800;font-size:14px}
+
+/* phone */
+.phone{width:390px;height:844px;border-radius:52px;background:#000;padding:10px;position:relative;box-shadow:0 0 0 2px #2a3a3a,0 40px 80px -20px rgba(0,0,0,.8),0 0 120px -30px rgba(62,224,207,.35)}
+.screen{width:100%;height:100%;border-radius:42px;overflow:hidden;background:var(--bg);color:var(--text);position:relative;display:flex;flex-direction:column}
+.notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:110px;height:30px;background:#000;border-radius:20px;z-index:30}
+.status{height:48px;flex:none;display:flex;justify-content:space-between;align-items:flex-end;padding:0 28px 6px;font-size:13px;font-weight:700;z-index:20;position:relative}
+.status.light{color:#fff}
+.view{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;position:relative;padding-bottom:110px}
+.view::-webkit-scrollbar{display:none}
+.anim{animation:in .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* bottom nav */
+.bnav{position:absolute;left:14px;right:14px;bottom:14px;height:70px;border-radius:26px;background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-around;z-index:25;padding:0 6px}
+.bnav button{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:700;color:var(--muted);width:56px;padding:8px 0;border-radius:16px;transition:.25s}
+.bnav button svg{width:22px;height:22px}
+.bnav button.on{color:var(--brand)}
+.bnav button.on svg{transform:translateY(-2px)}
+.bnav .fab{width:58px;height:58px;border-radius:20px;background:linear-gradient(135deg,var(--brand2),var(--brand));color:#fff;margin-top:-30px;box-shadow:0 12px 24px -6px rgba(20,200,180,.6);align-items:center;justify-content:center;transition:.25s}
+.bnav .fab:hover{transform:translateY(-3px) rotate(90deg)}
+.bnav .fab svg{width:26px;height:26px;stroke:#fff}
+
+/* common */
+.pad{padding:0 20px}
+.h-row{display:flex;justify-content:space-between;align-items:center}
+.title{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin:24px 20px 12px}
+.sec b{font-size:16px;font-weight:800}
+.sec a{font-size:12px;font-weight:700;color:var(--brand);cursor:pointer}
+.card{background:var(--card);border-radius:24px;border:1px solid var(--line);box-shadow:var(--shadow)}
+.ico{width:44px;height:44px;border-radius:15px;display:grid;place-items:center;flex:none;font-size:20px}
+.chip{padding:8px 14px;border-radius:99px;font-size:12px;font-weight:700;background:var(--card);border:1px solid var(--line);color:var(--muted);cursor:pointer;white-space:nowrap}
+.chip.on{background:var(--brand);color:var(--brand-ink);border-color:transparent}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:0 20px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px}
+.row .m{flex:1;min-width:0}
+.row .m b{display:block;font-size:14px;font-weight:700}
+.row .m small{color:var(--muted);font-size:12px}
+.amt{font-weight:800;font-size:14px;text-align:right}
+.amt.i{color:var(--income)}.amt.e{color:var(--expense)}
+.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--pink));display:grid;place-items:center;font-weight:800;color:#fff}
+.iconbtn{width:42px;height:42px;border-radius:15px;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;cursor:pointer;position:relative}
+.iconbtn svg{width:20px;height:20px}
+.dot{position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--expense);border:2px solid var(--card)}
+.bar{height:8px;border-radius:99px;background:var(--card2);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+
+/* hero */
+.hero{margin:0;padding:0 20px 28px;background:linear-gradient(160deg,var(--hero1),var(--hero2) 60%,var(--hero3));color:#fff;border-radius:0 0 40px 40px;position:relative;overflow:hidden;margin-top:-48px;padding-top:62px}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.1)}
+.hero::before{width:220px;height:220px;right:-70px;top:-60px}
+.hero::after{width:160px;height:160px;left:-60px;bottom:-60px;background:rgba(255,255,255,.07)}
+.hero>*{position:relative;z-index:1}
+.hero .hi{font-size:13px;opacity:.8;font-weight:500}
+.hero .nm{font-size:19px;font-weight:800}
+.hero .bal-l{font-size:12px;opacity:.75;margin-top:22px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.hero .bal{font-size:40px;font-weight:800;letter-spacing:-.03em;margin:2px 0 14px}
+.hero .bal small{font-size:22px;opacity:.7;font-weight:700}
+.trend{display:inline-flex;gap:6px;align-items:center;background:var(--glass);padding:6px 12px;border-radius:99px;font-size:12px;font-weight:700;backdrop-filter:blur(8px)}
+.hero .iconbtn{background:var(--glass);border-color:rgba(255,255,255,.2);color:#fff}
+.hero .iconbtn .dot{border-color:#0c7a78}
+.flow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:-22px 20px 0;position:relative;z-index:3}
+.flow .card{padding:14px;display:flex;gap:10px;align-items:center}
+.flow small{font-size:11px;color:var(--muted);font-weight:600;display:block}
+.flow b{font-size:17px;font-weight:800}
+.flow .ico{width:38px;height:38px;border-radius:13px;font-size:16px}
+
+/* quick actions */
+.qa{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 20px}
+.qa div{display:flex;flex-direction:column;align-items:center;gap:7px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer}
+.qa .ico{width:56px;height:56px;border-radius:20px;transition:.2s}
+.qa div:hover .ico{transform:translateY(-4px) scale(1.05)}
+
+/* wallet carousel */
+.hs{display:flex;gap:12px;overflow-x:auto;padding:0 20px 6px;scrollbar-width:none;scroll-snap-type:x mandatory}
+.hs::-webkit-scrollbar{display:none}
+.wc{flex:none;width:200px;border-radius:24px;padding:16px;color:#fff;scroll-snap-align:start;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.wc::after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.14);right:-30px;top:-30px}
+.wc small{opacity:.8;font-size:11px;font-weight:600}
+.wc b{display:block;font-size:20px;font-weight:800;margin-top:22px;letter-spacing:-.02em}
+.wc .t{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700}
+
+/* insight */
+.ai{margin:0 20px;border-radius:24px;padding:18px;background:linear-gradient(135deg,#2a1b6b,#6a3df0 55%,#b24cf0);color:#fff;position:relative;overflow:hidden;box-shadow:0 16px 30px -14px rgba(106,61,240,.7)}
+.ai::after{content:"✦";position:absolute;right:16px;top:6px;font-size:70px;opacity:.15}
+.ai small{font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.8}
+.ai p{font-size:14px;line-height:1.5;margin:8px 0 12px;font-weight:600}
+.ai button{all:unset;cursor:pointer;background:#fff;color:#4423b8;font-weight:800;font-size:12px;padding:8px 14px;border-radius:99px}
+
+/* charts */
+.donut{position:relative;width:170px;height:170px;margin:0 auto}
+.donut svg{transform:rotate(-90deg)}
+.donut .c{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.donut .c small{color:var(--muted);font-size:11px;font-weight:600}
+.donut .c b{font-size:22px;font-weight:800}
+.bars{display:flex;align-items:flex-end;justify-content:space-between;height:130px;padding:0 6px}
+.bars div{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;height:100%;justify-content:flex-end;font-size:10px;color:var(--muted);font-weight:700}
+.bars i{width:18px;border-radius:8px 8px 4px 4px;background:var(--card2);display:block;position:relative;transition:height .9s cubic-bezier(.2,.8,.2,1)}
+.bars div.on i{background:linear-gradient(180deg,var(--brand2),var(--brand))}
+.seg{display:flex;background:var(--card2);border-radius:14px;padding:4px;margin:0 20px}
+.seg span{flex:1;text-align:center;padding:9px;border-radius:11px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer}
+.seg span.on{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+
+/* add txn */
+.add-top{background:linear-gradient(160deg,var(--hero1),var(--hero2));color:#fff;margin-top:-48px;padding:60px 20px 26px;border-radius:0 0 40px 40px;text-align:center}
+.add-top .seg{background:rgba(255,255,255,.14);margin:16px 0 0}
+.add-top .seg span{color:rgba(255,255,255,.75)}
+.add-top .seg span.on{background:#fff;color:var(--brand-ink)}
+.add-amt{font-size:52px;font-weight:800;letter-spacing:-.03em;margin-top:18px}
+.add-amt small{font-size:26px;opacity:.7}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 20px}
+.keys button{all:unset;cursor:pointer;text-align:center;padding:14px 0;border-radius:18px;background:var(--card);border:1px solid var(--line);font-size:20px;font-weight:700;transition:.12s}
+.keys button:active{transform:scale(.94);background:var(--card2)}
+.btn{all:unset;cursor:pointer;display:block;text-align:center;margin:0 20px;padding:16px;border-radius:20px;background:linear-gradient(135deg,var(--brand2),var(--brand));color:#fff;font-weight:800;font-size:15px;box-shadow:0 14px 24px -10px rgba(20,200,180,.7)}
+.catgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:0 20px}
+.catgrid div{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;padding:8px 0;border-radius:16px;border:1.5px solid transparent}
+.catgrid div.on{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 10%,transparent);color:var(--text)}
+.catgrid .ico{width:40px;height:40px;font-size:18px;border-radius:14px}
+
+/* sms */
+.sms{margin:0 20px 12px;padding:16px}
+.sms .tag{font-size:10px;font-weight:800;letter-spacing:.06em;padding:4px 9px;border-radius:99px}
+.sms .msg{font-size:12px;color:var(--muted);background:var(--card2);padding:10px 12px;border-radius:14px;margin:10px 0;line-height:1.5;font-family:ui-monospace,monospace}
+.sms .acts{display:flex;gap:8px}
+.sms .acts button{all:unset;cursor:pointer;flex:1;text-align:center;padding:10px;border-radius:14px;font-weight:800;font-size:12px}
+.set-item{display:flex;align-items:center;gap:14px;padding:14px 16px}
+.set-item+.set-item{border-top:1px solid var(--line)}
+.set-item b{flex:1;font-size:14px;font-weight:700}
+.sw-t{width:44px;height:26px;border-radius:99px;background:var(--brand);position:relative}
+.sw-t::after{content:"";position:absolute;right:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff}
+.sw-t.off{background:var(--card2)}.sw-t.off::after{right:auto;left:3px}
+.chat{margin:0 20px 10px;padding:12px 14px;border-radius:20px;font-size:13px;line-height:1.5;max-width:86%;font-weight:500}
+.chat.me{margin-left:auto;background:var(--brand);color:var(--brand-ink);border-bottom-right-radius:6px;font-weight:700}
+.chat.bot{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:6px}
+.input{margin:8px 20px 0;display:flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:8px 8px 8px 16px;font-size:13px;color:var(--muted)}
+.input span{flex:1}
+.input i{width:38px;height:38px;border-radius:14px;background:var(--brand);display:grid;place-items:center;color:#fff;font-style:normal}
+
+@media(max-width:1000px){.stage{grid-template-columns:390px;}.side,.right{display:none}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <aside class="side">
+    <h1>Zen<span>Spend</span><br>Redesign</h1>
+    <p>Interactive prototype · har screen pe click karo. Phone ke andar bottom nav bhi kaam karta hai.</p>
+    <div class="nav-list" id="navlist"></div>
+  </aside>
+
+  <div class="phone"><div class="screen" id="screen">
+    <div class="notch"></div>
+    <div class="status" id="status"><span>9:41</span><span>●●● ▮</span></div>
+    <div class="view" id="view"></div>
+    <div class="bnav" id="bnav"></div>
+  </div></div>
+
+  <aside class="right">
+    <div class="box"><h3>Design language</h3>
+      Deep-teal gradient hero, floating glass nav, soft 24px cards, bold numerals, ek vibrant accent (mint) + category colors.
+      <div class="sw"><i style="background:#063F3F"></i><i style="background:#0A8F8F"></i><i style="background:#18D2B5"></i><i style="background:#F5A524"></i><i style="background:#7C5CFC"></i></div>
+    </div>
+    <div class="box"><h3>Kya naya hai</h3>
+      • Hero balance card + income/expense float<br>• Quick actions grid<br>• Gradient wallet cards<br>• AI insight card<br>• Keypad-first Add flow<br>• Floating bottom bar with center FAB<br>• Light + Dark theme
+    </div>
+    <button class="tgl" id="tgl">🌙 Dark / Light toggle</button>
+  </aside>
+</div>
+
+<script>
+const I={ // icons (stroke)
+ home:'<path d="M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ pie:'<path d="M21 12A9 9 0 1112 3v9z"/><path d="M15 3.5A9 9 0 0120.5 9H15z"/>',
+ chart:'<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>',
+ bell:'<path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+ back:'<path d="M15 18l-6-6 6-6"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/>'
+};
+const ic=(n,s=22)=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[n]}</svg>`;
+const tint=(c)=>`background:color-mix(in srgb,${c} 16%,transparent);color:${c}`;
+const cats={food:['🍔','var(--amber)'],shop:['🛍️','var(--pink)'],ride:['🚕','var(--sky)'],bill:['💡','var(--violet)'],salary:['💼','var(--income)'],fun:['🎬','var(--expense)'],health:['💊','var(--brand)'],rent:['🏠','var(--sky)']};
+const tx=[
+ ['Swiggy','food','Today · 8:42 PM','HDFC Card',-486],
+ ['Salary – Acme Corp','salary','Today · 10:00 AM','Axis Bank',85000],
+ ['Uber','ride','Yesterday','UPI',-212],
+ ['Amazon','shop','Yesterday','ICICI Card',-2349],
+ ['Electricity Bill','bill','Mon, 2 Nov','Axis Bank',-1860],
+ ['Netflix','fun','Sun, 1 Nov','HDFC Card',-649],
+ ['Apollo Pharmacy','health','Sat, 31 Oct','Cash',-380],
+];
+const txRow=t=>`<div class="row"><div class="ico" style="${tint(cats[t[1]][1])}">${cats[t[1]][0]}</div><div class="m"><b>${t[0]}</b><small>${t[2]} · ${t[3]}</small></div><div class="amt ${t[4]>0?'i':'e'}">${t[4]>0?'+':'−'}₹${Math.abs(t[4]).toLocaleString('en-IN')}</div></div>`;
+const list=a=>`<div class="card" style="margin:0 20px">${a.map(txRow).join('<div style="height:1px;background:var(--line);margin:0 14px"></div>')}</div>`;
+
+const S={};
+S.home=()=>`
+<div class="hero">
+  <div class="h-row"><div style="display:flex;gap:12px;align-items:center"><div class="avatar">R</div><div><div class="hi">Good evening 👋</div><div class="nm">Rajesh</div></div></div>
+  <div style="display:flex;gap:8px"><div class="iconbtn">${ic('search',20)}</div><div class="iconbtn">${ic('bell',20)}<i class="dot"></i></div></div></div>
+  <div class="bal-l">Total balance</div>
+  <div class="bal"><small>₹</small>1,24,580<small>.50</small></div>
+  <span class="trend">▲ 12.4% vs last month</span>
+</div>
+<div class="flow">
+  <div class="card"><div class="ico" style="${tint('var(--income)')}">↓</div><div><small>Income</small><b>₹85,000</b></div></div>
+  <div class="card"><div class="ico" style="${tint('var(--expense)')}">↑</div><div><small>Expenses</small><b>₹31,240</b></div></div>
+</div>
+<div class="sec"><b>Quick actions</b></div>
+<div class="qa">
+  <div onclick="go('add')"><div class="ico" style="${tint('var(--brand)')}">＋</div>Add</div>
+  <div onclick="go('sms')"><div class="ico" style="${tint('var(--sky)')}">💬</div>SMS</div>
+  <div onclick="go('add')"><div class="ico" style="${tint('var(--violet)')}">🎙️</div>Voice</div>
+  <div onclick="go('wallets')"><div class="ico" style="${tint('var(--amber)')}">🔁</div>Transfer</div>
+</div>
+<div class="sec"><b>My wallets</b><a onclick="go('wallets')">See all</a></div>
+<div class="hs">
+  <div class="wc" style="background:linear-gradient(135deg,#0A8F8F,#14C8B4)"><div class="t"><span>Axis Bank</span><span>🏦</span></div><b>₹98,420</b><small>Savings •••• 4821</small></div>
+  <div class="wc" style="background:linear-gradient(135deg,#2a1b6b,#7C5CFC)"><div class="t"><span>HDFC Card</span><span>💳</span></div><b>₹24,180</b><small>Credit • due 12 Nov</small></div>
+  <div class="wc" style="background:linear-gradient(135deg,#b45309,#F5A524)"><div class="t"><span>Cash</span><span>💵</span></div><b>₹1,980</b><small>Wallet</small></div>
+</div>
+<div class="sec"><b>AI insight</b></div>
+<div class="ai"><small>✦ ZEN AI</small><p>Is mahine food delivery pe ₹6,200 gaye – pichle mahine se 28% zyada. Budget limit 4 din me cross ho sakti hai.</p><button onclick="go('ai')">Ask Zen AI →</button></div>
+<div class="sec"><b>Recent transactions</b><a onclick="go('txns')">See all</a></div>
+${list(tx.slice(0,4))}
+`;
+
+S.txns=()=>`
+<div class="pad" style="padding-top:6px"><div class="h-row"><div class="title">Transactions</div><div class="iconbtn">${ic('search',20)}</div></div></div>
+<div class="chips" style="margin:16px 0"><span class="chip on">All</span><span class="chip">Expense</span><span class="chip">Income</span><span class="chip">Transfer</span><span class="chip">Cards</span></div>
+<div class="card" style="margin:0 20px 8px;padding:16px;display:flex;justify-content:space-between;background:linear-gradient(135deg,var(--hero1),var(--hero2));color:#fff;border:0">
+  <div><small style="opacity:.75;font-size:11px;font-weight:600">NOV 2026 · NET</small><div style="font-size:24px;font-weight:800">+₹53,760</div></div>
+  <div style="text-align:right;font-size:12px;font-weight:700;line-height:1.6"><span style="color:#8bf5c9">↓ ₹85,000</span><br><span style="color:#ffb4ab">↑ ₹31,240</span></div>
+</div>
+<div class="sec"><b>Today</b><span style="font-size:12px;color:var(--muted);font-weight:600">−₹486</span></div>${list(tx.slice(0,2))}
+<div class="sec"><b>Earlier this week</b></div>${list(tx.slice(2))}
+`;
+
+let amt='1250',kind='Expense',catSel=0;
+S.add=()=>`
+<div class="add-top">
+  <div class="h-row"><div class="iconbtn" style="background:rgba(255,255,255,.14);border:0;color:#fff" onclick="go('home')">${ic('back',20)}</div><b>New transaction</b><span style="width:42px"></span></div>
+  <div class="seg">${['Expense','Income','Transfer'].map(k=>`<span class="${k==kind?'on':''}" onclick="kind='${k}';render()">${k}</span>`).join('')}</div>
+  <div class="add-amt"><small>₹</small>${Number(amt||0).toLocaleString('en-IN')}</div>
+  <div style="opacity:.75;font-size:12px;font-weight:600;margin-top:4px">from Axis Bank · Today</div>
+</div>
+<div class="sec"><b>Category</b></div>
+<div class="catgrid">${Object.entries(cats).slice(0,5).map(([k,v],i)=>`<div class="${i==catSel?'on':''}" onclick="catSel=${i};render()"><div class="ico" style="${tint(v[1])}">${v[0]}</div>${k[0].toUpperCase()+k.slice(1)}</div>`).join('')}</div>
+<div style="height:16px"></div>
+<div class="keys">${['1','2','3','4','5','6','7','8','9','.','0','⌫'].map(k=>`<button onclick="key('${k}')">${k}</button>`).join('')}</div>
+<div style="height:14px"></div>
+<div class="btn" onclick="go('home')">Save transaction</div>
+`;
+
+S.budgets=()=>{const b=[['Food & Dining','food',6200,8000,'var(--amber)'],['Shopping','shop',7400,7000,'var(--expense)'],['Transport','ride',2100,4000,'var(--sky)'],['Bills','bill',5800,6500,'var(--violet)']];
+return `
+<div class="pad" style="padding-top:6px"><div class="h-row"><div class="title">Budgets</div><div class="iconbtn">${ic('plus',20)}</div></div></div>
+<div class="card" style="margin:18px 20px 0;padding:20px;display:flex;gap:18px;align-items:center">
+  <div class="donut" style="width:110px;height:110px;margin:0"><svg width="110" height="110" viewBox="0 0 110 110"><circle cx="55" cy="55" r="46" fill="none" stroke="var(--card2)" stroke-width="12"/><circle cx="55" cy="55" r="46" fill="none" stroke="url(#g1)" stroke-width="12" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="${289*(1-.78)}"/><defs><linearGradient id="g1"><stop stop-color="#14C8B4"/><stop offset="1" stop-color="#0A8F8F"/></linearGradient></defs></svg><div class="c"><b style="font-size:20px">78%</b></div></div>
+  <div><small style="color:var(--muted);font-weight:600;font-size:12px">Spent of ₹25,500</small><div style="font-size:26px;font-weight:800;letter-spacing:-.02em">₹21,500</div><div style="font-size:12px;color:var(--income);font-weight:700;margin-top:2px">₹4,000 left · 9 days</div></div>
+</div>
+<div class="sec"><b>Categories</b></div>
+${b.map(x=>{const p=Math.min(100,x[2]/x[3]*100),over=x[2]>x[3];return `<div class="card" style="margin:0 20px 12px;padding:16px"><div class="h-row"><div style="display:flex;gap:12px;align-items:center"><div class="ico" style="${tint(x[4])}">${cats[x[1]][0]}</div><div><b style="font-size:14px">${x[0]}</b><div style="font-size:12px;color:var(--muted)">₹${x[2].toLocaleString('en-IN')} / ₹${x[3].toLocaleString('en-IN')}</div></div></div><span style="font-size:12px;font-weight:800;color:${over?'var(--expense)':'var(--muted)'}">${over?'Over!':Math.round(p)+'%'}</span></div><div class="bar" style="margin-top:14px"><i style="width:${p}%;background:${over?'var(--expense)':x[4]}"></i></div></div>`}).join('')}`};
+
+S.reports=()=>{const d=[['Food',31,'#F5A524'],['Shopping',24,'#EE46BC'],['Bills',19,'#7C5CFC'],['Travel',14,'#2E90FA'],['Other',12,'#14C8B4']];let off=0;const C=2*Math.PI*66;
+const arcs=d.map(x=>{const l=x[1]/100*C;const s=`<circle cx="85" cy="85" r="66" fill="none" stroke="${x[2]}" stroke-width="20" stroke-dasharray="${l-4} ${C-l+4}" stroke-dashoffset="${-off}" stroke-linecap="round"/>`;off+=l;return s}).join('');
+const m=[['Jun',40],['Jul',55],['Aug',35],['Sep',70],['Oct',60],['Nov',85]];
+return `
+<div class="pad" style="padding-top:6px"><div class="title">Reports</div></div>
+<div class="seg" style="margin-top:16px"><span>Week</span><span class="on">Month</span><span>Year</span></div>
+<div class="card" style="margin:18px 20px 0;padding:22px 16px">
+  <div class="donut"><svg width="170" height="170" viewBox="0 0 170 170">${arcs}</svg><div class="c"><small>Total spent</small><b>₹31,240</b></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-top:20px;padding:0 6px">${d.map(x=>`<div style="display:flex;gap:8px;align-items:center;font-size:12px;font-weight:700"><i style="width:10px;height:10px;border-radius:4px;background:${x[2]}"></i>${x[0]}<span style="margin-left:auto;color:var(--muted)">${x[1]}%</span></div>`).join('')}</div>
+</div>
+<div class="sec"><b>6-month trend</b><a>Export</a></div>
+<div class="card" style="margin:0 20px;padding:20px 12px 14px"><div class="bars">${m.map((x,i)=>`<div class="${i==5?'on':''}"><i style="height:${x[1]}%"></i>${x[0]}</div>`).join('')}</div></div>
+<div class="card" style="margin:14px 20px 0;padding:16px;display:flex;gap:14px;align-items:center"><div class="ico" style="${tint('var(--income)')}">📈</div><div><b style="font-size:14px">Savings rate 63%</b><div style="font-size:12px;color:var(--muted)">Pichle mahine se +8% better</div></div></div>`};
+
+S.wallets=()=>`
+<div class="pad" style="padding-top:6px"><div class="h-row"><div class="title">Wallets & Cards</div><div class="iconbtn">${ic('plus',20)}</div></div></div>
+<div style="margin:20px 20px 0;border-radius:28px;padding:22px;height:200px;color:#fff;background:linear-gradient(135deg,#1b1060,#7C5CFC 60%,#EE46BC);position:relative;overflow:hidden;box-shadow:0 20px 30px -14px rgba(124,92,252,.7)">
+  <div style="position:absolute;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.12);right:-70px;top:-80px"></div>
+  <div class="h-row" style="position:relative"><b>HDFC Regalia</b><span style="font-weight:800;font-style:italic">VISA</span></div>
+  <div style="font-size:12px;opacity:.75;margin-top:30px;position:relative">Outstanding</div>
+  <div style="font-size:30px;font-weight:800;position:relative;letter-spacing:-.02em">₹24,180</div>
+  <div style="position:absolute;bottom:20px;left:22px;right:22px;display:flex;justify-content:space-between;font-size:13px;font-weight:600;letter-spacing:.12em"><span>•••• 7712</span><span style="letter-spacing:0">Due 12 Nov</span></div>
+</div>
+<div class="card" style="margin:14px 20px 0;padding:14px 16px"><div class="h-row" style="font-size:12px;font-weight:700"><span>Credit used</span><span style="color:var(--muted)">₹24,180 / ₹1,50,000</span></div><div class="bar" style="margin-top:10px"><i style="width:16%;background:var(--violet)"></i></div></div>
+<div class="sec"><b>All accounts</b></div>
+<div class="card" style="margin:0 20px">
+${[['Axis Bank','🏦','Savings','₹98,420','var(--brand)'],['ICICI Amazon Pay','💳','Credit','₹8,350','var(--pink)'],['Cash','💵','Wallet','₹1,980','var(--amber)'],['Paytm','📱','UPI wallet','₹3,420','var(--sky)']].map(w=>`<div class="row"><div class="ico" style="${tint(w[4])}">${w[1]}</div><div class="m"><b>${w[0]}</b><small>${w[2]}</small></div><div class="amt">${w[3]}</div></div>`).join('')}
+</div>`;
+
+S.sms=()=>`
+<div class="pad" style="padding-top:6px"><div class="title">SMS Inbox</div><div style="color:var(--muted);font-size:13px;margin-top:4px">3 messages se transactions detect hue</div></div>
+<div style="height:16px"></div>
+${[['DEBIT','var(--expense)','HDFC Bank: Rs 486.00 debited from A/c XX4821 to SWIGGY on 04-Nov. Avl bal Rs 98,420','Swiggy · Food','−₹486'],['CREDIT','var(--income)','AXIS: INR 85,000 credited to A/c XX4821 by ACME CORP SALARY','Salary · Income','+₹85,000'],['CARD','var(--violet)','HDFC Card XX7712 spent INR 649 at NETFLIX on 01-Nov','Netflix · Entertainment','−₹649']].map(s=>`
+<div class="card sms"><div class="h-row"><span class="tag" style="${tint(s[1])}">${s[0]}</span><b style="font-size:16px;color:${s[1]}">${s[4]}</b></div>
+<div class="msg">${s[2]}</div><div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:12px">✦ Suggested: ${s[3]}</div>
+<div class="acts"><button style="background:var(--card2);color:var(--muted)">Dismiss</button><button style="background:var(--brand);color:var(--brand-ink)">Add</button></div></div>`).join('')}`;
+
+S.ai=()=>`
+<div class="pad" style="padding-top:6px"><div class="h-row"><div style="display:flex;gap:10px;align-items:center"><div class="ico" style="background:linear-gradient(135deg,#6a3df0,#b24cf0);color:#fff">✦</div><div><div class="title" style="font-size:20px">Zen AI</div><div style="font-size:11px;color:var(--income);font-weight:700">● Online</div></div></div></div></div>
+<div style="height:20px"></div>
+<div class="chat me">Is mahine kahan zyada kharch hua?</div>
+<div class="chat bot">Is mahine sabse zyada <b>Food (₹9,690)</b> aur <b>Shopping (₹7,400)</b> me gaya. Shopping budget pehle hi <b style="color:var(--expense)">₹400 over</b> hai. 📊</div>
+<div class="chat me">Kitna save kar sakta hu?</div>
+<div class="chat bot">Agar food delivery 20% kam karo to mahine ke <b>₹1,240</b> bach sakte hain. Chahiye to ek savings goal bana du? 🎯</div>
+<div class="chips" style="margin:14px 0"><span class="chip">Set savings goal</span><span class="chip">Show Swiggy trend</span><span class="chip">Cut costs</span></div>
+<div class="input"><span>Kuch bhi poocho…</span><i>➤</i></div>`;
+
+S.settings=()=>`
+<div class="pad" style="padding-top:6px"><div class="title">Settings</div></div>
+<div class="card" style="margin:18px 20px 0;padding:16px;display:flex;gap:14px;align-items:center"><div class="avatar" style="width:56px;height:56px;font-size:22px">R</div><div style="flex:1"><b>Rajesh</b><div style="font-size:12px;color:var(--muted)">rajeshmd1819@gmail.com</div></div></div>
+<div class="card" style="margin:14px 20px 0;padding:16px;background:linear-gradient(135deg,#7a4a00,#F5A524);color:#fff;border:0"><b>⭐ ZenSpend Premium</b><div style="font-size:12px;opacity:.9;margin-top:4px">Unlimited AI, shared cashbook & backups</div></div>
+<div class="sec"><b>Preferences</b></div>
+<div class="card" style="margin:0 20px">
+${[['🌙','Dark mode',0],['🔔','Bill reminders',1],['💬','SMS detection',1],['🔒','App lock',1]].map(s=>`<div class="set-item"><span style="font-size:18px">${s[0]}</span><b>${s[1]}</b><div class="sw-t ${s[2]?'':'off'}"></div></div>`).join('')}
+</div>
+<div class="sec"><b>Data</b></div>
+<div class="card" style="margin:0 20px">
+${[['☁️','Backup & Restore'],['📤','Export (CSV / PDF)'],['👨‍👩‍👧','Shared cashbook'],['🔁','Recurring & EMIs']].map(s=>`<div class="set-item"><span style="font-size:18px">${s[0]}</span><b>${s[1]}</b><span style="color:var(--muted)">›</span></div>`).join('')}
+</div>`;
+
+const screens=[['home','🏠','Dashboard'],['txns','🧾','Transactions'],['add','➕','Add transaction'],['budgets','🎯','Budgets'],['reports','📊','Reports'],['wallets','💳','Wallets & Cards'],['sms','💬','SMS drafts'],['ai','✦','AI assistant'],['settings','⚙️','Settings']];
+const dark={add:1};
+let cur='home';
+function go(s){cur=s;render()}
+function key(k){if(k==='⌫')amt=amt.slice(0,-1);else if(k!=='.'&&amt.length<8)amt+=k;render(true)}
+function render(keep){
+  const v=document.getElementById('view');const top=v.scrollTop;
+  v.innerHTML=`<div class="${keep?'':'anim'}">${S[cur]()}</div>`;
+  v.scrollTop=keep?top:0;
+  const hero=['home','add'].includes(cur);
+  document.getElementById('status').className='status'+(hero?' light':'');
+  document.getElementById('navlist').innerHTML=screens.map(s=>`<button class="${s[0]==cur?'on':''}" onclick="go('${s[0]}')">${s[1]} ${s[2]}</button>`).join('');
+  const n=[['home','home','Home'],['txns','list','Activity'],['add','plus',''],['budgets','pie','Budgets'],['reports','chart','Reports']];
+  document.getElementById('bnav').innerHTML=n.map(x=>x[0]==='add'?`<button class="fab" onclick="go('add')">${ic('plus',26)}</button>`:`<button class="${x[0]==cur?'on':''}" onclick="go('${x[0]}')">${ic(x[1])}${x[2]}</button>`).join('');
+  document.getElementById('bnav').style.display=cur==='add'?'none':'flex';
+}
+document.getElementById('tgl').onclick=()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==='dark'?'light':'dark'};
+document.getElementById('status').addEventListener('dblclick',()=>go('settings'));
+render();
+</script>
+</body>
+</html>

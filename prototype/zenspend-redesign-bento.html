@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZenSpend – Bento Redesign</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F1E7; --card:#FFFFFF; --ink:#141414; --ink2:#2A2A2A; --muted:#8A857A; --line:rgba(20,20,20,.08);
+  --lime:#CDF45C; --coral:#FF7A59; --lilac:#C9B8FF; --sky:#A9D8FF; --sun:#FFD166; --mint:#9AE6B4;
+  --r:28px;
+}
+[data-theme=dark]{--bg:#0E0E0E;--card:#1A1A1A;--ink:#F5F2EA;--ink2:#EDEAE0;--muted:#8F8B80;--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:Inter,system-ui,sans-serif;min-height:100vh;color:#fff;background:#1c1b18;background-image:radial-gradient(700px 400px at 15% 10%,#3a3520,transparent 60%),radial-gradient(700px 500px at 90% 90%,#2b2442,transparent 60%)}
+.stage{display:grid;grid-template-columns:250px 390px 250px;gap:48px;justify-content:center;align-items:center;min-height:100vh;padding:30px 20px}
+.side h1{font-family:'Space Grotesk';font-size:30px;line-height:1.05;letter-spacing:-.03em}
+.side h1 em{font-style:normal;background:var(--lime);color:#141414;padding:0 8px;border-radius:10px}
+.side p{color:#a9a698;font-size:13px;line-height:1.5;margin:12px 0 20px}
+.nl{display:flex;flex-direction:column;gap:6px}
+.nl button{all:unset;cursor:pointer;padding:10px 14px;border-radius:14px;font-weight:600;font-size:14px;color:#b8b5a7;transition:.2s}
+.nl button:hover{background:rgba(255,255,255,.07);color:#fff}
+.nl button.on{background:var(--lime);color:#141414}
+.right .box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:16px;margin-bottom:14px;font-size:13px;color:#b8b5a7;line-height:1.6}
+.right h3{color:#fff;font-family:'Space Grotesk';margin-bottom:8px}
+.sw{display:flex;gap:6px;margin-top:8px}.sw i{flex:1;height:30px;border-radius:10px}
+.tgl{all:unset;cursor:pointer;width:100%;text-align:center;padding:12px;border-radius:16px;background:var(--lime);color:#141414;font-weight:700;font-size:14px}
+
+.phone{width:390px;height:844px;border-radius:54px;background:#000;padding:10px;position:relative;box-shadow:0 0 0 2px #333,0 40px 80px -20px #000}
+.screen{width:100%;height:100%;border-radius:44px;overflow:hidden;background:var(--bg);color:var(--ink);position:relative;display:flex;flex-direction:column;transition:background .3s}
+.notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:110px;height:30px;background:#000;border-radius:20px;z-index:30}
+.status{height:48px;flex:none;display:flex;justify-content:space-between;align-items:flex-end;padding:0 30px 6px;font-size:13px;font-weight:700}
+.view{flex:1;overflow-y:auto;scrollbar-width:none;padding:6px 18px 120px}
+.view::-webkit-scrollbar{display:none}
+.anim{animation:in .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes in{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.sg{font-family:'Space Grotesk',sans-serif}
+
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.who{display:flex;align-items:center;gap:10px}
+.av{width:44px;height:44px;border-radius:50%;background:var(--coral);display:grid;place-items:center;font-weight:700;color:#141414;font-family:'Space Grotesk'}
+.who small{color:var(--muted);font-size:12px;display:block}
+.who b{font-size:16px}
+.pill{background:var(--card);border-radius:99px;padding:10px 14px;font-size:13px;font-weight:600;border:1px solid var(--line);display:flex;gap:6px;align-items:center}
+.h1{font-family:'Space Grotesk';font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.05}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.b{border-radius:var(--r);padding:18px;position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line)}
+.b.s2{grid-column:span 2}
+.b small{font-size:12px;font-weight:600;color:var(--muted);display:block}
+.b .big{font-family:'Space Grotesk';font-weight:700;letter-spacing:-.03em}
+.dark{background:#141414;color:#F5F2EA;border:0}.dark small{color:#9d998c}
+[data-theme=dark] .dark{background:#262626}
+.lime{background:var(--lime);color:#141414;border:0}.lime small{color:rgba(20,20,20,.6)}
+.coral{background:var(--coral);color:#141414;border:0}.coral small{color:rgba(20,20,20,.65)}
+.lilac{background:var(--lilac);color:#141414;border:0}.lilac small{color:rgba(20,20,20,.6)}
+.sky{background:var(--sky);color:#141414;border:0}.sky small{color:rgba(20,20,20,.6)}
+.sun{background:var(--sun);color:#141414;border:0}.sun small{color:rgba(20,20,20,.6)}
+.arrow{position:absolute;right:14px;top:14px;width:30px;height:30px;border-radius:50%;background:rgba(20,20,20,.1);display:grid;place-items:center;font-size:14px}
+.dark .arrow{background:rgba(255,255,255,.12)}
+.spark{display:block;margin-top:10px}
+
+.act{display:flex;gap:8px;margin-top:16px}
+.act button{all:unset;cursor:pointer;flex:1;text-align:center;padding:12px 0;border-radius:99px;font-weight:700;font-size:13px;background:rgba(255,255,255,.12)}
+.act button.p{background:var(--lime);color:#141414}
+
+.sec{display:flex;justify-content:space-between;align-items:center;margin:26px 2px 12px}
+.sec b{font-family:'Space Grotesk';font-size:20px;letter-spacing:-.02em}
+.sec a{font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;text-decoration:underline}
+.tx{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border-radius:22px;margin-bottom:8px;border:1px solid var(--line)}
+.tx .e{width:44px;height:44px;border-radius:16px;display:grid;place-items:center;font-size:20px;flex:none}
+.tx .m{flex:1}.tx .m b{display:block;font-size:14px}.tx .m small{font-size:12px;color:var(--muted)}
+.tx .a{font-family:'Space Grotesk';font-weight:700;font-size:15px}
+.tx .a.i{color:#1c9b57}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:14px 0}
+.chips span{flex:none;padding:9px 16px;border-radius:99px;font-size:13px;font-weight:600;border:1.5px solid var(--line);cursor:pointer}
+.chips span.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+.dock{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;background:#141414;border-radius:99px;padding:8px;display:flex;gap:4px;z-index:20;box-shadow:0 18px 30px -10px rgba(0,0,0,.5)}
+[data-theme=dark] .dock{background:#2a2a2a}
+.dock button{all:unset;cursor:pointer;height:48px;min-width:48px;border-radius:99px;display:flex;align-items:center;justify-content:center;gap:8px;color:#9d998c;font-weight:700;font-size:13px;transition:.3s;padding:0 14px}
+.dock button svg{width:22px;height:22px;flex:none}
+.dock button span{display:none}
+.dock button.on{background:var(--lime);color:#141414}
+.dock button.on span{display:inline}
+.dock .plus{background:var(--coral);color:#141414;margin-left:4px;padding:0}
+.dock .plus:hover{transform:rotate(90deg)}
+
+.bigamt{font-family:'Space Grotesk';font-size:72px;font-weight:700;letter-spacing:-.05em;text-align:center;line-height:1}
+.bigamt small{font-size:34px;color:var(--muted);vertical-align:top;margin-right:4px}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.keys button{all:unset;cursor:pointer;text-align:center;padding:15px 0;border-radius:22px;background:var(--card);font-family:'Space Grotesk';font-size:22px;font-weight:600;border:1px solid var(--line)}
+.keys button:active{transform:scale(.93);background:var(--lime);color:#141414}
+.cg{display:flex;gap:8px;flex-wrap:wrap}
+.cg span{padding:9px 14px;border-radius:99px;background:var(--card);border:1.5px solid var(--line);font-size:13px;font-weight:600;cursor:pointer}
+.cg span.on{background:var(--lilac);color:#141414;border-color:transparent}
+.cta{all:unset;cursor:pointer;display:block;text-align:center;margin-top:14px;padding:18px;border-radius:99px;background:#141414;color:var(--lime);font-weight:700;font-size:16px;font-family:'Space Grotesk'}
+[data-theme=dark] .cta{background:var(--lime);color:#141414}
+.seg{display:flex;background:var(--card);border-radius:99px;padding:4px;border:1px solid var(--line);margin:14px 0}
+.seg span{flex:1;text-align:center;padding:10px;border-radius:99px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg span.on{background:var(--ink);color:var(--bg)}
+.ring{position:relative;width:96px;height:96px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:'Space Grotesk';font-size:20px}
+.bl{display:flex;align-items:center;gap:14px}
+.bar{height:14px;border-radius:99px;background:rgba(20,20,20,.1);overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;border-radius:99px;background:#141414}
+.cc{border-radius:30px;padding:22px;height:200px;position:relative;overflow:hidden;margin-bottom:12px;display:flex;flex-direction:column;justify-content:space-between;color:#141414}
+.cc .n{font-family:'Space Grotesk';font-size:30px;font-weight:700;letter-spacing:-.03em}
+.cc .c{width:42px;height:30px;border-radius:8px;background:rgba(20,20,20,.18)}
+.cc::after{content:"";position:absolute;right:-50px;bottom:-70px;width:200px;height:200px;border-radius:50%;border:34px solid rgba(255,255,255,.35)}
+.bars{display:flex;gap:7px;align-items:flex-end;height:120px;margin-top:14px}
+.bars div{flex:1;border-radius:12px;background:rgba(20,20,20,.12);transition:height .8s cubic-bezier(.2,.8,.2,1)}
+.bars div.on{background:#141414}
+.tip{display:flex;gap:12px;align-items:flex-start}
+.tip .e{font-size:26px}
+@media(max-width:1000px){.stage{grid-template-columns:390px}.side,.right{display:none}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <aside class="side">
+    <h1>Zen<em>Spend</em><br>Bento<br>Redesign</h1>
+    <p>Design #2 · playful, colourful, bento-grid style. Screen choose karo ya dock se navigate karo.</p>
+    <div class="nl" id="nl"></div>
+  </aside>
+  <div class="phone"><div class="screen" id="screen">
+    <div class="notch"></div>
+    <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+    <div class="view" id="view"></div>
+    <div class="dock" id="dock"></div>
+  </div></div>
+  <aside class="right">
+    <div class="box"><h3>Style</h3>Warm cream canvas, black &amp; lime contrast, pastel bento tiles, Space Grotesk numerals, pill-shaped dock jo active tab ka naam dikhata hai.
+      <div class="sw"><i style="background:#CDF45C"></i><i style="background:#FF7A59"></i><i style="background:#C9B8FF"></i><i style="background:#A9D8FF"></i><i style="background:#FFD166"></i></div></div>
+    <div class="box"><h3>Design #1 se farak</h3>#1 = calm, premium, teal fintech.<br>#2 = bold, fun, young &amp; energetic.</div>
+    <button class="tgl" id="tgl">🌙 Dark / Light</button>
+  </aside>
+</div>
+<script>
+const P={
+ home:'<path d="M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ pie:'<path d="M21 12A9 9 0 1112 3v9z"/><path d="M15 3.5A9 9 0 0120.5 9H15z"/>',
+ card:'<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/>',
+ spark:'<path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"/>'
+};
+const ic=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${P[n]}</svg>`;
+const T=[['Swiggy','🍔','Food · 8:42 PM',-486,'#FFD166'],['Salary · Acme','💼','Income · 10:00 AM',85000,'#9AE6B4'],['Uber','🚕','Travel · Yesterday',-212,'#A9D8FF'],['Amazon','🛍️','Shopping · Yesterday',-2349,'#C9B8FF'],['Electricity','💡','Bills · 2 Nov',-1860,'#FF7A59'],['Netflix','🎬','Fun · 1 Nov',-649,'#FFD166']];
+const row=t=>`<div class="tx"><div class="e" style="background:${t[4]}">${t[1]}</div><div class="m"><b>${t[0]}</b><small>${t[2]}</small></div><div class="a ${t[3]>0?'i':''}">${t[3]>0?'+':'−'}₹${Math.abs(t[3]).toLocaleString('en-IN')}</div></div>`;
+const S={};
+S.home=()=>`
+<div class="top"><div class="who"><div class="av">R</div><div><small>Wed, 4 Nov</small><b>Hey Rajesh 👋</b></div></div><div class="pill">🔔 3</div></div>
+<div class="grid">
+  <div class="b dark s2" style="padding:22px">
+    <small>Net worth</small>
+    <div class="big" style="font-size:46px;margin-top:6px">₹1,24,580</div>
+    <svg class="spark" width="100%" height="46" viewBox="0 0 300 46" preserveAspectRatio="none"><path d="M0 38 C30 30 50 40 80 28 S130 34 160 20 S220 26 250 10 S290 14 300 4" fill="none" stroke="#CDF45C" stroke-width="3" stroke-linecap="round"/></svg>
+    <div class="act"><button class="p" onclick="go('add')">＋ Add</button><button>↗ Send</button><button onclick="go('cards')">💳 Cards</button></div>
+  </div>
+  <div class="b lime"><small>Income</small><div class="big" style="font-size:26px;margin-top:22px">₹85,000</div><small style="margin-top:4px">▲ 12% vs Oct</small><span class="arrow">↗</span></div>
+  <div class="b coral"><small>Spent</small><div class="big" style="font-size:26px;margin-top:22px">₹31,240</div><small style="margin-top:4px">▼ 4% vs Oct</small><span class="arrow">↘</span></div>
+  <div class="b lilac" onclick="go('budget')" style="cursor:pointer"><small>Budget left</small><div class="big" style="font-size:26px;margin-top:6px">₹4,000</div><div class="bar"><i style="width:78%"></i></div><small style="margin-top:8px">9 days to go</small></div>
+  <div class="b sky" onclick="go('insights')" style="cursor:pointer"><small>Zen AI ✦</small><div style="font-size:14px;font-weight:600;margin-top:8px;line-height:1.35">Food pe ₹1,240 bach sakte ho</div><span class="arrow">→</span></div>
+  <div class="b sun s2" style="display:flex;justify-content:space-between;align-items:center"><div><small>SMS detected</small><div class="big" style="font-size:22px">3 new transactions</div></div><div style="background:#141414;color:#CDF45C;padding:10px 16px;border-radius:99px;font-weight:700;font-size:13px">Review</div></div>
+</div>
+<div class="sec"><b>Recent</b><a onclick="go('activity')">See all</a></div>
+${T.slice(0,3).map(row).join('')}`;
+
+S.activity=()=>`
+<div class="h1">Activity</div>
+<div class="chips"><span class="on">All</span><span>Expense</span><span>Income</span><span>Cards</span><span>UPI</span></div>
+<div class="b dark" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div><small>This month</small><div class="big" style="font-size:28px">+₹53,760</div></div><div style="text-align:right;font-size:12px;font-weight:600;line-height:1.7"><span style="color:#CDF45C">↓ ₹85,000</span><br><span style="color:#FF7A59">↑ ₹31,240</span></div></div>
+<div class="sec"><b>Today</b></div>${T.slice(0,2).map(row).join('')}
+<div class="sec"><b>Earlier</b></div>${T.slice(2).map(row).join('')}`;
+
+let amt='1250',catS=0,kind='Expense';
+S.add=()=>`
+<div style="display:flex;justify-content:space-between;align-items:center"><div class="pill" onclick="go('home')">✕ Close</div><div class="pill">Axis Bank ▾</div></div>
+<div class="seg">${['Expense','Income','Transfer'].map(k=>`<span class="${k==kind?'on':''}" onclick="kind='${k}';render()">${k}</span>`).join('')}</div>
+<div class="bigamt" style="margin:22px 0 18px"><small>₹</small>${Number(amt||0).toLocaleString('en-IN')}</div>
+<div class="cg">${['🍔 Food','🛍️ Shopping','🚕 Travel','💡 Bills','🎬 Fun','💊 Health'].map((c,i)=>`<span class="${i==catS?'on':''}" onclick="catS=${i};render(1)">${c}</span>`).join('')}</div>
+<div class="keys">${[1,2,3,4,5,6,7,8,9,'.',0,'⌫'].map(k=>`<button onclick="key('${k}')">${k}</button>`).join('')}</div>
+<div class="cta" onclick="go('home')">Save · ₹${Number(amt||0).toLocaleString('en-IN')} →</div>`;
+
+S.budget=()=>{const b=[['🍔 Food',6200,8000,'#FFD166'],['🛍️ Shopping',7400,7000,'#FF7A59'],['🚕 Travel',2100,4000,'#A9D8FF'],['💡 Bills',5800,6500,'#C9B8FF']];return `
+<div class="h1">Budgets</div>
+<div class="b lime" style="margin-top:16px"><div class="bl"><div class="ring"><svg width="96" height="96" viewBox="0 0 96 96"><circle cx="48" cy="48" r="40" fill="none" stroke="rgba(20,20,20,.12)" stroke-width="12"/><circle cx="48" cy="48" r="40" fill="none" stroke="#141414" stroke-width="12" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="${251*.22}"/></svg><b>78%</b></div><div><small>Nov budget</small><div class="big" style="font-size:30px">₹21,500</div><small>of ₹25,500 spent</small></div></div></div>
+<div class="sec"><b>Categories</b><a>+ New</a></div>
+<div class="grid">${b.map(x=>{const p=Math.min(100,x[1]/x[2]*100),o=x[1]>x[2];return `<div class="b" style="background:${x[3]};color:#141414;border:0"><div style="font-weight:700;font-size:14px">${x[0]}</div><div class="big" style="font-size:22px;margin-top:20px">₹${x[1].toLocaleString('en-IN')}</div><small style="color:rgba(20,20,20,.6)">of ₹${x[2].toLocaleString('en-IN')}</small><div class="bar"><i style="width:${p}%"></i></div>${o?'<div style="margin-top:8px;font-size:11px;font-weight:700;background:#141414;color:#FF7A59;display:inline-block;padding:3px 9px;border-radius:99px">OVER</div>':''}</div>`}).join('')}</div>`};
+
+S.insights=()=>{const m=[['J',45],['J',60],['A',38],['S',72],['O',58],['N',90]];return `
+<div class="h1">Insights</div>
+<div class="seg"><span>Week</span><span class="on">Month</span><span>Year</span></div>
+<div class="b dark"><small>Spending trend</small><div class="big" style="font-size:34px;margin-top:4px">₹31,240</div>
+<div class="bars">${m.map((x,i)=>`<div class="${i==5?'on':''}" style="height:${x[1]}%;${i==5?'background:#CDF45C':'background:rgba(255,255,255,.14)'}"></div>`).join('')}</div>
+<div style="display:flex;justify-content:space-between;font-size:11px;color:#9d998c;margin-top:8px;font-weight:600">${m.map(x=>`<span style="flex:1;text-align:center">${x[0]}</span>`).join('')}</div></div>
+<div class="grid" style="margin-top:12px">
+ <div class="b lilac"><small>Top category</small><div style="font-size:30px;margin-top:6px">🍔</div><div class="big" style="font-size:20px">Food 31%</div></div>
+ <div class="b coral"><small>Savings rate</small><div class="big" style="font-size:38px;margin-top:8px">63%</div><small>+8% better</small></div>
+</div>
+<div class="sec"><b>Zen AI says</b></div>
+<div class="b sky tip" style="margin-bottom:10px"><div class="e">✦</div><div style="font-size:14px;font-weight:600;line-height:1.45">Swiggy pe is mahine 14 baar kharch hua. Hafte me 2 baar kam karo to <u>₹1,240/mo</u> bachenge.</div></div>
+<div class="b sun tip"><div class="e">🎯</div><div style="font-size:14px;font-weight:600;line-height:1.45">Shopping budget ₹400 over hai. Alert laga du?</div></div>`};
+
+S.cards=()=>`
+<div class="h1">Cards &amp; Wallets</div>
+<div style="height:16px"></div>
+<div class="cc" style="background:linear-gradient(135deg,#C9B8FF,#A9D8FF)"><div style="display:flex;justify-content:space-between;font-weight:700"><span>HDFC Regalia</span><span style="font-style:italic">VISA</span></div><div class="c"></div><div><small style="font-size:12px;opacity:.65;font-weight:600">Outstanding</small><div class="n">₹24,180</div></div></div>
+<div class="cc" style="background:linear-gradient(135deg,#CDF45C,#9AE6B4);height:150px"><div style="display:flex;justify-content:space-between;font-weight:700"><span>Axis Savings</span><span>•••• 4821</span></div><div><small style="font-size:12px;opacity:.65;font-weight:600">Balance</small><div class="n">₹98,420</div></div></div>
+<div class="b"><small>Credit used</small><div class="big" style="font-size:20px">16% of ₹1,50,000</div><div class="bar"><i style="width:16%"></i></div><small style="margin-top:10px">Due 12 Nov · pay ₹24,180</small></div>`;
+
+const sc=[['home','Dashboard'],['activity','Activity'],['add','Add transaction'],['budget','Budgets'],['insights','Insights'],['cards','Cards & wallets']];
+let cur='home';
+function go(s){cur=s;render()}
+function key(k){if(k==='⌫')amt=amt.slice(0,-1);else if(k!=='.'&&amt.length<8)amt+=k;render(1)}
+function render(keep){
+  const v=document.getElementById('view'),t=v.scrollTop;
+  v.innerHTML=`<div class="${keep?'':'anim'}">${S[cur]()}</div>`;v.scrollTop=keep?t:0;
+  document.getElementById('nl').innerHTML=sc.map(s=>`<button class="${s[0]==cur?'on':''}" onclick="go('${s[0]}')">${s[1]}</button>`).join('');
+  const d=[['home','home','Home'],['activity','list','Activity'],['budget','pie','Budget'],['insights','spark','Insights']];
+  const dk=document.getElementById('dock');
+  dk.innerHTML=d.map(x=>`<button class="${x[0]==cur?'on':''}" onclick="go('${x[0]}')">${ic(x[1])}<span>${x[2]}</span></button>`).join('')+`<button class="plus" onclick="go('add')">${ic('plus')}</button>`;
+  dk.style.display=cur==='add'?'none':'flex';
+}
+document.getElementById('tgl').onclick=()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==='dark'?'light':'dark'};
+render();
+</script>
+</body>
+</html>

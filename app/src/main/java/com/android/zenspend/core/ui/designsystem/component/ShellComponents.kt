@@ -8,6 +8,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -59,7 +60,7 @@ fun ZenTopAppBar(
                 }
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.headlineSmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -83,138 +84,6 @@ fun ZenTopAppBar(
 }
 
 @Composable
-fun ZenNavigationBar(
-    selectedIndex: Int,
-    items: List<ZenNavItem>,
-    onItemSelected: (Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val navShape = RoundedCornerShape(Dimensions.NavBarCornerRadius)
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .windowInsetsPadding(WindowInsets.navigationBars)
-            .padding(
-                start = Dimensions.NavBarFloatingMargin,
-                end = Dimensions.NavBarFloatingMargin,
-                bottom = Dimensions.SpacingMedium
-            )
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(Dimensions.NavBarHeight)
-                .shadow(
-                    elevation = Dimensions.NavBarElevation,
-                    shape = navShape,
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.06f),
-                    spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                ),
-            shape = navShape,
-            color = MaterialTheme.colorScheme.surfaceContainerLowest,
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)
-            )
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = Dimensions.SpacingXSmall),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                items.forEachIndexed { index, item ->
-                    ZenNavBarItem(
-                        item = item,
-                        selected = selectedIndex == index,
-                        onClick = { onItemSelected(index) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ZenNavBarItem(
-    item: ZenNavItem,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val iconColor by animateColorAsState(
-        targetValue = if (selected) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-        },
-        animationSpec = tween(durationMillis = 200),
-        label = "navIconColor"
-    )
-    val labelColor by animateColorAsState(
-        targetValue = if (selected) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-        },
-        animationSpec = tween(durationMillis = 200),
-        label = "navLabelColor"
-    )
-    val pillColor by animateColorAsState(
-        targetValue = if (selected) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            MaterialTheme.colorScheme.surfaceContainerLowest
-        },
-        animationSpec = spring(stiffness = Spring.StiffnessMedium),
-        label = "navPillColor"
-    )
-
-    Column(
-        modifier = modifier
-            .heightIn(min = Dimensions.MinTouchTarget)
-            .clip(RoundedCornerShape(Dimensions.NavBarItemPillRadius))
-            .background(pillColor)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
-            )
-            .semantics {
-                role = Role.Tab
-                contentDescription = item.label
-            }
-            .padding(vertical = Dimensions.SpacingSmall, horizontal = Dimensions.SpacingXSmall),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            painter = painterResource(id = item.iconRes),
-            contentDescription = null,
-            tint = iconColor,
-            modifier = Modifier.size(Dimensions.IconSizeMedium)
-        )
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = item.label,
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-            color = labelColor,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
-
-data class ZenNavItem(
-    val label: String,
-    @DrawableRes val iconRes: Int
-)
-
-@Composable
 fun ZenListRow(
     title: String,
     modifier: Modifier = Modifier,
@@ -234,20 +103,12 @@ fun ZenListRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
             if (icon != null) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(Dimensions.IconSizeMedium)
-                    )
-                }
+                ZenBadge(
+                    label = title,
+                    icon = icon,
+                    tone = com.android.zenspend.core.ui.theme.ZenTone.forKey(title),
+                    size = Dimensions.BadgeSize
+                )
                 Spacer(modifier = Modifier.width(Dimensions.SpacingLarge))
             }
             Column(modifier = Modifier.weight(1f)) {
@@ -296,12 +157,14 @@ fun ZenSurfaceCard(
     val colors = CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow
     )
+    val border = BorderStroke(Dimensions.Hairline, MaterialTheme.colorScheme.outlineVariant)
     if (onClick != null) {
         Card(
             onClick = onClick,
             modifier = modifier.fillMaxWidth(),
             shape = CardShape,
             colors = colors,
+            border = border,
             elevation = CardDefaults.cardElevation(defaultElevation = Dimensions.CardElevation)
         ) {
             Column(
@@ -314,6 +177,7 @@ fun ZenSurfaceCard(
             modifier = modifier.fillMaxWidth(),
             shape = CardShape,
             colors = colors,
+            border = border,
             elevation = CardDefaults.cardElevation(defaultElevation = Dimensions.CardElevation)
         ) {
             Column(
@@ -324,7 +188,6 @@ fun ZenSurfaceCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ZenSegmentedControl(
     options: List<String>,
@@ -332,14 +195,31 @@ fun ZenSegmentedControl(
     onSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    SingleChoiceSegmentedButtonRow(modifier = modifier.fillMaxWidth()) {
+    val scheme = MaterialTheme.colorScheme
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(com.android.zenspend.core.ui.theme.PillShape)
+            .background(scheme.surfaceContainerLow)
+            .border(Dimensions.Hairline, scheme.outlineVariant, com.android.zenspend.core.ui.theme.PillShape)
+            .padding(Dimensions.SpacingXSmall)
+    ) {
         options.forEachIndexed { index, label ->
-            SegmentedButton(
-                selected = selectedIndex == index,
-                onClick = { onSelected(index) },
-                shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size)
+            val selected = index == selectedIndex
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(com.android.zenspend.core.ui.theme.PillShape)
+                    .background(if (selected) scheme.onSurface else androidx.compose.ui.graphics.Color.Transparent)
+                    .clickable(role = Role.Tab) { onSelected(index) }
+                    .padding(vertical = Dimensions.SpacingMedium - 2.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Text(label, style = MaterialTheme.typography.labelLarge)
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = if (selected) scheme.surface else scheme.onSurfaceVariant
+                )
             }
         }
     }

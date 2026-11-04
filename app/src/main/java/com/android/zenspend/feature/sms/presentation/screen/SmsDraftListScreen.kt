@@ -1,26 +1,54 @@
 package com.android.zenspend.feature.sms.presentation.screen
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.android.zenspend.R
+import com.android.zenspend.core.database.model.TransactionType
+import com.android.zenspend.core.ui.designsystem.component.EmptyState
+import com.android.zenspend.core.ui.designsystem.component.LoadingState
+import com.android.zenspend.core.ui.designsystem.component.ZenBadge
+import com.android.zenspend.core.ui.designsystem.component.ZenPrimaryButton
+import com.android.zenspend.core.ui.designsystem.component.ZenSecondaryButton
+import com.android.zenspend.core.ui.designsystem.component.ZenTile
+import com.android.zenspend.core.ui.designsystem.component.ZenTileCaption
+import com.android.zenspend.core.ui.designsystem.component.ZenTileValue
+import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
+import com.android.zenspend.core.ui.theme.AmountHero
+import com.android.zenspend.core.ui.theme.AmountMedium
+import com.android.zenspend.core.ui.theme.Dimensions
 import com.android.zenspend.core.ui.theme.ZenSpendTheme
+import com.android.zenspend.core.ui.theme.ZenTone
+import com.android.zenspend.core.ui.util.formatMinorUnits
 import com.android.zenspend.feature.sms.domain.model.SmsTransactionDraft
 import com.android.zenspend.feature.sms.presentation.viewmodel.SmsDraftListEvent
 import com.android.zenspend.feature.sms.presentation.viewmodel.SmsDraftListViewModel
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SmsDraftListScreen(
     onNavigateBack: () -> Unit,
@@ -30,39 +58,47 @@ fun SmsDraftListScreen(
     val state by viewModel.state.collectAsState()
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                title = { Text("Detected Transactions") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
+            ZenTopAppBar(
+                title = stringResource(R.string.sms_title),
+                showBack = true,
+                onBackClick = onNavigateBack,
                 actions = {
                     IconButton(onClick = { viewModel.onEvent(SmsDraftListEvent.SyncHistoricalRequested) }) {
-                        Icon(Icons.Default.Sync, contentDescription = "Sync Historical")
+                        Icon(Icons.Default.Sync, contentDescription = stringResource(R.string.sms_sync))
                     }
                 }
             )
         }
     ) { padding ->
-        if (state.isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else if (state.drafts.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No transaction drafts found.")
-            }
-        } else {
-            LazyColumn(
+        when {
+            state.isLoading -> LoadingState(modifier = Modifier.padding(padding))
+            state.drafts.isEmpty() -> EmptyState(
+                title = stringResource(R.string.sms_title),
+                message = stringResource(R.string.sms_empty),
+                modifier = Modifier.padding(padding)
+            )
+            else -> LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(padding),
+                contentPadding = PaddingValues(
+                    horizontal = Dimensions.ScreenPadding,
+                    vertical = Dimensions.SpacingLarge
+                ),
+                verticalArrangement = Arrangement.spacedBy(Dimensions.TileGap)
             ) {
-                items(state.drafts) { draft ->
+                item {
+                    ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Sun) {
+                        ZenTileCaption(stringResource(R.string.sms_waiting))
+                        ZenTileValue(
+                            text = pluralStringResource(R.plurals.sms_draft_count, state.drafts.size, state.drafts.size),
+                            style = AmountHero
+                        )
+                    }
+                }
+                items(state.drafts, key = { it.id }) { draft ->
                     SmsDraftCard(
                         draft = draft,
                         onReview = { onNavigateToReview(draft.id) },
@@ -78,58 +114,58 @@ fun SmsDraftListScreen(
 fun SmsDraftCard(
     draft: SmsTransactionDraft,
     onReview: () -> Unit,
-    onIgnore: () -> Unit
+    onIgnore: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = draft.merchant ?: "Unknown Merchant",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "₹${draft.amount / 100.0}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = if (draft.type == com.android.zenspend.core.database.model.TransactionType.INCOME) ZenSpendTheme.colors.income else ZenSpendTheme.colors.expense
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Text(
-                text = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(Date(draft.date)),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            
-            Text(
-                text = "${draft.type} | A/c XXXX${draft.accountLast4 ?: "****"}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+    val merchant = draft.merchant ?: stringResource(R.string.unknown)
+    val isIncome = draft.type == TransactionType.INCOME
+    val dateText = remember(draft.date) {
+        SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(Date(draft.date))
+    }
+    val amountColor = if (isIncome) ZenSpendTheme.colors.income else ZenSpendTheme.colors.expense
 
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(onClick = onIgnore) {
-                    Text("Ignore")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = onReview) {
-                    Text("Review")
-                }
+    ZenTile(modifier = modifier.fillMaxWidth(), tone = ZenTone.Surface) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ZenBadge(label = merchant)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(merchant, style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                ZenTileCaption(dateText)
             }
+            val amountRes = if (isIncome) R.string.amount_rupees_income else R.string.amount_rupees_expense
+            ZenTileValue(
+                text = stringResource(amountRes, formatMinorUnits(draft.amount)),
+                style = AmountMedium,
+                color = amountColor
+            )
+        }
+        ZenTileCaption(
+            text = stringResource(
+                R.string.sms_account_line,
+                draft.type.name,
+                draft.accountLast4 ?: stringResource(R.string.sms_account_unknown)
+            ),
+            modifier = Modifier.padding(top = Dimensions.SpacingMedium)
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = Dimensions.SpacingLarge),
+            horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
+        ) {
+            ZenSecondaryButton(
+                text = stringResource(R.string.action_ignore),
+                onClick = onIgnore,
+                modifier = Modifier.weight(1f)
+            )
+            ZenPrimaryButton(
+                text = stringResource(R.string.sms_review),
+                onClick = onReview,
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }

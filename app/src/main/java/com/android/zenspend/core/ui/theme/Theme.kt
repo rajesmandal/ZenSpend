@@ -10,85 +10,93 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
+/**
+ * App-specific colours that Material's ColorScheme has no slot for.
+ * Read via `ZenSpendTheme.colors`.
+ */
 @Immutable
 data class CustomColors(
     val income: Color = Color.Unspecified,
     val expense: Color = Color.Unspecified,
     val transfer: Color = Color.Unspecified,
     val creditCard: Color = Color.Unspecified,
-    val neutral: Color = Color.Unspecified
-)
+    val neutral: Color = Color.Unspecified,
+    /** Bento tile palette — see [ZenTone]. */
+    val tones: ZenTonePalette = lightTonePalette()
+) {
+    fun tone(tone: ZenTone): ToneColors = tones.of(tone)
+}
 
 val LocalCustomColors = staticCompositionLocalOf { CustomColors() }
 
 private val LightColorScheme = lightColorScheme(
-    primary = PrimaryLight,
-    onPrimary = OnPrimaryLight,
-    primaryContainer = PrimaryContainerLight,
-    onPrimaryContainer = OnPrimaryContainerLight,
-    secondary = SecondaryLight,
-    onSecondary = OnSecondaryLight,
-    secondaryContainer = SecondaryContainerLight,
-    onSecondaryContainer = OnSecondaryContainerLight,
-    tertiary = TertiaryLight,
-    onTertiary = OnTertiaryLight,
-    tertiaryContainer = TertiaryContainerLight,
-    onTertiaryContainer = OnTertiaryContainerLight,
-    error = ErrorLight,
-    onError = OnErrorLight,
-    errorContainer = ErrorContainerLight,
-    onErrorContainer = OnErrorContainerLight,
-    background = BackgroundLight,
-    onBackground = OnBackgroundLight,
-    surface = SurfaceLight,
-    onSurface = OnSurfaceLight,
-    surfaceVariant = SurfaceVariantLight,
-    onSurfaceVariant = OnSurfaceVariantLight,
-    outline = OutlineLight,
-    outlineVariant = OutlineVariantLight,
-    surfaceContainerLowest = SurfaceContainerLowestLight,
-    surfaceContainerLow = SurfaceContainerLowLight,
-    surfaceContainer = SurfaceContainerLight,
-    surfaceContainerHigh = SurfaceContainerHighLight,
-    surfaceContainerHighest = SurfaceContainerHighestLight,
-    inverseSurface = InverseSurfaceLight,
-    inverseOnSurface = InverseOnSurfaceLight,
-    scrim = ScrimLight
+    primary = Ink,
+    onPrimary = Lime,
+    primaryContainer = Lime,
+    onPrimaryContainer = Ink,
+    secondary = InkSoft,
+    onSecondary = Paper,
+    secondaryContainer = Lilac,
+    onSecondaryContainer = Ink,
+    tertiary = Coral,
+    onTertiary = Ink,
+    tertiaryContainer = Sky,
+    onTertiaryContainer = Ink,
+    error = ErrorRed,
+    onError = Paper,
+    errorContainer = ErrorRedContainer,
+    onErrorContainer = Ink,
+    background = Cream,
+    onBackground = Ink,
+    surface = Cream,
+    onSurface = Ink,
+    surfaceVariant = CreamDeep,
+    onSurfaceVariant = InkSoft,
+    outline = Stone,
+    outlineVariant = Sand,
+    surfaceContainerLowest = Paper,
+    surfaceContainerLow = Paper,
+    surfaceContainer = CreamDeep,
+    surfaceContainerHigh = CreamDeeper,
+    surfaceContainerHighest = CreamDeepest,
+    inverseSurface = Ink,
+    inverseOnSurface = Bone,
+    scrim = ScrimColor
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryDark,
-    onPrimary = OnPrimaryDark,
-    primaryContainer = PrimaryContainerDark,
-    onPrimaryContainer = OnPrimaryContainerDark,
-    secondary = SecondaryDark,
-    onSecondary = OnSecondaryDark,
-    secondaryContainer = SecondaryContainerDark,
-    onSecondaryContainer = OnSecondaryContainerDark,
-    tertiary = TertiaryDark,
-    onTertiary = OnTertiaryDark,
-    tertiaryContainer = TertiaryContainerDark,
-    onTertiaryContainer = OnTertiaryContainerDark,
-    error = ErrorDark,
-    onError = OnErrorDark,
-    errorContainer = ErrorContainerDark,
-    onErrorContainer = OnErrorContainerDark,
-    background = BackgroundDark,
-    onBackground = OnBackgroundDark,
-    surface = SurfaceDark,
-    onSurface = OnSurfaceDark,
-    surfaceVariant = SurfaceVariantDark,
-    onSurfaceVariant = OnSurfaceVariantDark,
-    outline = OutlineDark,
-    outlineVariant = OutlineVariantDark,
-    surfaceContainerLowest = SurfaceContainerLowestDark,
-    surfaceContainerLow = SurfaceContainerLowDark,
-    surfaceContainer = SurfaceContainerDark,
-    surfaceContainerHigh = SurfaceContainerHighDark,
-    surfaceContainerHighest = SurfaceContainerHighestDark,
-    inverseSurface = InverseSurfaceDark,
-    inverseOnSurface = InverseOnSurfaceDark,
-    scrim = ScrimDark
+    primary = Lime,
+    onPrimary = Ink,
+    primaryContainer = Lime,
+    onPrimaryContainer = Ink,
+    secondary = BoneSoft,
+    onSecondary = Ink,
+    secondaryContainer = Lilac,
+    onSecondaryContainer = Ink,
+    tertiary = Coral,
+    onTertiary = Ink,
+    tertiaryContainer = Sky,
+    onTertiaryContainer = Ink,
+    error = ErrorRedDark,
+    onError = Ink,
+    errorContainer = ErrorRedContainerDark,
+    onErrorContainer = Bone,
+    background = Night,
+    onBackground = Bone,
+    surface = Night,
+    onSurface = Bone,
+    surfaceVariant = NightRaised2,
+    onSurfaceVariant = BoneSoft,
+    outline = BoneSoft,
+    outlineVariant = NightLine,
+    surfaceContainerLowest = NightRaised,
+    surfaceContainerLow = NightRaised,
+    surfaceContainer = NightRaised2,
+    surfaceContainerHigh = NightRaised3,
+    surfaceContainerHighest = NightRaised4,
+    inverseSurface = Bone,
+    inverseOnSurface = Ink,
+    scrim = ScrimColor
 )
 
 private val LightCustomColors = CustomColors(
@@ -96,7 +104,8 @@ private val LightCustomColors = CustomColors(
     expense = ExpenseRed,
     transfer = TransferBlue,
     creditCard = CreditCardGold,
-    neutral = NeutralGrey
+    neutral = NeutralGrey,
+    tones = lightTonePalette()
 )
 
 private val DarkCustomColors = CustomColors(
@@ -104,7 +113,8 @@ private val DarkCustomColors = CustomColors(
     expense = ExpenseRedDark,
     transfer = TransferBlueDark,
     creditCard = CreditCardGoldDark,
-    neutral = NeutralGrey
+    neutral = NeutralGrey,
+    tones = darkTonePalette()
 )
 
 @Composable

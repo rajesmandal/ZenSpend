@@ -1,3 +1,219 @@
 <resources>
     <string name="app_name">ZenSpend</string>
+
+    <!-- Common -->
+    <string name="amount_rupees">₹%1$s</string>
+    <string name="amount_rupees_income">+₹%1$s</string>
+    <string name="amount_rupees_expense">−₹%1$s</string>
+    <string name="action_add">Add</string>
+    <string name="action_see_all">See all</string>
+    <string name="action_view_all">View all</string>
+    <string name="action_review">Review</string>
+    <string name="action_set_up">Set up</string>
+    <string name="action_search">Search</string>
+    <string name="action_filter">Filter</string>
+    <string name="action_notifications">Notifications</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_previous_month">Previous month</string>
+    <string name="action_next_month">Next month</string>
+    <string name="untitled">Untitled</string>
+    <string name="unknown">Unknown</string>
+
+    <!-- Dock -->
+    <string name="nav_home">Home</string>
+    <string name="nav_history">History</string>
+    <string name="nav_wallets">Wallets</string>
+    <string name="nav_insights">Insights</string>
+
+    <!-- Dashboard -->
+    <string name="greeting_morning">Good morning</string>
+    <string name="greeting_afternoon">Good afternoon</string>
+    <string name="greeting_evening">Good evening</string>
+    <string name="dashboard_title">Dashboard</string>
+    <string name="dashboard_household_title">Our Household</string>
+    <string name="scope_personal">Personal</string>
+    <string name="scope_household">Our Household</string>
+    <string name="dashboard_net_worth">Net worth</string>
+    <string name="dashboard_assets">Assets</string>
+    <string name="dashboard_liabilities">Liabilities</string>
+    <string name="dashboard_income">Income</string>
+    <string name="dashboard_spent">Spent</string>
+    <string name="dashboard_saved">Saved</string>
+    <string name="dashboard_budget_left">Budget left</string>
+    <string name="dashboard_budget_over">Over budget</string>
+    <string name="dashboard_budget_spent_of">%1$s of %2$s</string>
+    <string name="dashboard_budget_empty_title">Set a monthly budget</string>
+    <string name="dashboard_budget_empty_body">Track your spending better</string>
+    <string name="dashboard_ai_caption">Zen AI</string>
+    <string name="dashboard_ai_body">Ask about your spending</string>
+    <string name="dashboard_sms_caption">SMS detection</string>
+    <string name="dashboard_sms_body">Review detected transactions</string>
+    <string name="dashboard_quick_wallets">Wallets</string>
+    <string name="dashboard_quick_cards">Cards</string>
+    <string name="dashboard_top_spending">Top spending</string>
+    <string name="dashboard_upcoming">Upcoming</string>
+    <string name="dashboard_recent">Recent</string>
+    <string name="dashboard_emi_due_soon">EMI • %1$s</string>
+    <string name="dashboard_recurring_on">Recurring • %1$s</string>
+    <string name="dashboard_empty_title">Start tracking your money</string>
+    <string name="dashboard_empty_body">Add your first income or expense to see your financial overview.</string>
+    <string name="ad_banner_placeholder">Ad banner placeholder</string>
+    <string name="date_today">Today</string>
+    <string name="date_yesterday">Yesterday</string>
+
+    <!-- Transactions -->
+    <string name="transactions_title">Activity</string>
+    <string name="transactions_empty_title">No transactions yet</string>
+    <string name="transactions_empty_body">Start tracking your expenses and income here.</string>
+    <string name="transactions_add">Add transaction</string>
+    <string name="filter_all">All</string>
+    <string name="filter_expense">Expense</string>
+    <string name="filter_income">Income</string>
+    <string name="filter_transfer">Transfer</string>
+    <string name="transactions_net_this_month">Net</string>
+
+    <!-- Budgets -->
+    <string name="budgets_title">Budgets</string>
+    <string name="budgets_monthly">Monthly budget</string>
+    <string name="budgets_categories">Categories</string>
+    <string name="budgets_spent_of">of %1$s spent</string>
+    <string name="budgets_left">%1$s left</string>
+    <string name="budgets_over_by">Over by %1$s</string>
+    <string name="budgets_over_tag">OVER</string>
+    <string name="budgets_empty_title">No budgets</string>
+    <string name="budgets_empty_body">Plan your spending by setting up a monthly budget.</string>
+    <string name="budgets_add">Add budget</string>
+
+    <!-- Wallets -->
+    <string name="wallets_title">Wallets</string>
+    <string name="wallets_net_worth">Net worth</string>
+    <string name="wallets_assets">Assets</string>
+    <string name="wallets_liabilities">Liabilities</string>
+    <string name="wallets_empty_title">No wallets</string>
+    <string name="wallets_empty_body">Add a wallet to start tracking your finances</string>
+    <string name="wallets_add">Add wallet</string>
+    <string name="wallets_all_accounts">All accounts</string>
+
+    <!-- Add / edit transaction -->
+    <string name="add_transaction_title">New transaction</string>
+    <string name="edit_transaction_title">Edit transaction</string>
+    <string name="action_back">Back</string>
+    <string name="action_voice_input">Voice input</string>
+    <string name="keypad_backspace">Delete</string>
+    <string name="type_expense">Expense</string>
+    <string name="type_income">Income</string>
+    <string name="type_transfer">Transfer</string>
+    <string name="type_refund">Refund</string>
+    <string name="type_card_payment">Card payment</string>
+    <string name="add_amount_placeholder">0</string>
+    <string name="add_field_title">Title (e.g. Lunch, Amazon)</string>
+    <string name="add_field_note">Note (optional)</string>
+    <string name="add_save">Save transaction</string>
+    <string name="add_from_wallet">From wallet</string>
+    <string name="add_to_wallet">To wallet</string>
+    <string name="add_to_credit_card">To credit card</string>
+    <string name="add_category">Category</string>
+
+    <!-- Insights / reports -->
+    <string name="insights_title">Insights</string>
+    <string name="insights_tab_overview">Overview</string>
+    <string name="insights_tab_expenses">Expenses</string>
+    <string name="insights_tab_income">Income</string>
+    <string name="insights_tab_budgets">Budgets</string>
+    <string name="insights_tab_cards">Cards</string>
+    <string name="insights_tab_accounts">Accounts</string>
+    <string name="insights_spending_trend">Spending trend</string>
+    <string name="insights_no_trend">No trend data available</string>
+    <string name="insights_emi_burden">EMI burden</string>
+    <string name="insights_emi_monthly">Monthly</string>
+    <string name="insights_emi_active">Active</string>
+    <string name="insights_emi_total">Total obligation: ₹%1$s</string>
+    <string name="insights_no_expenses">No expense data for this period</string>
+    <string name="insights_no_income">No income data for this period</string>
+    <string name="insights_no_budgets">No budgets set for this period</string>
+    <string name="insights_card_outstanding">Outstanding</string>
+    <string name="insights_card_utilization">Utilization</string>
+    <string name="insights_wallet_in">In</string>
+    <string name="insights_wallet_out">Out</string>
+
+    <string name="report_savings">Savings</string>
+    <string name="report_savings_rate">Savings rate</string>
+    <string name="report_of_total">%1$s%% of total</string>
+    <string name="report_txs">%1$d txs</string>
+    <string name="report_largest">Largest: ₹%1$s</string>
+    <string name="report_legend_income">Income</string>
+    <string name="report_legend_expense">Expense</string>
+
+    <!-- Common actions -->
+    <string name="action_confirm">Confirm</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_ignore">Ignore</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_archive">Archive</string>
+    <string name="action_send">Send</string>
+
+    <!-- Credit cards -->
+    <string name="cards_title">Credit cards</string>
+    <string name="cards_subtitle">Limits, outstanding &amp; EMIs</string>
+    <string name="cards_empty_title">No credit cards</string>
+    <string name="cards_empty_body">Add your credit cards to track outstanding, limits and EMIs</string>
+    <string name="cards_add">Add card</string>
+    <string name="cards_outstanding">Outstanding</string>
+    <string name="cards_available">Available</string>
+    <string name="cards_limit">Limit</string>
+    <string name="cards_default_title">Credit card</string>
+    <string name="cards_last_four">•••• %1$s</string>
+    <string name="cards_bank_last_four">%1$s •••• %2$s</string>
+    <string name="cards_utilization_used">%1$d%% used</string>
+    <plurals name="cards_emi_count">
+        <item quantity="one">%1$d EMI</item>
+        <item quantity="other">%1$d EMIs</item>
+    </plurals>
+    <string name="cards_active_emis">Active EMIs (%1$d)</string>
+    <string name="cards_no_emis_title">No EMIs on this card</string>
+    <string name="cards_no_emis_body">Track purchases converted to EMIs with start date, amount and tenure.</string>
+    <string name="cards_add_emi">Add EMI</string>
+    <string name="cards_mark_paid">Mark 1 paid</string>
+    <string name="cards_mark_paid_title">Mark installment paid?</string>
+    <string name="cards_mark_paid_body">This updates EMI progress only. No transaction will be created.</string>
+    <string name="cards_emi_months_left">%1$d/%2$d months left</string>
+    <string name="cards_emi_per_month">₹%1$s/mo</string>
+    <string name="cards_emi_range">%1$s → %2$s</string>
+    <string name="cards_emi_principal">Principal ₹%1$s • Due day %2$d</string>
+
+    <!-- SMS drafts -->
+    <string name="sms_title">Detected transactions</string>
+    <string name="sms_sync">Sync history</string>
+    <string name="sms_empty">No transaction drafts found.</string>
+    <string name="sms_waiting">Waiting for review</string>
+    <plurals name="sms_draft_count">
+        <item quantity="one">%1$d draft</item>
+        <item quantity="other">%1$d drafts</item>
+    </plurals>
+    <string name="sms_review">Review</string>
+    <string name="sms_account_line">%1$s • A/c XXXX%2$s</string>
+    <string name="sms_account_unknown">****</string>
+
+    <!-- AI assistant -->
+    <string name="ai_title">Ask ZenSpend</string>
+    <string name="ai_welcome_title">Welcome to ZenSpend AI</string>
+    <string name="ai_welcome_body">I can help you analyze your spending, check balances and track budgets. Ask me anything!</string>
+    <string name="ai_placeholder">Ask anything about your finances…</string>
+    <string name="ai_q_spent">How much did I spend this month?</string>
+    <string name="ai_q_biggest">What was my biggest expense?</string>
+    <string name="ai_q_saved">How much did I save?</string>
+    <string name="ai_q_balance">What\'s my balance?</string>
+    <string name="ai_q_category">Which category cost me the most?</string>
+    <string name="ai_privacy_title">Privacy &amp; AI</string>
+    <string name="ai_privacy_body">ZenSpend AI processes your financial data locally on this device to answer your questions.\n\n• Only anonymous aggregate totals for your specific query are shared with the AI service.\n• No personally identifiable information (PII), card numbers or raw transcripts are ever shared.\n• The AI is read-only and cannot modify your financial records.</string>
+    <string name="ai_privacy_accept">I understand</string>
+
+    <!-- Wallet details -->
+    <string name="wallet_details_title">Wallet details</string>
+    <string name="wallet_details_balance">Balance</string>
+    <string name="wallet_details_recent">Recent transactions</string>
+    <string name="wallet_details_no_transactions">No transactions found for this wallet.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
 </resources>

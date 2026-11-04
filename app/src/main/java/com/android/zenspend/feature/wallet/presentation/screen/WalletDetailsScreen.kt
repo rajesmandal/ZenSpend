@@ -1,21 +1,49 @@
 package com.android.zenspend.feature.wallet.presentation.screen
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.android.zenspend.core.ui.designsystem.component.*
+import com.android.zenspend.R
+import com.android.zenspend.core.ui.designsystem.component.ErrorState
+import com.android.zenspend.core.ui.designsystem.component.LoadingState
+import com.android.zenspend.core.ui.designsystem.component.ZenBadge
+import com.android.zenspend.core.ui.designsystem.component.ZenSectionHeader
+import com.android.zenspend.core.ui.designsystem.component.ZenTile
+import com.android.zenspend.core.ui.designsystem.component.ZenTileCaption
+import com.android.zenspend.core.ui.designsystem.component.ZenTileValue
+import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
+import com.android.zenspend.core.ui.theme.AmountHero
 import com.android.zenspend.core.ui.theme.Dimensions
 import com.android.zenspend.core.ui.theme.ZenSpendTheme
+import com.android.zenspend.core.ui.theme.ZenTone
+import com.android.zenspend.feature.transaction.presentation.screen.TransactionItem
 import com.android.zenspend.feature.wallet.presentation.contract.WalletDetailsState
 import com.android.zenspend.feature.wallet.presentation.contract.WalletUiEffect
 import com.android.zenspend.feature.wallet.presentation.contract.WalletUiEvent
@@ -49,17 +77,22 @@ fun WalletDetailsScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             ZenTopAppBar(
-                title = "Wallet Details",
+                title = stringResource(R.string.wallet_details_title),
                 showBack = true,
                 onBackClick = onNavigateBack,
                 actions = {
                     IconButton(onClick = { onNavigateToEdit(walletId) }) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit")
+                        Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.action_edit))
                     }
                     IconButton(onClick = { viewModel.handleEvent(WalletUiEvent.ArchiveWallet(walletId)) }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Archive", tint = MaterialTheme.colorScheme.error)
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = stringResource(R.string.action_archive),
+                            tint = MaterialTheme.colorScheme.error
+                        )
                     }
                 }
             )
@@ -68,14 +101,21 @@ fun WalletDetailsScreen(
     ) { padding ->
         when (val detailState = state.detailsState) {
             is WalletDetailsState.Loading -> LoadingState(modifier = Modifier.padding(padding))
-            is WalletDetailsState.Error -> ErrorState(message = detailState.message, onRetry = { viewModel.handleEvent(WalletUiEvent.LoadWalletDetails(walletId)) })
+            is WalletDetailsState.Error -> ErrorState(
+                message = detailState.message,
+                onRetry = { viewModel.handleEvent(WalletUiEvent.LoadWalletDetails(walletId)) },
+                modifier = Modifier.padding(padding)
+            )
             is WalletDetailsState.Success -> {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding),
-                    contentPadding = PaddingValues(Dimensions.SpacingLarge),
-                    verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium)
+                    contentPadding = PaddingValues(
+                        horizontal = Dimensions.ScreenPadding,
+                        vertical = Dimensions.SpacingLarge
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
                 ) {
                     item {
                         DetailHeader(
@@ -87,29 +127,23 @@ fun WalletDetailsScreen(
                     }
 
                     item {
-                        Text(
-                            "Recent Transactions",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(vertical = Dimensions.SpacingMedium)
+                        ZenSectionHeader(
+                            title = stringResource(R.string.wallet_details_recent),
+                            modifier = Modifier.padding(top = Dimensions.SpacingMedium)
                         )
                     }
 
                     if (detailState.recentTransactions.isEmpty()) {
                         item {
                             Text(
-                                "No transactions found for this wallet.",
+                                text = stringResource(R.string.wallet_details_no_transactions),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     } else {
-                        items(detailState.recentTransactions) { tx ->
-                            TransactionListItem(
-                                title = tx.title,
-                                amount = tx.amount,
-                                date = tx.date,
-                                type = tx.type.name
-                            )
+                        items(detailState.recentTransactions, key = { it.id }) { tx ->
+                            TransactionItem(transaction = tx, onClick = {})
                         }
                     }
                 }
@@ -119,51 +153,38 @@ fun WalletDetailsScreen(
     }
 }
 
+/** Ink hero tile: wallet identity + balance. Liabilities show the balance in the expense colour. */
 @Composable
 fun DetailHeader(
     name: String,
     type: String,
     balance: String,
-    isLiability: Boolean
+    isLiability: Boolean,
+    modifier: Modifier = Modifier
 ) {
-    ZenCard(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier.padding(Dimensions.SpacingXXLarge),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(type, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(name, style = MaterialTheme.typography.headlineLarge)
-            Spacer(modifier = Modifier.height(Dimensions.SpacingLarge))
-            Text(
-                text = "₹$balance",
-                style = MaterialTheme.typography.displayLarge,
-                color = if (isLiability) ZenSpendTheme.colors.expense else MaterialTheme.colorScheme.onSurface
-            )
-        }
-    }
-}
-
-@Composable
-fun TransactionListItem(
-    title: String,
-    amount: String,
-    date: String,
-    type: String
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = Dimensions.SpacingSmall),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+    ZenTile(
+        modifier = modifier.fillMaxWidth(),
+        tone = ZenTone.Ink,
+        contentPadding = PaddingValues(Dimensions.SpacingXLarge)
     ) {
-        Column {
-            Text(title, style = MaterialTheme.typography.bodyLarge)
-            Text(date, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ZenBadge(label = name, tone = ZenTone.Lime)
+            Column {
+                Text(name, style = MaterialTheme.typography.titleLarge)
+                ZenTileCaption(type)
+            }
         }
-        Text(
-            text = "₹$amount",
-            style = MaterialTheme.typography.titleMedium
+        ZenTileCaption(
+            text = stringResource(R.string.wallet_details_balance),
+            modifier = Modifier.padding(top = Dimensions.SpacingXLarge)
+        )
+        ZenTileValue(
+            text = stringResource(R.string.amount_rupees, balance),
+            style = AmountHero,
+            color = if (isLiability) ZenSpendTheme.colors.expense else Color.Unspecified
         )
     }
 }

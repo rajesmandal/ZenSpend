@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZenSpend – Soft Clay</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EDF0EA;--card:#FFFFFF;--ink:#1F2A26;--mut:#7C8782;--forest:#2F5D50;--onf:#fff;--peach:#F6CDB1;--butter:#F4E4A8;--sage:#CFE3D4;--sky:#CFE1EE;--rose:#F2C9CF;--sh:0 10px 30px -12px rgba(47,93,80,.25),0 2px 6px rgba(47,93,80,.06);--pos:#2E7D5B;--neg:#C2553F}
+[data-theme=dark]{--bg:#121714;--card:#1B231F;--ink:#E8EFEA;--mut:#8A9690;--forest:#7FC4A8;--onf:#0F1713;--peach:#5A4034;--butter:#574E2A;--sage:#2A4237;--sky:#2A3E4C;--rose:#573137;--sh:0 10px 30px -12px #000;--pos:#7FD0A5;--neg:#F08C77}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;background:#26302b;color:#fff;display:grid;grid-template-columns:230px 390px 230px;gap:44px;justify-content:center;align-items:center;padding:30px}
+.side h1{font-size:30px;line-height:1.08;font-weight:800;letter-spacing:-.03em}.side h1 em{font-style:normal;color:#9FD3BA}
+.side p{color:#a9b5ae;font-size:13px;line-height:1.5;margin:12px 0 18px}
+.nl button,.tgl{all:unset;display:block;cursor:pointer;padding:10px 14px;border-radius:14px;font-weight:700;font-size:14px;color:#a9b5ae;margin-bottom:4px}
+.nl button.on{background:#CFE3D4;color:#1F2A26}.tgl{background:#9FD3BA;color:#10201a;text-align:center}
+.phone{width:390px;height:844px;border-radius:54px;background:#000;padding:10px;box-shadow:0 0 0 2px #3a4540,0 40px 80px -20px #000}
+.screen{height:100%;border-radius:44px;overflow:hidden;background:var(--bg);color:var(--ink);position:relative;display:flex;flex-direction:column}
+.status{height:46px;flex:none;display:flex;justify-content:space-between;align-items:flex-end;padding:0 30px 6px;font-size:13px;font-weight:700}
+.view{flex:1;overflow-y:auto;scrollbar-width:none;padding:8px 20px 120px}.view::-webkit-scrollbar{display:none}
+.h1{font-size:28px;font-weight:800;letter-spacing:-.03em}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.av{width:46px;height:46px;border-radius:50%;background:var(--peach);display:grid;place-items:center;font-weight:800;box-shadow:var(--sh);color:#1F2A26}
+.ib{width:46px;height:46px;border-radius:50%;background:var(--card);display:grid;place-items:center;box-shadow:var(--sh);font-size:18px}
+.c{background:var(--card);border-radius:30px;padding:20px;box-shadow:var(--sh);margin-bottom:14px;position:relative}
+.c small,.mut{color:var(--mut);font-size:12px;font-weight:600}
+.big{font-weight:800;letter-spacing:-.04em}
+.hero{background:var(--forest);color:var(--onf);border-radius:34px;padding:24px;margin-bottom:14px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-40px;top:-50px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.1)}
+.hero small{opacity:.75;font-size:12px;font-weight:600}
+.hb{display:flex;gap:8px;margin-top:18px;position:relative;z-index:1}.hb button{all:unset;cursor:pointer;flex:1;text-align:center;padding:12px 0;border-radius:99px;background:rgba(255,255,255,.18);font-weight:700;font-size:13px}
+[data-theme=dark] .hb button{background:rgba(0,0,0,.2)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.g2 .c{margin:0}
+.pst{color:#1F2A26}.pst small{color:rgba(31,42,38,.65)}
+[data-theme=dark] .pst,[data-theme=dark] .pst small{color:#E8EFEA}
+.sec{display:flex;justify-content:space-between;align-items:center;margin:24px 4px 12px}.sec b{font-size:18px;font-weight:800;letter-spacing:-.02em}.sec a{font-size:12px;color:var(--forest);font-weight:700;cursor:pointer}
+.tx{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:24px;padding:12px 14px;margin-bottom:10px;box-shadow:var(--sh)}
+.tx .e{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:20px;flex:none;color:#1F2A26}
+.tx .m{flex:1}.tx .m b{display:block;font-size:14px;font-weight:700}.tx .m small{font-size:12px;color:var(--mut)}.tx .a{font-weight:800;font-size:15px}.tx .a.i{color:var(--pos)}
+.seg{display:flex;background:var(--card);border-radius:99px;padding:5px;box-shadow:var(--sh);margin:14px 0}.seg span{flex:1;text-align:center;padding:11px;border-radius:99px;font-size:13px;font-weight:700;color:var(--mut);cursor:pointer}.seg span.on{background:var(--forest);color:var(--onf)}
+.bar{height:12px;border-radius:99px;background:rgba(31,42,38,.1);margin-top:10px;overflow:hidden}.bar i{display:block;height:100%;border-radius:99px;background:var(--forest)}.bar i.o{background:var(--neg)}
+.bigamt{font-size:64px;font-weight:800;letter-spacing:-.05em;text-align:center;margin:20px 0 14px}.bigamt small{font-size:30px;color:var(--mut);margin-right:4px}
+.cg{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}.cg span{padding:10px 15px;border-radius:99px;background:var(--card);box-shadow:var(--sh);font-size:13px;font-weight:700;cursor:pointer}.cg span.on{background:var(--sage);color:#1F2A26}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.keys button{all:unset;cursor:pointer;text-align:center;padding:16px 0;border-radius:24px;background:var(--card);box-shadow:var(--sh);font-size:22px;font-weight:700}.keys button:active{transform:scale(.94);background:var(--sage);color:#1F2A26}
+.cta{all:unset;cursor:pointer;display:block;text-align:center;margin-top:16px;padding:18px;border-radius:99px;background:var(--forest);color:var(--onf);font-weight:800;font-size:16px;box-shadow:var(--sh)}
+.bars{display:flex;gap:10px;align-items:flex-end;height:120px;margin-top:14px}.bars div{flex:1;border-radius:14px;background:var(--sage)}.bars div.on{background:var(--forest)}
+.ring{position:relative;width:100px;height:100px;flex:none}.ring svg{transform:rotate(-90deg)}.ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:20px;font-weight:800}
+.dock{position:absolute;left:20px;right:20px;bottom:18px;background:var(--card);border-radius:99px;padding:8px;display:flex;justify-content:space-around;align-items:center;box-shadow:0 18px 40px -12px rgba(47,93,80,.4);z-index:20}
+.dock button{all:unset;cursor:pointer;width:50px;height:50px;border-radius:50%;display:grid;place-items:center;font-size:20px;color:var(--mut)}
+.dock button.on{background:var(--sage);color:#1F2A26}.dock .plus{background:var(--forest);color:var(--onf);font-size:24px;font-weight:700}
+.anim{animation:in .4s cubic-bezier(.2,.8,.2,1)}@keyframes in{from{opacity:0;transform:translateY(12px)}}
+@media(max-width:1000px){body{grid-template-columns:390px}.side,.rt{display:none}}
+</style></head><body>
+<aside class="side"><h1>Zen<em>Spend</em><br>Soft Clay</h1><p>Design #5 · naram, gol, sukoon wala. Sage-green + peach pastel, bade soft shadows, floating white dock. Koi sharp contrast nahi.</p><div class="nl" id="nl"></div></aside>
+<div class="phone"><div class="screen"><div class="status"><span>9:41</span><span>●●● ▮</span></div><div class="view" id="view"></div><div class="dock" id="dock"></div></div></div>
+<aside class="rt side"><p>Bento se alag: yaha <b>depth (shadow)</b> hai, hard borders nahi. Ek deep-green accent, baaki muted pastels. Calm, wellness-app feel.</p><button class="tgl" id="tgl">🌙 Dark / Light</button></aside>
+<script>
+const f=n=>'₹'+Math.abs(n).toLocaleString('en-IN');
+const C={f:'var(--butter)',s:'var(--sage)',t:'var(--sky)',a:'var(--rose)',b:'var(--peach)'};
+const T=[['Swiggy','🍔','Food · 8:42 PM',-486,C.f],['Salary · Acme','💼','Income · 10:00 AM',85000,C.s],['Uber','🚕','Travel · Yesterday',-212,C.t],['Amazon','🛍️','Shopping · Yesterday',-2299,C.a]];
+const row=t=>`<div class="tx"><div class="e" style="background:${t[4]}">${t[1]}</div><div class="m"><b>${t[0]}</b><small>${t[2]}</small></div><div class="a ${t[3]>0?'i':''}">${t[3]>0?'+':'−'}${f(t[3])}</div></div>`;
+let amt='1250',cat=0;const S={};
+S.home=()=>`<div class="top"><div style="display:flex;gap:12px;align-items:center"><div class="av">R</div><div><div class="mut">Good evening</div><b style="font-size:17px">Rajesh</b></div></div><div class="ib">🔔</div></div>
+<div class="hero"><small>Total balance</small><div class="big" style="font-size:44px;margin-top:6px;position:relative;z-index:1">${f(124580)}</div><small style="position:relative;z-index:1">▲ ₹8,420 this month</small>
+<div class="hb"><button onclick="go('add')">＋ Add</button><button>⇄ Transfer</button><button>💳 Cards</button></div></div>
+<div class="g2"><div class="c pst" style="background:var(--sage)"><small>Income</small><div class="big" style="font-size:24px;margin-top:14px">${f(85000)}</div></div>
+<div class="c pst" style="background:var(--peach)"><small>Spent</small><div class="big" style="font-size:24px;margin-top:14px">${f(31240)}</div></div></div>
+<div class="c" style="margin-top:14px;display:flex;gap:14px;align-items:center" onclick="go('budget')"><div class="ring"><svg width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--sage)" stroke-width="12"/><circle cx="50" cy="50" r="42" fill="none" stroke="var(--forest)" stroke-width="12" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="58"/></svg><b>78%</b></div><div><small>Monthly budget</small><div class="big" style="font-size:24px">${f(4000)} left</div><small>₹14,000 of ₹18,000</small></div></div>
+<div class="sec"><b>Recent</b><a onclick="go('activity')">See all</a></div>${T.slice(0,3).map(row).join('')}`;
+S.activity=()=>`<div class="h1">Activity</div><div class="seg"><span class="on">All</span><span>Expense</span><span>Income</span></div>
+<div class="c" style="background:var(--sage);color:#1F2A26"><small style="color:rgba(31,42,38,.65)">Net this month</small><div class="big" style="font-size:30px">+${f(53760)}</div></div>
+<div class="sec"><b>Today</b></div>${T.slice(0,2).map(row).join('')}<div class="sec"><b>Earlier</b></div>${T.slice(2).map(row).join('')}`;
+S.add=()=>`<div style="display:flex;justify-content:space-between"><div class="ib" onclick="go('home')">✕</div><div class="ib" style="width:auto;padding:0 16px;border-radius:99px;font-size:13px;font-weight:700">Axis Bank ▾</div></div>
+<div class="seg"><span class="on">Expense</span><span>Income</span><span>Transfer</span></div>
+<div class="bigamt"><small>₹</small>${Number(amt||0).toLocaleString('en-IN')}</div>
+<div class="cg">${['🍔 Food','🛍️ Shopping','🚕 Travel','💡 Bills','🎬 Fun'].map((c,i)=>`<span class="${i==cat?'on':''}" onclick="cat=${i};render(1)">${c}</span>`).join('')}</div>
+<div class="keys">${[1,2,3,4,5,6,7,8,9,'.',0,'⌫'].map(k=>`<button onclick="key('${k}')">${k}</button>`).join('')}</div><div class="cta" onclick="go('home')">Save · ${f(amt||0)}</div>`;
+S.budget=()=>{const b=[['🍔 Food',6200,8000,C.f],['🛍️ Shopping',7400,7000,C.a],['🚕 Travel',2100,4000,C.t],['💡 Bills',5800,6500,C.s]];return `<div class="h1">Budgets</div>
+<div class="c" style="margin-top:16px;display:flex;gap:16px;align-items:center;background:var(--forest);color:var(--onf)"><div class="ring"><svg width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="12"/><circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="58"/></svg><b>78%</b></div><div><small style="color:inherit;opacity:.75">November</small><div class="big" style="font-size:26px">${f(4000)} left</div></div></div>
+<div class="sec"><b>Categories</b><a>+ New</a></div>${b.map(x=>{const o=x[1]>x[2];return `<div class="c pst" style="background:${x[3]}"><div style="display:flex;justify-content:space-between;font-weight:700"><span>${x[0]}</span><span>${f(x[1])} / ${f(x[2])}</span></div><div class="bar" style="background:rgba(31,42,38,.12)"><i class="${o?'o':''}" style="width:${Math.min(100,x[1]/x[2]*100)}%;background:${o?'var(--neg)':'#2F5D50'}"></i></div>${o?'<small style="font-weight:700;margin-top:8px;display:block">Over by '+f(x[1]-x[2])+'</small>':''}</div>`}).join('')}`};
+S.insights=()=>{const m=[['J',45],['J',60],['A',38],['S',72],['O',58],['N',90]];return `<div class="h1">Insights</div><div class="seg"><span>Week</span><span class="on">Month</span><span>Year</span></div>
+<div class="c"><small>Spending trend</small><div class="big" style="font-size:32px">${f(31240)}</div><div class="bars">${m.map((x,i)=>`<div class="${i==5?'on':''}" style="height:${x[1]}%"></div>`).join('')}</div>
+<div style="display:flex;gap:10px;font-size:11px;color:var(--mut);font-weight:700;margin-top:8px">${m.map(x=>`<span style="flex:1;text-align:center">${x[0]}</span>`).join('')}</div></div>
+<div class="g2"><div class="c pst" style="background:var(--butter)"><small>Top category</small><div style="font-size:28px;margin-top:6px">🍔</div><div class="big" style="font-size:19px">Food 31%</div></div><div class="c pst" style="background:var(--sky)"><small>Savings rate</small><div class="big" style="font-size:36px;margin-top:6px">63%</div></div></div>
+<div class="c pst" style="background:var(--sage);margin-top:14px;font-weight:600;line-height:1.5;font-size:14px">✦ Swiggy pe 14 baar kharch hua. Hafte me 2 baar kam karo → ₹1,240/mo bachenge.</div>`};
+const sc=[['home','Dashboard'],['activity','Activity'],['add','Add transaction'],['budget','Budgets'],['insights','Insights']];let cur='home';
+function go(s){cur=s;render()}function key(k){if(k==='⌫')amt=amt.slice(0,-1);else if(k!=='.'&&amt.length<8)amt+=k;render(1)}
+function render(keep){const v=document.getElementById('view'),t=v.scrollTop;v.innerHTML=`<div class="${keep?'':'anim'}">${S[cur]()}</div>`;v.scrollTop=keep?t:0;
+nl.innerHTML=sc.map(s=>`<button class="${s[0]==cur?'on':''}" onclick="go('${s[0]}')">${s[1]}</button>`).join('');
+const d=[['home','🏠'],['activity','☰'],['budget','◔'],['insights','✦']];
+dock.innerHTML=d.map(x=>`<button class="${x[0]==cur?'on':''}" onclick="go('${x[0]}')">${x[1]}</button>`).join('')+`<button class="plus" onclick="go('add')">＋</button>`;dock.style.display=cur==='add'?'none':'flex'}
+tgl.onclick=()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==='dark'?'light':'dark'};render();
+</script></body></html>

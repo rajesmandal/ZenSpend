@@ -1,5 +1,6 @@
 package com.android.zenspend.core.ui.designsystem.component
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
@@ -22,6 +23,7 @@ fun ZenCard(
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
             ),
+            border = BorderStroke(Dimensions.Hairline, MaterialTheme.colorScheme.outlineVariant),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = Dimensions.CardElevation
             )
@@ -35,6 +37,7 @@ fun ZenCard(
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
             ),
+            border = BorderStroke(Dimensions.Hairline, MaterialTheme.colorScheme.outlineVariant),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = Dimensions.CardElevation
             )
@@ -60,7 +63,7 @@ fun SummaryCard(
             )
             Text(
                 text = amount,
-                style = MaterialTheme.typography.headlineMedium,
+                style = com.android.zenspend.core.ui.theme.AmountLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
             if (supportingText != null) {

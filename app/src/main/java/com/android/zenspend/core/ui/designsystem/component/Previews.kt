@@ -1,6 +1,7 @@
 package com.android.zenspend.core.ui.designsystem.component
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -169,13 +170,17 @@ fun ZenNavigationBarPreview() {
             ZenNavigationBar(
                 selectedIndex = 0,
                 items = listOf(
-                    ZenNavItem("Home", com.android.zenspend.R.drawable.ic_nav_home),
-                    ZenNavItem("History", com.android.zenspend.R.drawable.ic_nav_history),
-                    ZenNavItem("Wallets", com.android.zenspend.R.drawable.ic_nav_wallets),
-                    ZenNavItem("Insights", com.android.zenspend.R.drawable.ic_nav_insights),
-                    ZenNavItem("More", com.android.zenspend.R.drawable.ic_nav_more)
+                    ZenNavItem(com.android.zenspend.R.string.nav_home, com.android.zenspend.R.drawable.ic_nav_home),
+                    ZenNavItem(com.android.zenspend.R.string.nav_history, com.android.zenspend.R.drawable.ic_nav_history),
+                    ZenNavItem(com.android.zenspend.R.string.nav_wallets, com.android.zenspend.R.drawable.ic_nav_wallets),
+                    ZenNavItem(com.android.zenspend.R.string.nav_insights, com.android.zenspend.R.drawable.ic_nav_insights)
                 ),
-                onItemSelected = {}
+                onItemSelected = {},
+                action = ZenDockAction(
+                    icon = androidx.compose.material.icons.Icons.Filled.Add,
+                    contentDescription = "Add",
+                    onClick = {}
+                )
             )
         }
     }

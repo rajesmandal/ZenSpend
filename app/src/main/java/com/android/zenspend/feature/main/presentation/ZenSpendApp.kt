@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -19,6 +20,7 @@ import com.android.zenspend.core.navigation.NavEvent
 import com.android.zenspend.core.navigation.NavigationChrome
 import com.android.zenspend.core.navigation.Navigator
 import com.android.zenspend.core.sync.domain.model.SyncStatus
+import com.android.zenspend.core.ui.designsystem.component.ZenDockAction
 import com.android.zenspend.core.ui.designsystem.component.ZenNavItem
 import com.android.zenspend.core.ui.designsystem.component.ZenNavigationBar
 import com.android.zenspend.core.ui.designsystem.component.ZenStatusBanner
@@ -31,6 +33,7 @@ import com.android.zenspend.feature.premium.presentation.screen.PremiumScreen
 import com.android.zenspend.feature.sms.presentation.screen.SmsDraftListScreen
 import com.android.zenspend.feature.sms.presentation.screen.SmsDraftReviewScreen
 import com.android.zenspend.feature.settings.presentation.screen.SettingsScreen
+import com.android.zenspend.feature.dashboard.presentation.screen.DashboardNavigation
 import com.android.zenspend.feature.dashboard.presentation.screen.DashboardScreen
 import com.android.zenspend.feature.budget.presentation.screen.AddEditBudgetScreen
 import com.android.zenspend.feature.budget.presentation.screen.BudgetListScreen
@@ -52,20 +55,11 @@ import com.android.zenspend.feature.wallet.presentation.screen.WalletListScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 
-private val bottomNavItems = listOf(
-    ZenNavItem("Home", R.drawable.ic_nav_home),
-    ZenNavItem("History", R.drawable.ic_nav_history),
-    ZenNavItem("Wallets", R.drawable.ic_nav_wallets),
-    ZenNavItem("Insights", R.drawable.ic_nav_insights),
-    ZenNavItem("More", R.drawable.ic_nav_more)
-)
-
-private val bottomNavRoutes = listOf(
-    Destination.Dashboard.route,
-    Destination.Transactions.route,
-    Destination.Wallets.route,
-    Destination.Reports.route,
-    Destination.Settings.route
+private val dockItems = listOf(
+    ZenNavItem(R.string.nav_home, R.drawable.ic_nav_home),
+    ZenNavItem(R.string.nav_history, R.drawable.ic_nav_history),
+    ZenNavItem(R.string.nav_wallets, R.drawable.ic_nav_wallets),
+    ZenNavItem(R.string.nav_insights, R.drawable.ic_nav_insights)
 )
 
 @Composable
@@ -80,9 +74,9 @@ fun ZenSpendApp(
     val ledgerScope by shellViewModel.scopeManager.scope.collectAsState()
     val syncStatus by shellViewModel.syncStatusManager.status.collectAsState(initial = SyncStatus.SYNCED)
 
-    val selectedTabIndex = bottomNavRoutes.indexOfFirst { route ->
+    val selectedTabIndex = NavigationChrome.dockRoutes.indexOfFirst { route ->
         navBackStackEntry?.destination?.hierarchy?.any { it.route == route } == true
-    }.coerceAtLeast(0)
+    }
 
     LaunchedEffect(Unit) {
         navigator.navEvents.collectLatest { event ->
@@ -100,7 +94,6 @@ fun ZenSpendApp(
     }
 
     val showBottomBar = NavigationChrome.showsBottomBar(currentRoute)
-    val showFab = NavigationChrome.showsFab(currentRoute)
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -125,9 +118,16 @@ fun ZenSpendApp(
                     }
                     ZenNavigationBar(
                         selectedIndex = selectedTabIndex,
-                        items = bottomNavItems,
+                        items = dockItems,
+                        action = ZenDockAction(
+                            icon = Icons.Default.Add,
+                            contentDescription = stringResource(R.string.action_add),
+                            onClick = {
+                                navigator.navigate(NavigationChrome.primaryActionDestination(currentRoute))
+                            }
+                        ),
                         onItemSelected = { index ->
-                            navController.navigate(bottomNavRoutes[index]) {
+                            navController.navigate(NavigationChrome.dockRoutes[index]) {
                                 popUpTo(navController.graph.findStartDestination().id) {
                                     saveState = true
                                 }
@@ -139,20 +139,6 @@ fun ZenSpendApp(
                 }
             }
         },
-        floatingActionButton = {
-            if (showFab) {
-                ExtendedFloatingActionButton(
-                    onClick = {
-                        navigator.navigate(NavigationChrome.fabDestination(currentRoute))
-                    },
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                    text = { Text(NavigationChrome.fabLabel(currentRoute)) }
-                )
-            }
-        },
-        floatingActionButtonPosition = FabPosition.Center
     ) { padding ->
         NavHost(
             navController = navController,
@@ -161,8 +147,18 @@ fun ZenSpendApp(
         ) {
             composable(Destination.Dashboard.route) {
                 DashboardScreen(
-                    onNavigateToRecurring = { navigator.navigate(Destination.RecurringTransactions) },
-                    onNavigateToTransactions = { navigator.navigate(Destination.Transactions) },
+                    navigation = DashboardNavigation(
+                        onAddTransaction = { navigator.navigate(Destination.AddTransaction) },
+                        onTransactions = { navigator.navigate(Destination.Transactions) },
+                        onRecurring = { navigator.navigate(Destination.RecurringTransactions) },
+                        onBudgets = { navigator.navigate(Destination.Budgets) },
+                        onWallets = { navigator.navigate(Destination.Wallets) },
+                        onCreditCards = { navigator.navigate(Destination.CreditCards) },
+                        onSmsDrafts = { navigator.navigate(Destination.SmsDrafts) },
+                        onAssistant = { navigator.navigate(Destination.AiAssistant) },
+                        onSettings = { navigator.navigate(Destination.Settings) },
+                        onReports = { navigator.navigate(Destination.Reports) }
+                    ),
                     ledgerScope = ledgerScope,
                     onLedgerScopeChange = { scope -> shellViewModel.scopeManager.setScope(scope) },
                     showScopeToggle = activeHouseholdId != null

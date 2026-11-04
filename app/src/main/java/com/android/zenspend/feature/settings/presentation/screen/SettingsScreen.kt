@@ -8,6 +8,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.android.zenspend.R
 import androidx.compose.ui.text.style.TextAlign
 import com.android.zenspend.core.ui.designsystem.component.ZenSettingsRow
 import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
@@ -59,7 +61,7 @@ fun SettingsScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { ZenTopAppBar(title = "Settings", subtitle = "Preferences") }
+        topBar = { ZenTopAppBar(title = stringResource(R.string.settings_title)) }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -75,7 +77,7 @@ fun SettingsScreen(
                     onClick = onNavigateToSharedCashbook
                 )
             }
-            item { HorizontalDivider(modifier = Modifier.padding(horizontal = Dimensions.ScreenPadding)) }
+            item { Spacer(modifier = Modifier.height(Dimensions.SpacingSmall)) }
             item { SettingsSectionHeader("Data") }
             item {
                 ZenSettingsRow(
@@ -103,7 +105,7 @@ fun SettingsScreen(
                     onClick = { }
                 )
             }
-            item { HorizontalDivider(modifier = Modifier.padding(horizontal = Dimensions.ScreenPadding)) }
+            item { Spacer(modifier = Modifier.height(Dimensions.SpacingSmall)) }
             item { SettingsSectionHeader("Finance") }
             item {
                 ZenSettingsRow(
@@ -113,7 +115,7 @@ fun SettingsScreen(
                     onClick = onNavigateToCreditCards
                 )
             }
-            item { HorizontalDivider(modifier = Modifier.padding(horizontal = Dimensions.ScreenPadding)) }
+            item { Spacer(modifier = Modifier.height(Dimensions.SpacingSmall)) }
             item { SettingsSectionHeader("Intelligence") }
             item {
                 ZenSettingsRow(
@@ -123,7 +125,7 @@ fun SettingsScreen(
                     onClick = onNavigateToAiAssistant
                 )
             }
-            item { HorizontalDivider(modifier = Modifier.padding(horizontal = Dimensions.ScreenPadding)) }
+            item { Spacer(modifier = Modifier.height(Dimensions.SpacingSmall)) }
             item { SettingsSectionHeader("Premium") }
             item {
                 ZenSettingsRow(
@@ -141,7 +143,7 @@ fun SettingsScreen(
                     onClick = onNavigateToPremium
                 )
             }
-            item { HorizontalDivider(modifier = Modifier.padding(horizontal = Dimensions.ScreenPadding)) }
+            item { Spacer(modifier = Modifier.height(Dimensions.SpacingSmall)) }
             item { SettingsSectionHeader("About") }
             item {
                 ZenSettingsRow(
@@ -170,8 +172,8 @@ fun SettingsScreen(
 private fun SettingsSectionHeader(title: String) {
     Text(
         text = title,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(
             horizontal = Dimensions.ScreenPadding,
             vertical = Dimensions.SpacingMedium
