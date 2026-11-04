@@ -3,19 +3,20 @@ package com.android.zenspend.core.ui.designsystem.component
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -37,9 +39,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.android.zenspend.core.ui.theme.Dimensions
+import com.android.zenspend.core.ui.theme.FabShape
 import com.android.zenspend.core.ui.theme.PillShape
 import com.android.zenspend.core.ui.theme.ZenSpendTheme
 import com.android.zenspend.core.ui.theme.ZenTone
@@ -49,7 +52,7 @@ data class ZenNavItem(
     @DrawableRes val iconRes: Int
 )
 
-/** The round primary action at the end of the dock (e.g. "Add transaction"). */
+/** The raised primary action in the middle of the bar (e.g. "Add transaction"). */
 data class ZenDockAction(
     val icon: ImageVector,
     val contentDescription: String,
@@ -57,8 +60,8 @@ data class ZenDockAction(
 )
 
 /**
- * Floating pill dock. The selected item expands to show its label;
- * [action] renders the round coral "+" button.
+ * Classic bottom bar: icon + label per tab, a lime pill behind the selected icon, and the
+ * rounded-square [action] button sitting between the two halves of the tabs.
  *
  * [selectedIndex] may be -1 when the current screen isn't one of the tabs.
  */
@@ -70,72 +73,54 @@ fun ZenNavigationBar(
     modifier: Modifier = Modifier,
     action: ZenDockAction? = null
 ) {
-    val dock = ZenSpendTheme.colors.tone(ZenTone.Ink)
-
-    Box(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
-            .windowInsetsPadding(WindowInsets.navigationBars)
-            .padding(bottom = Dimensions.DockBottomMargin),
-        contentAlignment = Alignment.Center
+            .border(Dimensions.Hairline, MaterialTheme.colorScheme.outlineVariant),
+        color = MaterialTheme.colorScheme.surfaceContainerLowest
     ) {
-        Surface(
-            modifier = Modifier.shadow(
-                elevation = Dimensions.DockElevation,
-                shape = PillShape,
-                ambientColor = dock.container.copy(alpha = 0.4f),
-                spotColor = dock.container.copy(alpha = 0.4f)
-            ),
-            shape = PillShape,
-            color = dock.container
+        Row(
+            modifier = Modifier
+                .windowInsetsPadding(WindowInsets.navigationBars)
+                .height(Dimensions.NavBarHeight),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.padding(Dimensions.DockPadding),
-                horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingXSmall),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                items.forEachIndexed { index, item ->
-                    ZenDockItem(
-                        item = item,
-                        selected = selectedIndex == index,
-                        onClick = { onItemSelected(index) }
-                    )
+            val split = items.size / 2
+            items.forEachIndexed { index, item ->
+                if (index == split && action != null) {
+                    ZenNavActionSlot(action)
                 }
-                if (action != null) {
-                    ZenDockActionButton(action)
-                }
+                ZenNavItemView(
+                    item = item,
+                    selected = selectedIndex == index,
+                    onClick = { onItemSelected(index) }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ZenDockItem(
+private fun RowScope.ZenNavItemView(
     item: ZenNavItem,
     selected: Boolean,
     onClick: () -> Unit
 ) {
-    val dock = ZenSpendTheme.colors.tone(ZenTone.Ink)
-    val active = ZenSpendTheme.colors.tone(ZenTone.Lime)
+    val lime = ZenSpendTheme.colors.tone(ZenTone.Lime)
     val label = stringResource(item.labelRes)
-
-    val background by animateColorAsState(
-        targetValue = if (selected) active.container else dock.container,
-        animationSpec = tween(durationMillis = 220),
-        label = "dockItemBg"
+    val pill by animateColorAsState(
+        targetValue = if (selected) lime.container else Color.Transparent,
+        animationSpec = tween(durationMillis = 200),
+        label = "navPill"
     )
-    val contentColor by animateColorAsState(
-        targetValue = if (selected) active.content else dock.contentMuted,
-        animationSpec = tween(durationMillis = 220),
-        label = "dockItemFg"
-    )
+    val iconTint = if (selected) lime.content else MaterialTheme.colorScheme.onSurfaceVariant
+    val textColor =
+        if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
 
-    Row(
+    Column(
         modifier = Modifier
-            .height(Dimensions.DockItemSize)
-            .clip(PillShape)
-            .background(background)
-            .animateContentSize(animationSpec = tween(durationMillis = 220))
+            .weight(1f)
+            .height(Dimensions.NavBarHeight)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -144,46 +129,62 @@ private fun ZenDockItem(
             .semantics {
                 role = Role.Tab
                 contentDescription = label
-            }
-            .padding(horizontal = Dimensions.SpacingMedium + 2.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+            },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Icon(
-            painter = painterResource(id = item.iconRes),
-            contentDescription = null,
-            tint = contentColor,
-            modifier = Modifier.size(Dimensions.IconSizeMedium - 2.dp)
-        )
-        if (selected) {
-            Box(modifier = Modifier.width(Dimensions.SpacingSmall))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge,
-                color = contentColor,
-                maxLines = 1,
-                overflow = TextOverflow.Clip
+        Box(
+            modifier = Modifier
+                .width(Dimensions.NavPillWidth)
+                .height(Dimensions.NavPillHeight)
+                .clip(PillShape)
+                .background(pill),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(id = item.iconRes),
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(Dimensions.IconSizeMedium - 2.dp)
             )
         }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+            color = textColor,
+            maxLines = 1
+        )
     }
 }
 
 @Composable
-private fun ZenDockActionButton(action: ZenDockAction) {
-    val colors = ZenSpendTheme.colors.tone(ZenTone.Coral)
+private fun RowScope.ZenNavActionSlot(action: ZenDockAction) {
+    val colors = ZenSpendTheme.colors.tone(ZenTone.Leaf)
     Box(
-        modifier = Modifier
-            .size(Dimensions.DockItemSize)
-            .clip(PillShape)
-            .background(colors.container)
-            .clickable(role = Role.Button, onClick = action.onClick),
+        modifier = Modifier.weight(1f),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            imageVector = action.icon,
-            contentDescription = action.contentDescription,
-            tint = colors.content,
-            modifier = Modifier.size(Dimensions.IconSizeMedium)
-        )
+        Box(
+            modifier = Modifier
+                .size(Dimensions.NavFabSize)
+                .shadow(
+                    Dimensions.NavFabElevation,
+                    FabShape,
+                    ambientColor = colors.container,
+                    spotColor = colors.container
+                )
+                .clip(FabShape)
+                .background(colors.container)
+                .clickable(role = Role.Button, onClick = action.onClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = action.icon,
+                contentDescription = action.contentDescription,
+                tint = colors.content,
+                modifier = Modifier.size(Dimensions.IconSizeMedium + 2.dp)
+            )
+        }
     }
 }

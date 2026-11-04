@@ -23,3 +23,12 @@ val PillShape = CircleShape
 val ButtonShape = PillShape
 val ChipShape = PillShape
 val InputShape = RoundedCornerShape(Dimensions.RadiusInput)
+
+/** Curved bottom edge of the screen header. */
+val HeaderShape = RoundedCornerShape(bottomStart = Dimensions.RadiusHeader, bottomEnd = Dimensions.RadiusHeader)
+
+/** Leaf silhouette: three rounded corners and one sharp tip. */
+val LeafShape = RoundedCornerShape(topStartPercent = 50, topEndPercent = 0, bottomEndPercent = 50, bottomStartPercent = 50)
+
+/** Rounded-square floating action button. */
+val FabShape = RoundedCornerShape(Dimensions.NavFabRadius)

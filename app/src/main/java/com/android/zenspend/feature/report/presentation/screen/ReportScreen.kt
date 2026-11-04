@@ -195,7 +195,7 @@ fun ReportScreen(
                         4 -> {
                             items(state.creditCards) { card ->
                                 val expense = ZenSpendTheme.colors.expense
-                                ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Lilac) {
+                                ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Leaf) {
                                     Text(
                                         text = card.cardName,
                                         style = MaterialTheme.typography.titleMedium

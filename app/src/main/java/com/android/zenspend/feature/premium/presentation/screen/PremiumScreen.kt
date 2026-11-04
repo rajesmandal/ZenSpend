@@ -167,7 +167,7 @@ fun SubscriptionOptions(
     onYearlyClick: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(Dimensions.TileGap)) {
-        ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Lilac, onClick = onMonthlyClick) {
+        ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Leaf, onClick = onMonthlyClick) {
             Text(stringResource(R.string.premium_monthly), style = MaterialTheme.typography.titleMedium)
             ZenTileCaption(stringResource(R.string.premium_price_monthly))
         }

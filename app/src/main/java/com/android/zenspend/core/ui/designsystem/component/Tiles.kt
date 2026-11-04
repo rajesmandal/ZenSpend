@@ -347,8 +347,8 @@ fun ZenChip(
     modifier: Modifier = Modifier
 ) {
     val scheme = MaterialTheme.colorScheme
-    val bg = if (selected) scheme.onSurface else Color.Transparent
-    val fg = if (selected) scheme.surface else scheme.onSurface
+    val bg = if (selected) scheme.primary else Color.Transparent
+    val fg = if (selected) scheme.onPrimary else scheme.onSurface
     Box(
         modifier = modifier
             .clip(PillShape)

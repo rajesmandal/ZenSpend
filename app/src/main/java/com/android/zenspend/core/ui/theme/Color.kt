@@ -3,41 +3,49 @@ package com.android.zenspend.core.ui.theme
 import androidx.compose.ui.graphics.Color
 
 /**
- * ZenSpend "Bento" palette — the ONLY place raw hex values live.
+ * ZenSpend "Canopy" palette — the ONLY place raw hex values live.
+ * Brand colours come from the launcher icon (forest Z, emerald wallet, leaf).
  *
  * Rule: UI code never references these directly. It reads colors through
  * `MaterialTheme.colorScheme` or `ZenSpendTheme.colors` (see Theme.kt).
  * To re-skin the whole app, change values here (or swap the mapping in Theme.kt).
  */
 
+// ---- Brand -----------------------------------------------------------------
+internal val Forest = Color(0xFF0B5443)         // primary, hero tile, header start
+internal val ForestLight = Color(0xFF168062)    // header gradient end
+internal val ForestDeep = Color(0xFF0A3F33)     // header start (dark mode)
+internal val ForestDeepLight = Color(0xFF0F5A47) // header end (dark mode)
+internal val Emerald = Color(0xFF2E9B50)
+
 // ---- Neutrals (light) ------------------------------------------------------
-internal val Cream = Color(0xFFF6F1E7)          // canvas
-internal val CreamDeep = Color(0xFFEFE9DC)
-internal val CreamDeeper = Color(0xFFE8E1D2)
-internal val CreamDeepest = Color(0xFFE0D8C8)
+internal val Cream = Color(0xFFEAF3E6)          // canvas
+internal val CreamDeep = Color(0xFFE0EBDA)
+internal val CreamDeeper = Color(0xFFD5E3CD)
+internal val CreamDeepest = Color(0xFFC9DBC0)
 internal val Paper = Color(0xFFFFFFFF)          // card surface
-internal val Ink = Color(0xFF141414)            // primary text / dark tiles
-internal val InkSoft = Color(0xFF6F6A5E)        // secondary text
-internal val Stone = Color(0xFF8A857A)          // outline
-internal val Sand = Color(0xFFE4DDCE)           // hairlines
+internal val Ink = Color(0xFF0E241C)            // primary text
+internal val InkSoft = Color(0xFF587064)        // secondary text
+internal val Stone = Color(0xFF7E9488)          // outline
+internal val Sand = Color(0xFFD3E2CA)           // hairlines
 
 // ---- Neutrals (dark) -------------------------------------------------------
-internal val Night = Color(0xFF0E0E0E)
-internal val NightRaised = Color(0xFF1A1A1A)
-internal val NightRaised2 = Color(0xFF222222)
-internal val NightRaised3 = Color(0xFF2A2A2A)
-internal val NightRaised4 = Color(0xFF333333)
-internal val Bone = Color(0xFFF5F2EA)           // text on dark
-internal val BoneSoft = Color(0xFF9D998C)
-internal val NightLine = Color(0xFF2E2E2B)
+internal val Night = Color(0xFF06120D)
+internal val NightRaised = Color(0xFF0E1F18)
+internal val NightRaised2 = Color(0xFF142A21)
+internal val NightRaised3 = Color(0xFF1B3529)
+internal val NightRaised4 = Color(0xFF244235)
+internal val Bone = Color(0xFFF2FAEF)           // text on dark / on header
+internal val BoneSoft = Color(0xFF8FA89B)
+internal val NightLine = Color(0xFF1E352B)
 
-// ---- Accent pastels (shared by light + dark; always carry Ink text) --------
-internal val Lime = Color(0xFFCDF45C)
-internal val Coral = Color(0xFFFF7A59)
-internal val Lilac = Color(0xFFC9B8FF)
-internal val Sky = Color(0xFFA9D8FF)
-internal val Sun = Color(0xFFFFD166)
-internal val Mint = Color(0xFF9AE6B4)
+// ---- Accent tones (shared by light + dark; always carry Ink text) ----------
+internal val Lime = Color(0xFFB8E86B)
+internal val Coral = Color(0xFFEE7B5A)
+internal val Leaf = Color(0xFF7CC84A)
+internal val Sky = Color(0xFF8FCBE6)
+internal val Sun = Color(0xFFF0C04F)
+internal val Mint = Color(0xFFCDEBD3)
 
 // ---- Status ----------------------------------------------------------------
 internal val ErrorRed = Color(0xFFD92D20)
@@ -46,15 +54,15 @@ internal val ErrorRedDark = Color(0xFFFF8A7A)
 internal val ErrorRedContainerDark = Color(0xFF5A1D14)
 
 // ---- Semantic financial colors --------------------------------------------
-internal val IncomeGreen = Color(0xFF1C9B57)
-internal val ExpenseRed = Color(0xFFE5484D)
-internal val TransferBlue = Color(0xFF2E7CF6)
+internal val IncomeGreen = Color(0xFF1E9A4E)
+internal val ExpenseRed = Color(0xFFDC5A3C)
+internal val TransferBlue = Color(0xFF2E7CB8)
 internal val CreditCardGold = Color(0xFFD98E04)
-internal val NeutralGrey = Color(0xFF8A857A)
+internal val NeutralGrey = Color(0xFF7E9488)
 
-internal val IncomeGreenDark = Color(0xFF5BE39B)
-internal val ExpenseRedDark = Color(0xFFFF7A7F)
-internal val TransferBlueDark = Color(0xFF7DB2FF)
+internal val IncomeGreenDark = Color(0xFF6EDC8F)
+internal val ExpenseRedDark = Color(0xFFFF8A6B)
+internal val TransferBlueDark = Color(0xFF7DBDF0)
 internal val CreditCardGoldDark = Color(0xFFFFC857)
 
 internal val ScrimColor = Color(0x99000000)

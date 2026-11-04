@@ -37,7 +37,7 @@ import com.android.zenspend.core.ui.theme.CardShape
 import com.android.zenspend.core.ui.theme.ChipShape
 import com.android.zenspend.core.ui.theme.Dimensions
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** Standard screen header: optional back button, subtitle + title, and action icons. */
 @Composable
 fun ZenTopAppBar(
     title: String,
@@ -47,15 +47,31 @@ fun ZenTopAppBar(
     onBackClick: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
-    TopAppBar(
-        modifier = modifier,
-        title = {
-            Column {
+    ZenHeader(
+        // The gap keeps list chips / fields from touching the header's curved edge.
+        modifier = modifier.padding(bottom = Dimensions.SpacingMedium),
+        contentPadding = PaddingValues(
+            start = if (showBack) Dimensions.SpacingSmall else Dimensions.ScreenPadding,
+            end = Dimensions.SpacingSmall,
+            top = Dimensions.SpacingXSmall,
+            bottom = Dimensions.SpacingMedium
+        )
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (showBack && onBackClick != null) {
+                IconButton(onClick = onBackClick) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            }
+            Column(modifier = Modifier.weight(1f)) {
                 if (subtitle != null) {
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = LocalContentColor.current.copy(alpha = 0.75f)
                     )
                 }
                 Text(
@@ -65,22 +81,9 @@ fun ZenTopAppBar(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-        },
-        navigationIcon = {
-            if (showBack && onBackClick != null) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
-            }
-        },
-        actions = actions,
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background
-        )
-    )
+            actions()
+        }
+    }
 }
 
 @Composable

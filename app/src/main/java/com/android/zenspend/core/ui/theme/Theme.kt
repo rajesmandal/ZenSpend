@@ -21,6 +21,12 @@ data class CustomColors(
     val transfer: Color = Color.Unspecified,
     val creditCard: Color = Color.Unspecified,
     val neutral: Color = Color.Unspecified,
+    /** Curved screen header: gradient from [headerStart] to [headerEnd], text/icons in [onHeader]. */
+    val headerStart: Color = Color.Unspecified,
+    val headerEnd: Color = Color.Unspecified,
+    val onHeader: Color = Color.Unspecified,
+    /** Decorative leaf shapes drawn on the header. */
+    val headerLeaf: Color = Color.Unspecified,
     /** Bento tile palette — see [ZenTone]. */
     val tones: ZenTonePalette = lightTonePalette()
 ) {
@@ -30,13 +36,13 @@ data class CustomColors(
 val LocalCustomColors = staticCompositionLocalOf { CustomColors() }
 
 private val LightColorScheme = lightColorScheme(
-    primary = Ink,
-    onPrimary = Lime,
+    primary = Forest,
+    onPrimary = Bone,
     primaryContainer = Lime,
     onPrimaryContainer = Ink,
     secondary = InkSoft,
     onSecondary = Paper,
-    secondaryContainer = Lilac,
+    secondaryContainer = Mint,
     onSecondaryContainer = Ink,
     tertiary = Coral,
     onTertiary = Ink,
@@ -65,13 +71,13 @@ private val LightColorScheme = lightColorScheme(
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Lime,
+    primary = Leaf,
     onPrimary = Ink,
     primaryContainer = Lime,
     onPrimaryContainer = Ink,
     secondary = BoneSoft,
     onSecondary = Ink,
-    secondaryContainer = Lilac,
+    secondaryContainer = Mint,
     onSecondaryContainer = Ink,
     tertiary = Coral,
     onTertiary = Ink,
@@ -105,6 +111,10 @@ private val LightCustomColors = CustomColors(
     transfer = TransferBlue,
     creditCard = CreditCardGold,
     neutral = NeutralGrey,
+    headerStart = Forest,
+    headerEnd = ForestLight,
+    onHeader = Bone,
+    headerLeaf = Leaf,
     tones = lightTonePalette()
 )
 
@@ -114,6 +124,10 @@ private val DarkCustomColors = CustomColors(
     transfer = TransferBlueDark,
     creditCard = CreditCardGoldDark,
     neutral = NeutralGrey,
+    headerStart = ForestDeep,
+    headerEnd = ForestDeepLight,
+    onHeader = Bone,
+    headerLeaf = Leaf,
     tones = darkTonePalette()
 )
 
