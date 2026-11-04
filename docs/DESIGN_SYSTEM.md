@@ -205,3 +205,12 @@ Savings, or to Wants when editing Savings, so the total always stays 100) → mo
 Needs and Wants → Apply. Apply writes one overall budget (needs + wants = spending limit) and one budget
 per category (its bucket's amount split equally). Budgets that already exist for that month are updated,
 never duplicated. Savings is a target only and creates no budget.
+
+## 10. Money formatting
+
+All amounts go through `core/ui/util/MoneyFormat.kt` (`formatMinorUnits` delegates to it).
+
+- Grouping and decimal mark follow the device locale: en-US `1,234,567.89`, en-IN `12,34,567.89`, de-DE `1.234.567,89`.
+- To force one style app-wide, change `MoneyFormat.locale`.
+- Input fields keep raw digits and `.` in state (`MoneyFormat.rawFromMinor` to fill them) and show grouping via `MoneyFormat.visualTransformation` (`AmountInput`, `ZenTextField(visualTransformation = ...)`). The keypad readout uses `MoneyFormat.groupTyped`.
+- Never use `"%.2f"` or `Double.toString()` for money shown to the user.

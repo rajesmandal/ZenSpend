@@ -1,6 +1,7 @@
 package com.android.zenspend.feature.transaction.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.android.zenspend.core.ui.util.formatMinorUnits
 import androidx.lifecycle.viewModelScope
 import com.android.zenspend.core.database.model.TransactionType
 import com.android.zenspend.feature.category.domain.repository.CategoryRepository
@@ -65,9 +66,7 @@ class TransactionDetailsViewModel @Inject constructor(
                 it.copy(
                     isLoading = false,
                     title = transaction.title,
-                    amount = (transaction.amount.toDouble() / 100.0).let { value ->
-                        String.format(Locale.getDefault(), "%.2f", value)
-                    },
+                    amount = formatMinorUnits(transaction.amount),
                     type = transaction.type,
                     date = dateFormat.format(Date(transaction.date)),
                     note = transaction.note,

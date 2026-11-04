@@ -1,6 +1,7 @@
 package com.android.zenspend.feature.sms.presentation.screen
 
 import androidx.compose.foundation.layout.Arrangement
+import com.android.zenspend.core.ui.util.MoneyFormat
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -105,6 +106,7 @@ fun SmsDraftReviewScreen(
                     value = state.amount,
                     onValueChange = { viewModel.onEvent(SmsDraftReviewEvent.AmountChanged(it)) },
                     label = stringResource(R.string.sms_field_amount),
+                    visualTransformation = MoneyFormat.visualTransformation,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )
             }

@@ -1,6 +1,7 @@
 package com.android.zenspend.feature.creditcard.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.android.zenspend.core.ui.util.formatMinorUnits
 import androidx.lifecycle.viewModelScope
 import com.android.zenspend.feature.creditcard.domain.model.CreditCardSummary
 import com.android.zenspend.feature.creditcard.domain.usecase.AddCreditCardUseCase
@@ -97,6 +98,6 @@ class CreditCardViewModel @Inject constructor(
     )
 
     private fun formatAmount(amount: Long): String {
-        return "%.2f".format(amount.toDouble() / 100.0)
+        return formatMinorUnits(amount)
     }
 }

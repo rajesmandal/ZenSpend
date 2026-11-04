@@ -1,6 +1,7 @@
 package com.android.zenspend.feature.report.presentation.screen
 
 import androidx.compose.foundation.layout.Arrangement
+import com.android.zenspend.core.ui.util.formatMinorUnits
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -289,5 +290,5 @@ private fun EmptyHint(text: String) {
 private const val UTILIZATION_ALERT_PERCENT = 80
 
 private fun formatAmount(amount: Long): String {
-    return "%.2f".format(amount.toDouble() / 100.0)
+    return formatMinorUnits(amount)
 }

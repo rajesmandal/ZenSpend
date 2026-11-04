@@ -1,6 +1,7 @@
 package com.android.zenspend.feature.budget.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.android.zenspend.core.ui.util.MoneyFormat
 import androidx.lifecycle.viewModelScope
 import com.android.zenspend.core.database.model.CategoryType
 import com.android.zenspend.core.datastore.BudgetPlanPreferences
@@ -132,7 +133,7 @@ class BudgetPlanViewModel @Inject constructor(
     }
 
     private fun formatIncome(minor: Long): String =
-        if (minor % MINOR_PER_MAJOR == 0L) (minor / MINOR_PER_MAJOR).toString() else "%.2f".format(Locale.US, minor / MINOR_PER_MAJOR.toDouble())
+        MoneyFormat.rawFromMinor(minor)
 
     private fun apply() {
         val state = _uiState.value

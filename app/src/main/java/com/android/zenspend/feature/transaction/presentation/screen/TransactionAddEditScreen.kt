@@ -1,6 +1,7 @@
 package com.android.zenspend.feature.transaction.presentation.screen
 
 import androidx.annotation.StringRes
+import com.android.zenspend.core.ui.util.MoneyFormat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -261,7 +262,7 @@ private fun AmountReadout(
             modifier = Modifier.padding(top = Dimensions.SpacingSmall, end = Dimensions.SpacingXSmall)
         )
         Text(
-            text = amountText.ifEmpty { stringResource(R.string.add_amount_placeholder) },
+            text = MoneyFormat.groupTyped(amountText).ifEmpty { stringResource(R.string.add_amount_placeholder) },
             style = AmountDisplay,
             color = numberColor
         )

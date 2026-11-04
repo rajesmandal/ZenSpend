@@ -1,6 +1,7 @@
 package com.android.zenspend.feature.sms.presentation.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
+import com.android.zenspend.core.ui.util.MoneyFormat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.zenspend.core.common.result.Resource
@@ -98,7 +99,7 @@ class SmsDraftReviewViewModel @Inject constructor(
                     wallets = wallets,
                     categories = categories,
                     creditCards = cards,
-                    amount = (draft.amount / 100.0).toString(),
+                    amount = MoneyFormat.rawFromMinor(draft.amount),
                     title = draft.merchant ?: "Transaction from ${draft.sender}",
                     type = draft.type,
                     selectedWalletId = walletId,
@@ -119,7 +120,7 @@ class SmsDraftReviewViewModel @Inject constructor(
             is SmsDraftReviewEvent.DestinationWalletSelected -> _state.update { it.copy(selectedDestinationWalletId = event.id) }
             is SmsDraftReviewEvent.TypeChanged -> changeType(event.type)
             is SmsDraftReviewEvent.CategorySelected -> _state.update { it.copy(selectedCategoryId = event.id) }
-            is SmsDraftReviewEvent.AmountChanged -> _state.update { it.copy(amount = event.amount) }
+            is SmsDraftReviewEvent.AmountChanged -> _state.update { it.copy(amount = event.amount.filter { c -> c.isDigit() || c == '.' }) }
             is SmsDraftReviewEvent.TitleChanged -> _state.update { it.copy(title = event.title) }
             SmsDraftReviewEvent.ConfirmClicked -> confirmDraft()
         }

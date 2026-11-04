@@ -1,6 +1,7 @@
 package com.android.zenspend.feature.budget.presentation.screen
 
 import androidx.compose.foundation.layout.Arrangement
+import com.android.zenspend.core.ui.util.MoneyFormat
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -123,7 +124,8 @@ fun BudgetPlanScreen(
                     value = state.incomeText,
                     onValueChange = { viewModel.handleEvent(BudgetPlanEvent.OnIncomeChange(it)) },
                     label = stringResource(R.string.plan_income),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    visualTransformation = MoneyFormat.visualTransformation
                 )
             }
 

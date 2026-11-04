@@ -1,6 +1,7 @@
 package com.android.zenspend.core.util
 
 import android.app.NotificationChannel
+import com.android.zenspend.core.ui.util.MoneyFormat
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -49,7 +50,7 @@ class NotificationHelper @Inject constructor(
         val notification = NotificationCompat.Builder(context, SMS_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info) // Replace with app icon later
             .setContentTitle("New Transaction Detected")
-            .setContentText("${merchant ?: "Unknown Merchant"}: ₹${amount / 100.0}")
+            .setContentText("${merchant ?: "Unknown Merchant"}: ₹${MoneyFormat.format(amount)}")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

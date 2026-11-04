@@ -1,6 +1,8 @@
 package com.android.zenspend.feature.transaction.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.android.zenspend.core.ui.util.formatMinorUnits
+import com.android.zenspend.core.ui.util.MoneyFormat
 import androidx.lifecycle.viewModelScope
 import com.android.zenspend.core.common.result.Resource
 import com.android.zenspend.core.database.model.TransactionType
@@ -192,7 +194,7 @@ class TransactionViewModel @Inject constructor(
     private fun applyVoiceDraft(draft: com.android.zenspend.feature.voice.domain.model.VoiceTransactionDraft) {
         _uiState.update { it.copy(
             formState = it.formState.copy(
-                amountText = draft.amount?.let { (it / 100.0).toString() } ?: "",
+                amountText = draft.amount?.let(MoneyFormat::rawFromMinor) ?: "",
                 title = draft.merchant ?: "",
                 type = draft.type ?: TransactionType.EXPENSE,
                 sourceWalletId = draft.sourceWalletId ?: 0L,
@@ -211,7 +213,7 @@ class TransactionViewModel @Inject constructor(
     private fun Transaction.toUiModel() = TransactionUiModel(
         id = id,
         title = title,
-        amount = (amount.toDouble() / 100.0).toString(),
+        amount = formatMinorUnits(amount),
         date = java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.getDefault()).format(java.util.Date(date)),
         type = type,
         categoryName = categoryId?.toString() ?: "General",
@@ -223,7 +225,7 @@ class TransactionViewModel @Inject constructor(
         id = id,
         name = name,
         type = type,
-        balance = (currentBalance.toDouble() / 100.0).toString(),
+        balance = formatMinorUnits(currentBalance),
         rawBalance = currentBalance,
         currency = currency,
         isActive = isActive

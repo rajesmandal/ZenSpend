@@ -1,6 +1,8 @@
 package com.android.zenspend.core.ui.designsystem.component
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.text.input.VisualTransformation
+import com.android.zenspend.core.ui.util.MoneyFormat
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -16,11 +18,13 @@ fun ZenTextField(
     label: String,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
+        visualTransformation = visualTransformation,
         label = { Text(label) },
         modifier = modifier.fillMaxWidth(),
         isError = isError,
@@ -54,6 +58,7 @@ fun AmountInput(
         leadingIcon = { Text(currencySymbol, style = AmountLarge) },
         isError = isError,
         shape = InputShape,
+        visualTransformation = MoneyFormat.visualTransformation,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         placeholder = { Text("0.00", style = AmountLarge) },
         colors = OutlinedTextFieldDefaults.colors(

@@ -59,9 +59,9 @@ class WalletViewModelTest {
         viewModel.handleEvent(WalletUiEvent.LoadWallets)
         
         val state = viewModel.uiState.value
-        assertEquals("1000.00", state.assetBalance)
-        assertEquals("500.00", state.liabilityBalance)
-        assertEquals("500.00", state.totalBalance)
+        assertEquals("1,000", state.assetBalance)
+        assertEquals("500", state.liabilityBalance)
+        assertEquals("500", state.totalBalance)
     }
 
     @Test

@@ -8,11 +8,8 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-/** Formats minor units (paise) as "1,234" or "1,234.50" — no currency symbol. */
-fun formatMinorUnits(amount: Long): String {
-    val value = amount.toDouble() / 100.0
-    return if (value % 1.0 == 0.0) "%,d".format(value.toLong()) else "%,.2f".format(value)
-}
+/** Formats minor units (paise) as "1,234" or "1,234.50" (locale-aware) — no currency symbol. See [MoneyFormat]. */
+fun formatMinorUnits(amount: Long): String = MoneyFormat.format(amount)
 
 /** Greeting resource for the current hour. */
 @Composable

@@ -1,6 +1,9 @@
 package com.android.zenspend.feature.voice.presentation.components
 
 import android.Manifest
+import com.android.zenspend.R
+import androidx.compose.ui.res.stringResource
+import com.android.zenspend.core.ui.util.formatMinorUnits
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -129,7 +132,7 @@ fun ParsedDraftPreview(
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "₹${(draft.amount ?: 0L) / 100.0}",
+                    text = stringResource(R.string.amount_rupees, formatMinorUnits(draft.amount ?: 0L)),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
