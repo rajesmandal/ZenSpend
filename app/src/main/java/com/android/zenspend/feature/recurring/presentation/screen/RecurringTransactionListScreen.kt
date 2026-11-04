@@ -1,30 +1,51 @@
 package com.android.zenspend.feature.recurring.presentation.screen
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.android.zenspend.R
+import com.android.zenspend.core.database.model.TransactionType
+import com.android.zenspend.core.ui.designsystem.component.EmptyState
 import com.android.zenspend.core.ui.designsystem.component.LoadingState
-import com.android.zenspend.core.ui.designsystem.component.ZenCard
+import com.android.zenspend.core.ui.designsystem.component.ZenPrimaryButton
+import com.android.zenspend.core.ui.designsystem.component.ZenSectionHeader
+import com.android.zenspend.core.ui.designsystem.component.ZenTile
+import com.android.zenspend.core.ui.designsystem.component.ZenTileCaption
+import com.android.zenspend.core.ui.designsystem.component.ZenTileValue
+import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
+import com.android.zenspend.core.ui.theme.AmountMedium
 import com.android.zenspend.core.ui.theme.Dimensions
 import com.android.zenspend.core.ui.theme.ZenSpendTheme
+import com.android.zenspend.core.ui.theme.ZenTone
+import com.android.zenspend.core.ui.util.formatMinorUnits
 import com.android.zenspend.feature.recurring.domain.model.RecurringTransaction
 import com.android.zenspend.feature.recurring.presentation.contract.RecurringUiEvent
 import com.android.zenspend.feature.recurring.presentation.viewmodel.RecurringViewModel
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecurringTransactionListScreen(
     onNavigateToAdd: () -> Unit,
@@ -35,49 +56,60 @@ fun RecurringTransactionListScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                title = { Text("Recurring Rules") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+            ZenTopAppBar(
+                title = stringResource(R.string.recurring_title),
+                showBack = true,
+                onBackClick = onNavigateBack,
+                actions = {
+                    IconButton(onClick = onNavigateToAdd) {
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.recurring_add))
                     }
                 }
             )
         }
     ) { padding ->
-        if (state.isLoading) {
-            LoadingState()
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentPadding = PaddingValues(Dimensions.SpacingLarge),
-                verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium)
-            ) {
+        when {
+            state.isLoading -> LoadingState(modifier = Modifier.padding(padding))
+            state.recurringTransactions.isEmpty() -> EmptyState(
+                title = stringResource(R.string.recurring_empty_title),
+                message = stringResource(R.string.recurring_empty_body),
+                action = { ZenPrimaryButton(text = stringResource(R.string.recurring_add), onClick = onNavigateToAdd) },
+                modifier = Modifier.padding(padding)
+            )
+            else -> {
                 val active = state.recurringTransactions.filter { it.isActive }
                 val paused = state.recurringTransactions.filter { !it.isActive }
-
-                if (active.isNotEmpty()) {
-                    item { Text("Active", style = MaterialTheme.typography.titleMedium) }
-                    items(active) { rule ->
-                        RecurringRuleCard(
-                            rule = rule,
-                            onConfirm = { viewModel.handleEvent(RecurringUiEvent.ConfirmOccurrence(rule.id, rule.nextExecutionDate)) },
-                            onClick = { onNavigateToDetails(rule.id) }
-                        )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentPadding = PaddingValues(
+                        horizontal = Dimensions.ScreenPadding,
+                        vertical = Dimensions.SpacingLarge
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(Dimensions.TileGap)
+                ) {
+                    if (active.isNotEmpty()) {
+                        item { ZenSectionHeader(title = stringResource(R.string.recurring_active)) }
+                        items(active, key = { it.id }) { rule ->
+                            RecurringRuleCard(
+                                rule = rule,
+                                onConfirm = {
+                                    viewModel.handleEvent(
+                                        RecurringUiEvent.ConfirmOccurrence(rule.id, rule.nextExecutionDate)
+                                    )
+                                },
+                                onClick = { onNavigateToDetails(rule.id) }
+                            )
+                        }
                     }
-                }
-
-                if (paused.isNotEmpty()) {
-                    item { Text("Paused", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = Dimensions.SpacingMedium)) }
-                    items(paused) { rule ->
-                        RecurringRuleCard(
-                            rule = rule,
-                            onConfirm = { /* No confirm for paused */ },
-                            onClick = { onNavigateToDetails(rule.id) }
-                        )
+                    if (paused.isNotEmpty()) {
+                        item { ZenSectionHeader(title = stringResource(R.string.recurring_paused)) }
+                        items(paused, key = { it.id }) { rule ->
+                            RecurringRuleCard(rule = rule, onConfirm = {}, onClick = { onNavigateToDetails(rule.id) })
+                        }
                     }
                 }
             }
@@ -89,53 +121,52 @@ fun RecurringTransactionListScreen(
 fun RecurringRuleCard(
     rule: RecurringTransaction,
     onConfirm: () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    ZenCard(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(Dimensions.SpacingMedium)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(rule.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text(
-                        text = "${rule.recurrenceType} • Next: ${formatDate(rule.nextExecutionDate)}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Text(
-                    text = "₹${formatAmount(rule.amount)}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = if (rule.type == com.android.zenspend.core.database.model.TransactionType.INCOME) ZenSpendTheme.colors.income else ZenSpendTheme.colors.expense
+    val dateText = remember(rule.nextExecutionDate) {
+        SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(rule.nextExecutionDate))
+    }
+    val isIncome = rule.type == TransactionType.INCOME
+    val overdue = rule.isActive && rule.isOverdue
+    // Overdue rules stand out with the coral tone; paused rules fall back to the neutral surface.
+    val tone = when {
+        overdue -> ZenTone.Coral
+        rule.isActive -> ZenTone.forKey(rule.name)
+        else -> ZenTone.Surface
+    }
+
+    ZenTile(modifier = modifier.fillMaxWidth(), tone = tone, onClick = onClick) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(rule.name, style = MaterialTheme.typography.titleMedium)
+                ZenTileCaption(
+                    stringResource(R.string.recurring_type_next, rule.recurrenceType.name, dateText)
                 )
             }
-            
-            if (rule.isActive && rule.isOverdue) {
-                Spacer(modifier = Modifier.height(Dimensions.SpacingSmall))
-                Button(
-                    onClick = onConfirm,
-                    modifier = Modifier.align(Alignment.End),
-                    contentPadding = PaddingValues(horizontal = Dimensions.SpacingMedium, vertical = 0.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
-                ) {
-                    Text("Confirm Now", style = MaterialTheme.typography.labelMedium)
+            val template = if (isIncome) R.string.amount_rupees_income else R.string.amount_rupees_expense
+            ZenTileValue(
+                text = stringResource(template, formatMinorUnits(rule.amount)),
+                style = AmountMedium,
+                color = if (tone == ZenTone.Surface) {
+                    if (isIncome) ZenSpendTheme.colors.income else ZenSpendTheme.colors.expense
+                } else {
+                    androidx.compose.ui.graphics.Color.Unspecified
                 }
-            }
+            )
+        }
+        if (overdue) {
+            ZenPrimaryButton(
+                text = stringResource(R.string.recurring_confirm_now),
+                onClick = onConfirm,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = Dimensions.SpacingMedium)
+            )
         }
     }
-}
-
-private fun formatAmount(amount: Long): String {
-    return "%.2f".format(amount / 100.0)
-}
-
-private fun formatDate(timestamp: Long): String {
-    return SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(timestamp))
 }

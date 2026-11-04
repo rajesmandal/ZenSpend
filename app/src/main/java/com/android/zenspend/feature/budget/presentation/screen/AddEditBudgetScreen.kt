@@ -1,5 +1,7 @@
 package com.android.zenspend.feature.budget.presentation.screen
 
+import com.android.zenspend.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -38,13 +40,10 @@ fun AddEditBudgetScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Add Budget") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
+            ZenTopAppBar(
+                title = stringResource(R.string.budget_add_title),
+                showBack = true,
+                onBackClick = onNavigateBack
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -56,7 +55,7 @@ fun AddEditBudgetScreen(
                 .padding(Dimensions.SpacingLarge),
             verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingLarge)
         ) {
-            Text("Budget Amount", style = MaterialTheme.typography.labelMedium)
+            Text(stringResource(R.string.budget_amount), style = MaterialTheme.typography.labelMedium)
             AmountInput(
                 value = budgetState.amountText,
                 onValueChange = { budgetViewModel.handleEvent(BudgetUiEvent.OnAmountChange(it)) }
@@ -68,12 +67,12 @@ fun AddEditBudgetScreen(
                 onCategorySelected = { budgetViewModel.handleEvent(BudgetUiEvent.OnCategoryChange(it)) }
             )
             
-            Text("Tip: Leave category empty for overall monthly budget.", style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(R.string.budget_tip), style = MaterialTheme.typography.bodySmall)
 
             Spacer(modifier = Modifier.weight(1f))
 
             ZenPrimaryButton(
-                text = "Save Budget",
+                text = stringResource(R.string.budget_save),
                 onClick = { budgetViewModel.handleEvent(BudgetUiEvent.SaveBudget) },
                 loading = budgetState.isSubmitting
             )

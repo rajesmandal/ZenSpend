@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -15,6 +16,8 @@ import com.android.zenspend.core.ui.designsystem.component.*
 import com.android.zenspend.core.ui.theme.AmountHero
 import com.android.zenspend.core.ui.theme.Dimensions
 import com.android.zenspend.core.ui.theme.ZenSpendTheme
+import com.android.zenspend.core.ui.theme.ZenTone
+import com.android.zenspend.R
 import com.android.zenspend.feature.transaction.presentation.viewmodel.TransactionDetailsUiState
 import com.android.zenspend.feature.transaction.presentation.viewmodel.TransactionDetailsViewModel
 
@@ -35,8 +38,8 @@ fun TransactionDetailsScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete transaction?") },
-            text = { Text("This action cannot be undone.") },
+            title = { Text(stringResource(R.string.txn_delete_title)) },
+            text = { Text(stringResource(R.string.txn_delete_body)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -44,12 +47,12 @@ fun TransactionDetailsScreen(
                         viewModel.delete(transactionId, onNavigateBack)
                     }
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.action_delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -58,17 +61,17 @@ fun TransactionDetailsScreen(
     Scaffold(
         topBar = {
             ZenTopAppBar(
-                title = "Transaction",
+                title = stringResource(R.string.txn_details_title),
                 showBack = true,
                 onBackClick = onNavigateBack,
                 actions = {
                     IconButton(onClick = { onNavigateToEdit(transactionId) }) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit")
+                        Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.action_edit))
                     }
                     IconButton(onClick = { showDeleteDialog = true }) {
                         Icon(
                             Icons.Default.Delete,
-                            contentDescription = "Delete",
+                            contentDescription = stringResource(R.string.action_delete),
                             tint = MaterialTheme.colorScheme.error
                         )
                     }
@@ -97,11 +100,11 @@ private fun TransactionDetailsContent(
     state: TransactionDetailsUiState,
     modifier: Modifier = Modifier
 ) {
-    val amountType = when (state.type) {
-        TransactionType.INCOME -> AmountType.INCOME
-        TransactionType.EXPENSE -> AmountType.EXPENSE
-        TransactionType.TRANSFER -> AmountType.TRANSFER
-        else -> AmountType.NEUTRAL
+    // Hero tone reflects the transaction type: income = Lime, expense = Coral, everything else = Ink.
+    val heroTone = when (state.type) {
+        TransactionType.INCOME, TransactionType.REFUND -> ZenTone.Lime
+        TransactionType.EXPENSE -> ZenTone.Coral
+        else -> ZenTone.Ink
     }
 
     Column(
@@ -110,28 +113,28 @@ private fun TransactionDetailsContent(
             .padding(Dimensions.ScreenPadding),
         verticalArrangement = Arrangement.spacedBy(Dimensions.SectionGap)
     ) {
-        ZenSurfaceCard {
-            Text(
-                text = state.title,
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.height(Dimensions.SpacingMedium))
-            AmountText(
-                amount = "₹${state.amount}",
-                type = amountType,
-                style = AmountHero
+        ZenTile(
+            modifier = Modifier.fillMaxWidth(),
+            tone = heroTone,
+            contentPadding = PaddingValues(Dimensions.SpacingXLarge)
+        ) {
+            ZenTileCaption(state.title)
+            ZenTileValue(
+                text = stringResource(R.string.amount_rupees, state.amount),
+                style = AmountHero,
+                modifier = Modifier.padding(top = Dimensions.SpacingXSmall)
             )
         }
 
-        ZenSurfaceCard {
-            DetailRow(label = "Category", value = state.categoryName)
+        ZenTile(modifier = Modifier.fillMaxWidth()) {
+            DetailRow(label = stringResource(R.string.add_category), value = state.categoryName)
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            DetailRow(label = "Wallet", value = state.walletName)
+            DetailRow(label = stringResource(R.string.txn_wallet), value = state.walletName)
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            DetailRow(label = "Date", value = state.date)
+            DetailRow(label = stringResource(R.string.txn_date), value = state.date)
             state.note?.takeIf { it.isNotBlank() }?.let { note ->
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                DetailRow(label = "Note", value = note)
+                DetailRow(label = stringResource(R.string.txn_note), value = note)
             }
         }
     }

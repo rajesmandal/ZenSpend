@@ -1,5 +1,7 @@
 package com.android.zenspend.feature.recurring.presentation.screen
 
+import com.android.zenspend.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -34,13 +36,10 @@ fun AddEditRecurringTransactionScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(if (form.isEditMode) "Edit Rule" else "New Recurring Rule") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
+            ZenTopAppBar(
+                title = stringResource(if (form.isEditMode) R.string.recurring_edit_title else R.string.recurring_new_title),
+                showBack = true,
+                onBackClick = onNavigateBack
             )
         }
     ) { padding ->
@@ -67,7 +66,7 @@ fun AddEditRecurringTransactionScreen(
             ZenTextField(
                 value = form.name,
                 onValueChange = { viewModel.handleEvent(RecurringUiEvent.OnNameChange(it)) },
-                label = "Name (e.g. Netflix, Rent)",
+                label = stringResource(R.string.recurring_field_name),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -78,7 +77,7 @@ fun AddEditRecurringTransactionScreen(
             )
 
             // Frequency
-            Text("Frequency", style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.recurring_frequency), style = MaterialTheme.typography.labelLarge)
             Row(modifier = Modifier.fillMaxWidth()) {
                 RecurrenceType.entries.forEach { freq ->
                     FilterChip(
@@ -92,7 +91,7 @@ fun AddEditRecurringTransactionScreen(
 
             // Wallet Selectors based on type
             if (form.type == TransactionType.EXPENSE || form.type == TransactionType.TRANSFER) {
-                Text("From Wallet", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.add_from_wallet), style = MaterialTheme.typography.labelLarge)
                 walletState.wallets.forEach { wallet ->
                     Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                         RadioButton(
@@ -105,7 +104,7 @@ fun AddEditRecurringTransactionScreen(
             }
 
             if (form.type == TransactionType.INCOME || form.type == TransactionType.TRANSFER) {
-                Text("To Wallet", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.add_to_wallet), style = MaterialTheme.typography.labelLarge)
                 walletState.wallets.forEach { wallet ->
                     Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                         RadioButton(
@@ -118,7 +117,7 @@ fun AddEditRecurringTransactionScreen(
             }
 
             ZenPrimaryButton(
-                text = "Save Rule",
+                text = stringResource(R.string.recurring_save),
                 onClick = { viewModel.handleEvent(RecurringUiEvent.SaveRecurring) },
                 modifier = Modifier.fillMaxWidth(),
                 loading = form.isSubmitting

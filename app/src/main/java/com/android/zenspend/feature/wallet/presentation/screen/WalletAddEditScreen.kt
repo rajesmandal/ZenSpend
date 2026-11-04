@@ -1,5 +1,11 @@
 package com.android.zenspend.feature.wallet.presentation.screen
 
+import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
+import com.android.zenspend.core.ui.designsystem.component.ZenChip
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import com.android.zenspend.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -46,14 +52,12 @@ fun WalletAddEditScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                title = { Text(if (form.isEditMode) "Edit Wallet" else "Add Wallet") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
+            ZenTopAppBar(
+                title = stringResource(if (form.isEditMode) R.string.wallet_edit_title else R.string.wallet_add_title),
+                showBack = true,
+                onBackClick = onNavigateBack
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -69,7 +73,7 @@ fun WalletAddEditScreen(
             ZenTextField(
                 value = form.name,
                 onValueChange = { viewModel.handleEvent(WalletUiEvent.OnNameChange(it)) },
-                label = "Wallet Name",
+                label = stringResource(R.string.wallet_form_name),
                 isError = form.nameError != null
             )
             if (form.nameError != null) {
@@ -83,7 +87,7 @@ fun WalletAddEditScreen(
             )
 
             if (!form.isEditMode) {
-                Text("Opening Balance", style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.wallet_form_opening_balance), style = MaterialTheme.typography.labelMedium)
                 AmountInput(
                     value = form.openingBalanceText,
                     onValueChange = { viewModel.handleEvent(WalletUiEvent.OnBalanceChange(it)) },
@@ -94,7 +98,7 @@ fun WalletAddEditScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             ZenPrimaryButton(
-                text = if (form.isEditMode) "Update Wallet" else "Create Wallet",
+                text = stringResource(if (form.isEditMode) R.string.wallet_update else R.string.wallet_create),
                 onClick = { viewModel.handleEvent(WalletUiEvent.SaveWallet) },
                 loading = form.isSubmitting
             )
@@ -102,44 +106,25 @@ fun WalletAddEditScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TypeSelector(
     selectedType: WalletType,
     onTypeSelected: (WalletType) -> Unit,
     enabled: Boolean
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    
-    Column {
-        Text("Wallet Type", style = MaterialTheme.typography.labelMedium)
-        ExposedDropdownMenuBox(
-            expanded = expanded && enabled,
-            onExpandedChange = { if (enabled) expanded = !expanded }
+    Column(verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)) {
+        Text(stringResource(R.string.wallet_form_type), style = MaterialTheme.typography.labelMedium)
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
         ) {
-            OutlinedTextField(
-                value = selectedType.name,
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
-                enabled = enabled
-            )
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                WalletType.values().forEach { type ->
-                    DropdownMenuItem(
-                        text = { Text(type.name) },
-                        onClick = {
-                            onTypeSelected(type)
-                            expanded = false
-                        }
-                    )
-                }
+            WalletType.values().forEach { type ->
+                ZenChip(
+                    label = type.name,
+                    selected = type == selectedType,
+                    onClick = { if (enabled) onTypeSelected(type) }
+                )
             }
         }
     }

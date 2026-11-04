@@ -14,10 +14,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
-import com.android.zenspend.core.ui.designsystem.component.ZenSurfaceCard
+import com.android.zenspend.core.ui.designsystem.component.ZenTile
+import com.android.zenspend.core.ui.designsystem.component.ZenTileCaption
+import com.android.zenspend.core.ui.theme.ZenTone
+import androidx.compose.ui.res.stringResource
+import com.android.zenspend.R
 import com.android.zenspend.core.ui.theme.Dimensions
 import com.android.zenspend.feature.backup.presentation.state.BackupEffect
 import com.android.zenspend.feature.backup.presentation.state.BackupEvent
@@ -76,9 +79,10 @@ fun BackupScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             ZenTopAppBar(
-                title = "Backup & Data",
+                title = stringResource(R.string.backup_title),
                 showBack = true,
                 onBackClick = onNavigateBack
             )
@@ -95,30 +99,33 @@ fun BackupScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = Dimensions.ScreenPadding),
-            verticalArrangement = Arrangement.spacedBy(Dimensions.SectionGap)
+                .padding(horizontal = Dimensions.ScreenPadding, vertical = Dimensions.SpacingLarge),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.TileGap)
         ) {
             item {
                 BackupActionCard(
-                    title = "Create Backup",
-                    description = "Export all your data to a .zenspend file.",
+                    title = stringResource(R.string.backup_create),
+                    description = stringResource(R.string.backup_create_body),
                     icon = Icons.Default.Backup,
+                    tone = ZenTone.Lime,
                     onClick = { viewModel.onEvent(BackupEvent.CreateBackupRequested) }
                 )
             }
             item {
                 BackupActionCard(
-                    title = "Restore Backup",
-                    description = "Restore data from a .zenspend file. This will replace current data.",
+                    title = stringResource(R.string.backup_restore),
+                    description = stringResource(R.string.backup_restore_body),
                     icon = Icons.Default.Restore,
+                    tone = ZenTone.Coral,
                     onClick = { viewModel.onEvent(BackupEvent.RestoreBackupRequested) }
                 )
             }
             item {
                 BackupActionCard(
-                    title = "Export Transactions",
-                    description = "Download your transaction history as a CSV file.",
+                    title = stringResource(R.string.backup_export),
+                    description = stringResource(R.string.backup_export_body),
                     icon = Icons.Default.FileUpload,
+                    tone = ZenTone.Sky,
                     onClick = { viewModel.onEvent(BackupEvent.ExportCsvRequested) }
                 )
             }
@@ -139,9 +146,10 @@ private fun BackupActionCard(
     title: String,
     description: String,
     icon: ImageVector,
+    tone: ZenTone,
     onClick: () -> Unit
 ) {
-    ZenSurfaceCard(onClick = onClick) {
+    ZenTile(modifier = Modifier.fillMaxWidth(), tone = tone, onClick = onClick) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -149,17 +157,12 @@ private fun BackupActionCard(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(32.dp),
-                tint = MaterialTheme.colorScheme.primary
+                modifier = Modifier.size(Dimensions.IconSizeLarge)
             )
             Spacer(modifier = Modifier.width(Dimensions.SpacingLarge))
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(text = title, style = MaterialTheme.typography.titleMedium)
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                ZenTileCaption(text = description)
             }
         }
     }

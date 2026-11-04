@@ -214,6 +214,140 @@
     <string name="wallet_details_recent">Recent transactions</string>
     <string name="wallet_details_no_transactions">No transactions found for this wallet.</string>
 
+    <!-- More common actions -->
+    <string name="action_delete">Delete</string>
+
+    <!-- EMIs -->
+    <string name="emi_title">EMIs</string>
+    <string name="emi_empty_title">No active EMIs</string>
+    <string name="emi_empty_body">Add your installments here to track repayment progress</string>
+
+    <!-- Recurring -->
+    <string name="recurring_title">Recurring rules</string>
+    <string name="recurring_add">Add recurring rule</string>
+    <string name="recurring_empty_title">No recurring rules</string>
+    <string name="recurring_empty_body">Automate rent, salary and subscriptions.</string>
+    <string name="recurring_active">Active</string>
+    <string name="recurring_paused">Paused</string>
+    <string name="recurring_type_next">%1$s • Next: %2$s</string>
+    <string name="recurring_confirm_now">Confirm now</string>
+    <string name="recurring_details_title">Rule details</string>
+    <string name="recurring_toggle_status">Toggle status</string>
+    <string name="recurring_not_found">Rule not found</string>
+    <string name="recurring_frequency">Frequency</string>
+    <string name="recurring_next_occurrence">Next occurrence</string>
+    <string name="recurring_status">Status</string>
+    <string name="recurring_pause">Pause rule</string>
+    <string name="recurring_resume">Resume rule</string>
+
+    <!-- SMS review -->
+    <string name="sms_review_title">Review transaction</string>
+    <string name="sms_type_debit">Debit</string>
+    <string name="sms_type_credit">Credit</string>
+    <string name="sms_type_card_bill">Card bill</string>
+    <string name="sms_field_title">Title</string>
+    <string name="sms_field_amount">Amount</string>
+    <string name="sms_transaction_type">Transaction type</string>
+    <string name="sms_paid_from_bank_card">Paid from (bank / card)</string>
+    <string name="sms_paid_from_bank">Paid from (bank)</string>
+    <string name="sms_credited_to">Credited to (bank / card)</string>
+    <string name="sms_card_paid">Credit card paid</string>
+    <string name="sms_confirm">Confirm &amp; add transaction</string>
+
+    <!-- Transaction details -->
+    <string name="txn_details_title">Transaction</string>
+    <string name="txn_delete_title">Delete transaction?</string>
+    <string name="txn_delete_body">This action cannot be undone.</string>
+    <string name="txn_wallet">Wallet</string>
+    <string name="txn_date">Date</string>
+    <string name="txn_note">Note</string>
+
+    <!-- Backup -->
+    <string name="backup_title">Backup &amp; data</string>
+    <string name="backup_create">Create backup</string>
+    <string name="backup_create_body">Export all your data to a .zenspend file.</string>
+    <string name="backup_restore">Restore backup</string>
+    <string name="backup_restore_body">Restore data from a .zenspend file. This will replace current data.</string>
+    <string name="backup_export">Export transactions</string>
+    <string name="backup_export_body">Download your transaction history as a CSV file.</string>
+
+    <!-- Login -->
+    <string name="login_title">Sign in</string>
+    <string name="login_subtitle">Shared cashbook</string>
+    <string name="login_tagline">Your calm, intelligent money companion</string>
+    <string name="login_body">Sign in to create or join a shared cashbook with your partner.</string>
+
+    <!-- Premium -->
+    <string name="premium_title">ZenSpend Premium</string>
+    <string name="premium_headline">Upgrade your experience</string>
+    <string name="premium_subtitle">Unlock AI insights, advanced reports and an ad-free experience.</string>
+    <string name="premium_benefit_ai">Unlimited AI financial assistant</string>
+    <string name="premium_benefit_categorization">Smart AI transaction categorization</string>
+    <string name="premium_benefit_reports">Advanced reports &amp; multi-period trends</string>
+    <string name="premium_benefit_no_ads">No ads — clean focused experience</string>
+    <string name="premium_benefit_household">Shared household cashbook</string>
+    <string name="premium_benefit_support">Priority support &amp; future premium tools</string>
+    <string name="premium_member">You are a Premium member — thank you!</string>
+    <string name="premium_restore">Already purchased? Restore purchases</string>
+    <string name="premium_disclaimer">Subscriptions renew automatically unless cancelled in Google Play. Your financial data is always accessible.</string>
+    <string name="premium_monthly">Monthly plan</string>
+    <string name="premium_yearly">Yearly plan</string>
+    <string name="premium_price_monthly">₹199 / month</string>
+    <string name="premium_price_yearly">₹1,499 / year</string>
+    <string name="premium_best_value">Best value</string>
+
+    <!-- Shared cashbook -->
+    <string name="cashbook_title">Shared cashbook</string>
+    <string name="cashbook_subtitle">Manage household finances together</string>
+    <string name="cashbook_members">Members</string>
+    <string name="cashbook_sign_in_prompt">Sign in to create or join a shared cashbook with your partner or family.</string>
+    <string name="cashbook_create">Create cashbook</string>
+    <string name="cashbook_creating">Creating…</string>
+    <string name="cashbook_household_name">Household name</string>
+    <string name="cashbook_join">Join cashbook</string>
+    <string name="cashbook_joining">Joining…</string>
+    <string name="cashbook_join_with_token">Join with token</string>
+    <string name="cashbook_invite_token">Invitation token</string>
+    <string name="cashbook_invite_partner">Invite partner</string>
+    <string name="cashbook_invite_subject">Invite to ZenSpend</string>
+    <string name="cashbook_invite_text">Join my ZenSpend shared cashbook:\nzenspend://join?token=%1$s</string>
+    <string name="cashbook_owner_cannot_leave">Owner cannot leave until ownership is transferred.</string>
+    <string name="cashbook_leave">Leave household</string>
+
+    <!-- Forms -->
+    <string name="action_ok">OK</string>
+    <string name="budget_add_title">Add budget</string>
+    <string name="budget_amount">Budget amount</string>
+    <string name="budget_tip">Tip: Leave category empty for overall monthly budget.</string>
+    <string name="budget_save">Save budget</string>
+    <string name="recurring_edit_title">Edit rule</string>
+    <string name="recurring_new_title">New recurring rule</string>
+    <string name="recurring_field_name">Name (e.g. Netflix, Rent)</string>
+    <string name="recurring_save">Save rule</string>
+    <string name="card_form_title">Add credit card</string>
+    <string name="card_form_name">Card name (e.g. Millennia)</string>
+    <string name="card_form_bank">Bank name (e.g. HDFC)</string>
+    <string name="card_form_last_four">Last 4 digits</string>
+    <string name="card_form_billing_day">Billing day</string>
+    <string name="card_form_due_day">Payment due day</string>
+    <string name="card_form_save">Save card</string>
+    <string name="emi_form_subtitle">Link to credit card</string>
+    <string name="emi_form_linked_card">Linked card</string>
+    <string name="emi_form_name">EMI name (e.g. iPhone 16)</string>
+    <string name="emi_form_tenure">Tenure (months)</string>
+    <string name="emi_form_due_day">Due day</string>
+    <string name="emi_form_start_date">Start date</string>
+    <string name="emi_form_select_date">Select date</string>
+    <string name="emi_form_interest">Interest rate % (optional)</string>
+    <string name="emi_form_save">Save EMI</string>
+    <string name="wallet_add_title">Add wallet</string>
+    <string name="wallet_edit_title">Edit wallet</string>
+    <string name="wallet_form_name">Wallet name</string>
+    <string name="wallet_form_type">Wallet type</string>
+    <string name="wallet_form_opening_balance">Opening balance</string>
+    <string name="wallet_create">Create wallet</string>
+    <string name="wallet_update">Update wallet</string>
+
     <!-- Settings -->
     <string name="settings_title">Settings</string>
 </resources>

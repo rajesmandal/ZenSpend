@@ -107,11 +107,18 @@ Adding a new screen? Compose it from these. If a pattern repeats twice, make it 
 | SMS drafts | `feature/sms/.../SmsDraftListScreen.kt` | Sun "waiting" tile + draft tiles with Ignore / Review |
 | AI assistant | `feature/ai/.../AiAssistantScreen.kt` | Ink/Sky chat bubbles, `ZenChip` suggestions |
 | Wallet details | `feature/wallet/.../WalletDetailsScreen.kt` | Ink hero tile + `TransactionItem` rows |
+| EMIs (list) | `feature/emi/.../EMIListScreen.kt` | Tone tile per EMI with progress |
+| Recurring (list, details) | `feature/recurring/.../RecurringTransaction*Screen.kt` | Active/Paused sections, overdue rule = Coral tile, hero tile on details |
+| SMS review | `feature/sms/.../SmsDraftReviewScreen.kt` | Type `ZenChipRow`, wallet/category `ZenChip`s |
+| Transaction details | `feature/transaction/.../TransactionDetailsScreen.kt` | Hero tile tone follows type (Lime/Coral/Ink) |
+| Backup | `feature/backup/.../BackupScreen.kt` | Action tiles (Lime/Coral/Sky) |
+| Premium | `feature/premium/.../PremiumScreen.kt` | Ink hero, plan tiles (Lilac/Lime) |
+| Login, Shared cashbook | `feature/auth/...`, `feature/household/...` | Ink brand tile, Lime/Lilac create/join tiles |
+| Forms (wallet, budget, card, EMI, recurring) | `.../AddEdit*Screen.kt` | `ZenTopAppBar`, string resources, wallet type as chips |
 
-**All other screens** (EMI, recurring, SMS review, backup, premium, login, shared
-cashbook, wallet/budget/card forms, transaction/budget/recurring details) are *not* individually redesigned yet,
-but they already use the new colours, fonts, shapes, buttons, text fields, cards and top bar because
-they go through the shared theme/components. Redesigning them = swapping their layout to `ZenTile`s.
+**Not individually redesigned:** `BudgetDetailsScreen` (still an empty placeholder with no data) and the
+restore-preview dialog; both already use the new theme. Form fields on the card/EMI/recurring forms keep their
+layout and only gained the new top bar and string resources.
 
 ---
 

@@ -1,27 +1,57 @@
 package com.android.zenspend.feature.premium.presentation.screen
 
 import android.app.Activity
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.android.zenspend.R
 import com.android.zenspend.core.monetization.domain.model.BillingProduct
 import com.android.zenspend.core.monetization.domain.model.SubscriptionState
-import com.android.zenspend.core.ui.designsystem.component.*
+import com.android.zenspend.core.ui.designsystem.component.ZenStatusBanner
+import com.android.zenspend.core.ui.designsystem.component.ZenTile
+import com.android.zenspend.core.ui.designsystem.component.ZenTileCaption
+import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
+import com.android.zenspend.core.ui.designsystem.component.ZenChip
 import com.android.zenspend.core.ui.theme.Dimensions
 import com.android.zenspend.core.ui.theme.ZenSpendTheme
+import com.android.zenspend.core.ui.theme.ZenTone
 import com.android.zenspend.feature.premium.presentation.viewmodel.PremiumViewModel
+
+/** Benefit labels, in display order. */
+private val premiumBenefitRes = listOf(
+    R.string.premium_benefit_ai,
+    R.string.premium_benefit_categorization,
+    R.string.premium_benefit_reports,
+    R.string.premium_benefit_no_ads,
+    R.string.premium_benefit_household,
+    R.string.premium_benefit_support
+)
 
 @Composable
 fun PremiumScreen(
@@ -34,7 +64,7 @@ fun PremiumScreen(
     Scaffold(
         topBar = {
             ZenTopAppBar(
-                title = "ZenSpend Premium",
+                title = stringResource(R.string.premium_title),
                 showBack = true,
                 onBackClick = onNavigateBack
             )
@@ -47,42 +77,38 @@ fun PremiumScreen(
                 .padding(padding)
                 .padding(horizontal = Dimensions.ScreenPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Dimensions.SectionGap)
+            verticalArrangement = Arrangement.spacedBy(Dimensions.TileGap)
         ) {
             item {
-                Spacer(modifier = Modifier.height(Dimensions.SpacingMedium))
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(56.dp)
-                )
-                Spacer(modifier = Modifier.height(Dimensions.SpacingMedium))
-                Text(
-                    text = "Upgrade Your Experience",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    text = "Unlock AI insights, advanced reports, and an ad-free experience.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = Dimensions.SpacingSmall)
-                )
+                ZenTile(
+                    modifier = Modifier.fillMaxWidth(),
+                    tone = ZenTone.Ink,
+                    contentPadding = PaddingValues(Dimensions.SpacingXLarge)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = ZenSpendTheme.colors.tone(ZenTone.Lime).container,
+                        modifier = Modifier.size(Dimensions.IconSizeLarge)
+                    )
+                    Text(
+                        text = stringResource(R.string.premium_headline),
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(top = Dimensions.SpacingMedium)
+                    )
+                    ZenTileCaption(
+                        text = stringResource(R.string.premium_subtitle),
+                        modifier = Modifier.padding(top = Dimensions.SpacingSmall)
+                    )
+                }
             }
 
             item {
-                ZenSurfaceCard {
-                    PremiumBenefits()
-                }
+                ZenTile(modifier = Modifier.fillMaxWidth()) { PremiumBenefits() }
             }
 
             if (state.subscriptionState is SubscriptionState.Premium) {
-                item {
-                    ZenStatusBanner(message = "You are a Premium member — thank you!")
-                }
+                item { ZenStatusBanner(message = stringResource(R.string.premium_member)) }
             } else {
                 item {
                     SubscriptionOptions(
@@ -96,14 +122,14 @@ fun PremiumScreen(
                 }
                 item {
                     TextButton(onClick = { viewModel.restorePurchases() }) {
-                        Text("Already purchased? Restore Purchases")
+                        Text(stringResource(R.string.premium_restore))
                     }
                 }
             }
 
             item {
                 Text(
-                    text = "Subscriptions renew automatically unless cancelled in Google Play. Your financial data is always accessible.",
+                    text = stringResource(R.string.premium_disclaimer),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -117,12 +143,7 @@ fun PremiumScreen(
 @Composable
 fun PremiumBenefits() {
     Column(verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium)) {
-        BenefitItem("Unlimited AI Financial Assistant")
-        BenefitItem("Smart AI Transaction Categorization")
-        BenefitItem("Advanced Reports & Multi-period Trends")
-        BenefitItem("No Ads — Clean Focused Experience")
-        BenefitItem("Shared Household Cashbook")
-        BenefitItem("Priority Support & Future Premium Tools")
+        premiumBenefitRes.forEach { BenefitItem(stringResource(it)) }
     }
 }
 
@@ -145,32 +166,22 @@ fun SubscriptionOptions(
     onMonthlyClick: () -> Unit,
     onYearlyClick: () -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium)) {
-        ZenSurfaceCard(onClick = onMonthlyClick) {
-            Text("Monthly Plan", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Text("₹199 / month", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Column(verticalArrangement = Arrangement.spacedBy(Dimensions.TileGap)) {
+        ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Lilac, onClick = onMonthlyClick) {
+            Text(stringResource(R.string.premium_monthly), style = MaterialTheme.typography.titleMedium)
+            ZenTileCaption(stringResource(R.string.premium_price_monthly))
         }
-        ZenSurfaceCard(onClick = onYearlyClick) {
+        ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Lime, onClick = onYearlyClick) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("Yearly Plan", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text("₹1,499 / year", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.premium_yearly), style = MaterialTheme.typography.titleMedium)
+                    ZenTileCaption(stringResource(R.string.premium_price_yearly))
                 }
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Text(
-                        text = "Best value",
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
+                ZenChip(label = stringResource(R.string.premium_best_value), selected = true, onClick = onYearlyClick)
             }
         }
     }

@@ -12,6 +12,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.android.zenspend.R
+import com.android.zenspend.core.ui.theme.ZenTone
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,8 +45,8 @@ fun SharedCashbookScreen(
     Scaffold(
         topBar = {
             ZenTopAppBar(
-                title = "Shared Cashbook",
-                subtitle = "Manage household finances together",
+                title = stringResource(R.string.cashbook_title),
+                subtitle = stringResource(R.string.cashbook_subtitle),
                 showBack = true,
                 onBackClick = onNavigateBack
             )
@@ -55,7 +58,7 @@ fun SharedCashbookScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(horizontal = Dimensions.ScreenPadding),
-            verticalArrangement = Arrangement.spacedBy(Dimensions.SectionGap)
+            verticalArrangement = Arrangement.spacedBy(Dimensions.TileGap)
         ) {
             state.errorMessage?.let { message ->
                 item { ZenStatusBanner(message = message, isError = true) }
@@ -91,7 +94,7 @@ fun SharedCashbookScreen(
                     HouseholdHeaderCard(householdName = state.household!!.name)
                 }
                 item {
-                    Text("Members", style = MaterialTheme.typography.titleMedium)
+                    ZenSectionHeader(title = stringResource(R.string.cashbook_members))
                 }
                 items(state.members) { member ->
                     ZenMemberChip(
@@ -118,13 +121,13 @@ fun SharedCashbookScreen(
         state.lastInvitation?.let { invitation ->
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
-                putExtra(Intent.EXTRA_SUBJECT, "Invite to ZenSpend")
+                putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.cashbook_invite_subject))
                 putExtra(
                     Intent.EXTRA_TEXT,
-                    "Join my ZenSpend shared cashbook:\nzenspend://join?token=${invitation.token}"
+                    context.getString(R.string.cashbook_invite_text, invitation.token)
                 )
             }
-            context.startActivity(Intent.createChooser(shareIntent, "Invite to ZenSpend"))
+            context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.cashbook_invite_subject)))
         }
     }
 }
@@ -134,7 +137,7 @@ private fun SharedCashbookSignInPrompt(onSignIn: () -> Unit, onBack: () -> Unit)
     Scaffold(
         topBar = {
             ZenTopAppBar(
-                title = "Shared Cashbook",
+                title = stringResource(R.string.cashbook_title),
                 showBack = true,
                 onBackClick = onBack
             )
@@ -148,11 +151,11 @@ private fun SharedCashbookSignInPrompt(onSignIn: () -> Unit, onBack: () -> Unit)
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                "Sign in to create or join a shared cashbook with your partner or family.",
+                stringResource(R.string.cashbook_sign_in_prompt),
                 style = MaterialTheme.typography.bodyLarge
             )
             Spacer(Modifier.height(Dimensions.SectionGap))
-            ZenPrimaryButton(text = "Sign In", onClick = onSignIn)
+            ZenPrimaryButton(text = stringResource(R.string.login_title), onClick = onSignIn)
         }
     }
 }
@@ -164,22 +167,22 @@ private fun CreateHouseholdSection(
     onCreate: () -> Unit,
     isLoading: Boolean
 ) {
-    ZenSurfaceCard {
+    ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Lime) {
         Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            Icon(Icons.Default.GroupAdd, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Icon(Icons.Default.GroupAdd, contentDescription = null)
             Spacer(Modifier.width(Dimensions.SpacingMedium))
-            Text("Create Cashbook", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.cashbook_create), style = MaterialTheme.typography.titleMedium)
         }
         Spacer(Modifier.height(Dimensions.SpacingMedium))
         ZenTextField(
             value = name,
             onValueChange = onNameChange,
-            label = "Household name",
+            label = stringResource(R.string.cashbook_household_name),
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(Dimensions.SpacingMedium))
         ZenPrimaryButton(
-            text = if (isLoading) "Creating…" else "Create Cashbook",
+            text = stringResource(if (isLoading) R.string.cashbook_creating else R.string.cashbook_create),
             onClick = onCreate,
             enabled = !isLoading && name.isNotBlank(),
             modifier = Modifier.fillMaxWidth()
@@ -194,22 +197,22 @@ private fun JoinHouseholdSection(
     onJoin: () -> Unit,
     isLoading: Boolean
 ) {
-    ZenSurfaceCard {
+    ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Lilac) {
         Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            Icon(Icons.Default.Link, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Icon(Icons.Default.Link, contentDescription = null)
             Spacer(Modifier.width(Dimensions.SpacingMedium))
-            Text("Join Cashbook", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.cashbook_join), style = MaterialTheme.typography.titleMedium)
         }
         Spacer(Modifier.height(Dimensions.SpacingMedium))
         ZenTextField(
             value = token,
             onValueChange = onTokenChange,
-            label = "Invitation token",
+            label = stringResource(R.string.cashbook_invite_token),
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(Dimensions.SpacingMedium))
         ZenSecondaryButton(
-            text = if (isLoading) "Joining…" else "Join with Token",
+            text = stringResource(if (isLoading) R.string.cashbook_joining else R.string.cashbook_join_with_token),
             onClick = onJoin,
             enabled = !isLoading && token.isNotBlank(),
             modifier = Modifier.fillMaxWidth()
@@ -219,12 +222,11 @@ private fun JoinHouseholdSection(
 
 @Composable
 private fun HouseholdHeaderCard(householdName: String) {
-    ZenSurfaceCard {
-        Text("Our Household", style = MaterialTheme.typography.titleLarge)
+    ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Ink) {
+        ZenTileCaption(stringResource(R.string.dashboard_household_title))
         Text(
             householdName,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.headlineMedium
         )
     }
 }
@@ -238,19 +240,19 @@ private fun HouseholdActions(
     Column(verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium)) {
         if (currentMember?.role == HouseholdRole.OWNER) {
             ZenPrimaryButton(
-                text = "Invite Partner",
+                text = stringResource(R.string.cashbook_invite_partner),
                 onClick = onInvite,
                 modifier = Modifier.fillMaxWidth(),
                 icon = Icons.Default.Share
             )
             Text(
-                "Owner cannot leave until ownership is transferred.",
+                stringResource(R.string.cashbook_owner_cannot_leave),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         } else {
             ZenSecondaryButton(
-                text = "Leave Household",
+                text = stringResource(R.string.cashbook_leave),
                 onClick = onLeave,
                 modifier = Modifier.fillMaxWidth()
             )

@@ -1,5 +1,7 @@
 package com.android.zenspend.feature.emi.presentation.screen
 
+import com.android.zenspend.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -51,10 +53,10 @@ fun AddEditEMIScreen(
                         viewModel.handleEvent(AddEMIUiEvent.OnStartDateChange(millis))
                     }
                     showDatePicker = false
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.action_ok)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+                TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.action_cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -65,8 +67,8 @@ fun AddEditEMIScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             ZenTopAppBar(
-                title = "Add EMI",
-                subtitle = "Link to credit card",
+                title = stringResource(R.string.cards_add_emi),
+                subtitle = stringResource(R.string.emi_form_subtitle),
                 showBack = true,
                 onBackClick = onNavigateBack
             )
@@ -82,7 +84,7 @@ fun AddEditEMIScreen(
             verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingLarge)
         ) {
             ZenSurfaceCard {
-                Text("Linked card", style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.emi_form_linked_card), style = MaterialTheme.typography.labelMedium)
                 Spacer(modifier = Modifier.height(Dimensions.SpacingXSmall))
                 Text(state.linkedCardLabel, style = MaterialTheme.typography.titleMedium)
             }
@@ -90,7 +92,7 @@ fun AddEditEMIScreen(
             ZenTextField(
                 value = state.name,
                 onValueChange = { viewModel.handleEvent(AddEMIUiEvent.OnNameChange(it)) },
-                label = "EMI name (e.g. iPhone 16)"
+                label = stringResource(R.string.emi_form_name)
             )
 
             AmountInput(
@@ -109,7 +111,7 @@ fun AddEditEMIScreen(
                 ZenTextField(
                     value = state.tenureText,
                     onValueChange = { viewModel.handleEvent(AddEMIUiEvent.OnTenureChange(it)) },
-                    label = "Tenure (months)",
+                    label = stringResource(R.string.emi_form_tenure),
                     modifier = Modifier.weight(1f)
                 )
                 ZenTextField(
@@ -117,7 +119,7 @@ fun AddEditEMIScreen(
                     onValueChange = {
                         if (it.length <= 2) viewModel.handleEvent(AddEMIUiEvent.OnDueDayChange(it))
                     },
-                    label = "Due day",
+                    label = stringResource(R.string.emi_form_due_day),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -128,9 +130,9 @@ fun AddEditEMIScreen(
                 shape = MaterialTheme.shapes.medium
             ) {
                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = Dimensions.SpacingSmall)) {
-                    Text("Start date", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(R.string.emi_form_start_date), style = MaterialTheme.typography.labelMedium)
                     Text(
-                        state.startDateLabel.ifBlank { "Select date" },
+                        state.startDateLabel.ifBlank { stringResource(R.string.emi_form_select_date) },
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -139,7 +141,7 @@ fun AddEditEMIScreen(
             ZenTextField(
                 value = state.interestRateText,
                 onValueChange = { viewModel.handleEvent(AddEMIUiEvent.OnInterestRateChange(it)) },
-                label = "Interest rate % (optional)"
+                label = stringResource(R.string.emi_form_interest)
             )
 
             state.error?.let { error ->
@@ -149,7 +151,7 @@ fun AddEditEMIScreen(
             Spacer(modifier = Modifier.height(Dimensions.SpacingMedium))
 
             ZenPrimaryButton(
-                text = "Save EMI",
+                text = stringResource(R.string.emi_form_save),
                 onClick = { viewModel.handleEvent(AddEMIUiEvent.Save) },
                 loading = state.isSubmitting
             )

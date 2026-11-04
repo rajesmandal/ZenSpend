@@ -1,5 +1,7 @@
 package com.android.zenspend.feature.creditcard.presentation.screen
 
+import com.android.zenspend.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -37,7 +39,7 @@ fun AddEditCreditCardScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             ZenTopAppBar(
-                title = "Add Credit Card",
+                title = stringResource(R.string.card_form_title),
                 showBack = true,
                 onBackClick = onNavigateBack
             )
@@ -55,13 +57,13 @@ fun AddEditCreditCardScreen(
             ZenTextField(
                 value = form.cardName,
                 onValueChange = { viewModel.handleEvent(CreditCardUiEvent.OnCardNameChange(it)) },
-                label = "Card Name (e.g. Millennia)"
+                label = stringResource(R.string.card_form_name)
             )
 
             ZenTextField(
                 value = form.bankName,
                 onValueChange = { viewModel.handleEvent(CreditCardUiEvent.OnBankNameChange(it)) },
-                label = "Bank Name (e.g. HDFC)"
+                label = stringResource(R.string.card_form_bank)
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium)) {
@@ -70,14 +72,14 @@ fun AddEditCreditCardScreen(
                     onValueChange = {
                         if (it.length <= 4) viewModel.handleEvent(CreditCardUiEvent.OnLastFourChange(it))
                     },
-                    label = "Last 4 Digits",
+                    label = stringResource(R.string.card_form_last_four),
                     modifier = Modifier.weight(1f)
                 )
 
                 ZenTextField(
                     value = form.billingDay,
                     onValueChange = { viewModel.handleEvent(CreditCardUiEvent.OnBillingDayChange(it)) },
-                    label = "Billing Day",
+                    label = stringResource(R.string.card_form_billing_day),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -91,7 +93,7 @@ fun AddEditCreditCardScreen(
                 ZenTextField(
                     value = form.dueDay,
                     onValueChange = { viewModel.handleEvent(CreditCardUiEvent.OnDueDayChange(it)) },
-                    label = "Payment Due Day",
+                    label = stringResource(R.string.card_form_due_day),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -103,7 +105,7 @@ fun AddEditCreditCardScreen(
             Spacer(modifier = Modifier.height(Dimensions.SpacingMedium))
 
             ZenPrimaryButton(
-                text = "Save Card",
+                text = stringResource(R.string.card_form_save),
                 onClick = { viewModel.handleEvent(CreditCardUiEvent.SaveCreditCard) },
                 loading = form.isSubmitting
             )

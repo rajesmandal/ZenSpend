@@ -1,21 +1,49 @@
 package com.android.zenspend.feature.sms.presentation.screen
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.android.zenspend.R
 import com.android.zenspend.core.database.model.TransactionType
 import com.android.zenspend.core.database.model.WalletType
 import com.android.zenspend.core.ui.designsystem.component.CategorySuggestionChip
+import com.android.zenspend.core.ui.designsystem.component.LoadingState
+import com.android.zenspend.core.ui.designsystem.component.ZenChip
+import com.android.zenspend.core.ui.designsystem.component.ZenChipRow
+import com.android.zenspend.core.ui.designsystem.component.ZenPrimaryButton
+import com.android.zenspend.core.ui.designsystem.component.ZenSectionHeader
+import com.android.zenspend.core.ui.designsystem.component.ZenTextField
+import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
+import com.android.zenspend.core.ui.theme.Dimensions
 import com.android.zenspend.feature.sms.presentation.viewmodel.SmsDraftReviewEvent
 import com.android.zenspend.feature.sms.presentation.viewmodel.SmsDraftReviewViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** Transaction types a detected SMS can be turned into, in display order. */
+private val reviewTypes = listOf(
+    TransactionType.EXPENSE to R.string.sms_type_debit,
+    TransactionType.INCOME to R.string.sms_type_credit,
+    TransactionType.REFUND to R.string.type_refund,
+    TransactionType.CREDIT_CARD_PAYMENT to R.string.sms_type_card_bill
+)
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SmsDraftReviewScreen(
     onNavigateBack: () -> Unit,
@@ -25,152 +53,143 @@ fun SmsDraftReviewScreen(
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(state.isSuccess) {
-        if (state.isSuccess) {
-            onSuccess()
-        }
+        if (state.isSuccess) onSuccess()
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                title = { Text("Review Transaction") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
+            ZenTopAppBar(
+                title = stringResource(R.string.sms_review_title),
+                showBack = true,
+                onBackClick = onNavigateBack
             )
         }
     ) { padding ->
         if (state.isLoading) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                CircularProgressIndicator(modifier = Modifier.align(androidx.compose.ui.Alignment.Center))
-            }
+            LoadingState(modifier = Modifier.padding(padding))
+            return@Scaffold
+        }
+
+        val isCardPayment = state.type == TransactionType.CREDIT_CARD_PAYMENT
+        val sourceWallets = if (isCardPayment) {
+            state.wallets.filter { it.type != WalletType.CREDIT_CARD }
         } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                item {
-                    OutlinedTextField(
-                        value = state.title,
-                        onValueChange = { viewModel.onEvent(SmsDraftReviewEvent.TitleChanged(it)) },
-                        label = { Text("Title") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+            state.wallets
+        }
+        val sourceLabel = when (state.type) {
+            TransactionType.EXPENSE -> R.string.sms_paid_from_bank_card
+            TransactionType.CREDIT_CARD_PAYMENT -> R.string.sms_paid_from_bank
+            else -> R.string.sms_credited_to
+        }
 
-                item {
-                    OutlinedTextField(
-                        value = state.amount,
-                        onValueChange = { viewModel.onEvent(SmsDraftReviewEvent.AmountChanged(it)) },
-                        label = { Text("Amount") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            contentPadding = PaddingValues(
+                horizontal = Dimensions.ScreenPadding,
+                vertical = Dimensions.SpacingLarge
+            ),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium)
+        ) {
+            item {
+                ZenTextField(
+                    value = state.title,
+                    onValueChange = { viewModel.onEvent(SmsDraftReviewEvent.TitleChanged(it)) },
+                    label = stringResource(R.string.sms_field_title)
+                )
+            }
+            item {
+                ZenTextField(
+                    value = state.amount,
+                    onValueChange = { viewModel.onEvent(SmsDraftReviewEvent.AmountChanged(it)) },
+                    label = stringResource(R.string.sms_field_amount),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                )
+            }
 
-                item {
-                    Text("Transaction Type", style = MaterialTheme.typography.labelLarge)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    val types = listOf(
-                        TransactionType.EXPENSE to "Debit",
-                        TransactionType.INCOME to "Credit",
-                        TransactionType.REFUND to "Refund",
-                        TransactionType.CREDIT_CARD_PAYMENT to "Card Bill"
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        types.forEach { (type, label) ->
-                            FilterChip(
-                                selected = state.type == type,
-                                onClick = { viewModel.onEvent(SmsDraftReviewEvent.TypeChanged(type)) },
-                                label = { Text(label) }
-                            )
-                        }
-                    }
-                }
+            item { ZenSectionHeader(title = stringResource(R.string.sms_transaction_type)) }
+            item {
+                ZenChipRow(
+                    options = reviewTypes.map { stringResource(it.second) },
+                    selectedIndex = reviewTypes.indexOfFirst { it.first == state.type },
+                    onSelected = { viewModel.onEvent(SmsDraftReviewEvent.TypeChanged(reviewTypes[it].first)) },
+                    contentPadding = PaddingValues()
+                )
+            }
 
-                item {
-                    val isCardPayment = state.type == TransactionType.CREDIT_CARD_PAYMENT
-                    val label = when (state.type) {
-                        TransactionType.EXPENSE -> "Paid from (Bank / Card)"
-                        TransactionType.CREDIT_CARD_PAYMENT -> "Paid from (Bank)"
-                        else -> "Credited to (Bank / Card)"
-                    }
-                    Text(label, style = MaterialTheme.typography.labelLarge)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    val walletOptions = if (isCardPayment) {
-                        state.wallets.filter { it.type != WalletType.CREDIT_CARD }
-                    } else state.wallets
-                    walletOptions.forEach { wallet ->
-                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                            RadioButton(
-                                selected = state.selectedWalletId == wallet.id,
-                                onClick = { viewModel.onEvent(SmsDraftReviewEvent.WalletSelected(wallet.id)) }
-                            )
-                            val kind = if (wallet.type == WalletType.CREDIT_CARD) "Card" else "Bank/Wallet"
-                            Text("${wallet.name} ($kind)")
-                        }
-                    }
-                }
-
-                if (state.type == TransactionType.CREDIT_CARD_PAYMENT) {
-                    item {
-                        Text("Credit Card paid", style = MaterialTheme.typography.labelLarge)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        state.wallets.filter { it.type == WalletType.CREDIT_CARD }.forEach { wallet ->
-                            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                                RadioButton(
-                                    selected = state.selectedDestinationWalletId == wallet.id,
-                                    onClick = { viewModel.onEvent(SmsDraftReviewEvent.DestinationWalletSelected(wallet.id)) }
-                                )
-                                Text(wallet.name)
-                            }
-                        }
-                    }
-                }
-
-                item {
-                    Text("Select Category", style = MaterialTheme.typography.labelLarge)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    if (state.categorySuggestion != null) {
-                        CategorySuggestionChip(
-                            suggestion = state.categorySuggestion!!,
-                            onClick = { viewModel.onEvent(SmsDraftReviewEvent.CategorySelected(state.categorySuggestion!!.categoryId)) }
+            item { ZenSectionHeader(title = stringResource(sourceLabel)) }
+            item {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
+                    verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
+                ) {
+                    sourceWallets.forEach { wallet ->
+                        ZenChip(
+                            label = wallet.name,
+                            selected = state.selectedWalletId == wallet.id,
+                            onClick = { viewModel.onEvent(SmsDraftReviewEvent.WalletSelected(wallet.id)) }
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
                     }
+                }
+            }
 
-                    state.categories.forEach { category ->
-                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                            RadioButton(
-                                selected = state.selectedCategoryId == category.id,
-                                onClick = { viewModel.onEvent(SmsDraftReviewEvent.CategorySelected(category.id)) }
+            if (isCardPayment) {
+                item { ZenSectionHeader(title = stringResource(R.string.sms_card_paid)) }
+                item {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
+                        verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
+                    ) {
+                        state.wallets.filter { it.type == WalletType.CREDIT_CARD }.forEach { wallet ->
+                            ZenChip(
+                                label = wallet.name,
+                                selected = state.selectedDestinationWalletId == wallet.id,
+                                onClick = { viewModel.onEvent(SmsDraftReviewEvent.DestinationWalletSelected(wallet.id)) }
                             )
-                            Text(category.name)
                         }
                     }
                 }
+            }
 
-                item {
-                    Button(
-                        onClick = { viewModel.onEvent(SmsDraftReviewEvent.ConfirmClicked) },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = state.selectedWalletId != null &&
-                            (state.type != TransactionType.CREDIT_CARD_PAYMENT || state.selectedDestinationWalletId != null)
-                    ) {
-                        Text("Confirm & Add Transaction")
+            item { ZenSectionHeader(title = stringResource(R.string.add_category)) }
+            item {
+                state.categorySuggestion?.let { suggestion ->
+                    CategorySuggestionChip(
+                        suggestion = suggestion,
+                        onClick = { viewModel.onEvent(SmsDraftReviewEvent.CategorySelected(suggestion.categoryId)) },
+                        modifier = Modifier.padding(bottom = Dimensions.SpacingSmall)
+                    )
+                }
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
+                    verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
+                ) {
+                    state.categories.forEach { category ->
+                        ZenChip(
+                            label = category.name,
+                            selected = state.selectedCategoryId == category.id,
+                            onClick = { viewModel.onEvent(SmsDraftReviewEvent.CategorySelected(category.id)) }
+                        )
                     }
                 }
-                
-                if (state.error != null) {
-                    item {
-                        Text(text = state.error!!, color = MaterialTheme.colorScheme.error)
-                    }
-                }
+            }
+
+            state.error?.let { error ->
+                item { Text(text = error, color = MaterialTheme.colorScheme.error) }
+            }
+
+            item {
+                ZenPrimaryButton(
+                    text = stringResource(R.string.sms_confirm),
+                    onClick = { viewModel.onEvent(SmsDraftReviewEvent.ConfirmClicked) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = Dimensions.SpacingMedium),
+                    enabled = state.selectedWalletId != null &&
+                        (!isCardPayment || state.selectedDestinationWalletId != null)
+                )
             }
         }
     }
