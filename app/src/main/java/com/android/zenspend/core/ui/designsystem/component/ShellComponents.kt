@@ -246,7 +246,7 @@ fun ZenGoogleSignInButton(
         if (isLoading) {
             CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
         } else {
-            Text("Continue with Google", style = MaterialTheme.typography.labelLarge)
+            Text(androidx.compose.ui.res.stringResource(com.android.zenspend.R.string.login_google), style = MaterialTheme.typography.labelLarge)
         }
     }
 }

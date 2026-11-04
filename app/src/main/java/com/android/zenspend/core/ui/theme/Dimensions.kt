@@ -44,6 +44,7 @@ object Dimensions {
     val ProgressBarHeight = 14.dp
     val RingStroke = 12.dp
     val RingSize = 96.dp
+    val LoginLogoSize = 96.dp
 
     val MinTouchTarget = 48.dp
     val ChatBubbleMaxWidth = 300.dp

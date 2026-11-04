@@ -282,6 +282,12 @@
     <string name="login_title">Sign in</string>
     <string name="login_subtitle">Shared cashbook</string>
     <string name="login_tagline">Your calm, intelligent money companion</string>
+    <string name="login_headline">Spend smart, stay calm</string>
+    <string name="login_feature_track">Track every spend</string>
+    <string name="login_feature_budget">Budgets and EMIs</string>
+    <string name="login_feature_ai">Zen AI insights</string>
+    <string name="login_skip">Maybe later</string>
+    <string name="login_google">Continue with Google</string>
     <string name="login_body">Sign in to create or join a shared cashbook with your partner.</string>
 
     <!-- Premium -->
