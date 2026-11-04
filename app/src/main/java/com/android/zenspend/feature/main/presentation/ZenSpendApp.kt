@@ -1,6 +1,7 @@
 package com.android.zenspend.feature.main.presentation
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -81,12 +82,10 @@ fun ZenSpendApp(
     LaunchedEffect(Unit) {
         navigator.navEvents.collectLatest { event ->
             when (event) {
+                // Plain push so Back returns to the previous screen. Tab switching (which does
+                // clear the stack on purpose) is handled separately by the dock below.
                 is NavEvent.To -> navController.navigate(event.destination.route) {
-                    popUpTo(navController.graph.findStartDestination().id) {
-                        saveState = true
-                    }
                     launchSingleTop = true
-                    restoreState = true
                 }
                 is NavEvent.Up -> navController.navigateUp()
             }
@@ -143,7 +142,9 @@ fun ZenSpendApp(
         NavHost(
             navController = navController,
             startDestination = Destination.Dashboard.route,
-            modifier = Modifier.padding(padding)
+            // consumeWindowInsets: the padding already covers the status bar, so the screens' own
+            // top bars must not add it a second time (that was the large blank gap at the top).
+            modifier = Modifier.padding(padding).consumeWindowInsets(padding)
         ) {
             composable(Destination.Dashboard.route) {
                 DashboardScreen(
