@@ -63,6 +63,7 @@ import kotlin.math.roundToInt
 @Composable
 fun BudgetListScreen(
     onNavigateToAdd: () -> Unit,
+    onNavigateToPlan: () -> Unit,
     viewModel: BudgetViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -100,6 +101,8 @@ fun BudgetListScreen(
                         onNext = { viewModel.handleEvent(BudgetUiEvent.NextMonth) }
                     )
                 }
+
+                item { PlanEntryTile(onClick = onNavigateToPlan) }
 
                 state.overallBudget?.let { overall ->
                     item { BudgetOverviewCard(overall) }
@@ -243,5 +246,18 @@ private fun OverTag() {
             style = MaterialTheme.typography.labelSmall,
             color = coral.container
         )
+    }
+}
+
+/** Entry point to the percentage-based planner (50/30/20 and friends). */
+@Composable
+private fun PlanEntryTile(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    ZenTile(modifier = modifier.fillMaxWidth(), tone = ZenTone.Sun, onClick = onClick) {
+        ZenTileCaption(stringResource(R.string.plan_entry_caption))
+        Text(
+            text = stringResource(R.string.plan_entry_title),
+            style = MaterialTheme.typography.titleLarge
+        )
+        ZenTileCaption(stringResource(R.string.plan_entry_body))
     }
 }

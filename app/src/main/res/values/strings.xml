@@ -353,6 +353,33 @@
     <string name="wallet_create">Create wallet</string>
     <string name="wallet_update">Update wallet</string>
 
+    <!-- Budget plan (50/30/20) -->
+    <string name="plan_title">Budget plan</string>
+    <string name="plan_subtitle">Split your income into needs, wants and savings</string>
+    <string name="plan_entry_caption">Budget plan</string>
+    <string name="plan_entry_title">Plan with 50/30/20</string>
+    <string name="plan_entry_body">Enter your salary and get budgets for every category</string>
+    <string name="plan_income">Monthly take-home income</string>
+    <string name="plan_split">Split</string>
+    <string name="plan_custom">Custom</string>
+    <string name="plan_needs">Needs</string>
+    <string name="plan_wants">Wants</string>
+    <string name="plan_savings">Savings</string>
+    <string name="plan_needs_hint">Rent, bills, groceries, EMIs</string>
+    <string name="plan_wants_hint">Dining out, shopping, fun</string>
+    <string name="plan_savings_hint">Investments and emergency fund</string>
+    <string name="plan_percent">%1$d%%</string>
+    <string name="plan_decrease">Decrease</string>
+    <string name="plan_increase">Increase</string>
+    <string name="plan_spending_cap">Overall spending limit · %1$s</string>
+    <string name="plan_categories">Categories</string>
+    <string name="plan_no_categories">No spending categories yet. Only the overall limit will be set; add categories and plan again to get per-category budgets.</string>
+    <string name="plan_category_budget">Budget ₹%1$s</string>
+    <string name="plan_category_no_budget">No budget</string>
+    <string name="plan_apply">Apply to %1$s</string>
+    <string name="plan_apply_note">Existing budgets for this month are updated, nothing is duplicated. Savings is a target and does not create a budget.</string>
+    <string name="plan_failed">Could not apply the plan</string>
+
     <!-- Settings -->
     <string name="settings_title">Settings</string>
 </resources>

@@ -219,7 +219,15 @@ fun ZenSpendApp(
                 EMIListScreen(onNavigateToAdd = { navigator.navigate(Destination.CreditCards) })
             }
             composable(Destination.Budgets.route) {
-                BudgetListScreen(onNavigateToAdd = { navigator.navigate(Destination.AddBudget) })
+                BudgetListScreen(
+                    onNavigateToAdd = { navigator.navigate(Destination.AddBudget) },
+                    onNavigateToPlan = { navigator.navigate(Destination.BudgetPlan) }
+                )
+            }
+            composable(Destination.BudgetPlan.route) {
+                com.android.zenspend.feature.budget.presentation.screen.BudgetPlanScreen(
+                    onNavigateBack = { navigator.navigateUp() }
+                )
             }
             composable(Destination.AddBudget.route) {
                 AddEditBudgetScreen(onNavigateBack = { navigator.navigateUp() })

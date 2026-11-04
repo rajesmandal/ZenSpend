@@ -33,6 +33,7 @@ sealed class Destination(val route: String) {
 
     object Budgets : Destination("budgets_list")
     object AddBudget : Destination("add_budget")
+    object BudgetPlan : Destination("budget_plan")
     data class BudgetDetails(val id: Long) : Destination("budget_details/$id") {
         companion object {
             const val ROUTE = "budget_details/{budgetId}"

@@ -183,3 +183,25 @@ No database, repository, use-case, DI or ViewModel code changed.
 * `./gradlew :app:compileDebugKotlin :app:assembleDebug :app:testDebugUnitTest --offline` — **passes**
   (including 7 new tests in `KeypadTest`).
 * Audit: no raw `Color(0x…)` outside `Color.kt`; no hardcoded `₹` strings in redesigned screens.
+
+---
+
+## 9. Budget plan (50/30/20) — flexible percentage budgets
+
+Entry: the Sun "Plan with 50/30/20" tile at the top of **Budgets** → `BudgetPlanScreen`.
+
+| What | Where |
+|------|-------|
+| Presets (50/30/20, 60/20/20, 70/20/10, 50/20/30) | `BudgetSplit.presets` in `feature/budget/domain/model/BudgetPlan.kt` — add/reorder a line, the chips follow |
+| Percent step of the +/− buttons | `BudgetSplit.STEP` |
+| Needs-vs-wants guess from a category name | `CategoryBucketClassifier.needKeywords` |
+| Bucket colours / labels / hints | `BucketStyle` in `BudgetPlanScreen.kt` + `plan_*` strings |
+| Maths (pure, unit-tested) | `BudgetPlanCalculator` — `BudgetPlanTest` |
+| What gets written | `ApplyBudgetPlanUseCase` |
+| What is remembered | `core/datastore/BudgetPlanPreferences` (income, split, category → bucket) |
+
+Behaviour: enter take-home income → pick a preset or nudge any bucket by ±5% (the difference moves to
+Savings, or to Wants when editing Savings, so the total always stays 100) → move any category between
+Needs and Wants → Apply. Apply writes one overall budget (needs + wants = spending limit) and one budget
+per category (its bucket's amount split equally). Budgets that already exist for that month are updated,
+never duplicated. Savings is a target only and creates no budget.
