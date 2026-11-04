@@ -86,7 +86,7 @@ fun ReportSummarySection(
             ReportMiniCard(
                 label = stringResource(R.string.report_savings_rate),
                 amount = "$savingsRate%",
-                tone = ZenTone.Leaf,
+                tone = ZenTone.Lilac,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()

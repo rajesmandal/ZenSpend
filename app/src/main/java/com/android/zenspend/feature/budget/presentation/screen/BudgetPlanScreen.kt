@@ -62,7 +62,7 @@ private data class BucketStyle(val tone: ZenTone, val title: Int, val hint: Int)
 
 private fun BudgetBucket.style() = when (this) {
     BudgetBucket.NEEDS -> BucketStyle(ZenTone.Lime, R.string.plan_needs, R.string.plan_needs_hint)
-    BudgetBucket.WANTS -> BucketStyle(ZenTone.Leaf, R.string.plan_wants, R.string.plan_wants_hint)
+    BudgetBucket.WANTS -> BucketStyle(ZenTone.Lilac, R.string.plan_wants, R.string.plan_wants_hint)
     BudgetBucket.SAVINGS -> BucketStyle(ZenTone.Mint, R.string.plan_savings, R.string.plan_savings_hint)
 }
 

@@ -20,13 +20,6 @@ object Dimensions {
     /** Bottom list padding so the last item clears an extended FAB. */
     val FabClearance = 96.dp
 
-    // ---- Header (curved gradient banner) ----
-    val RadiusHeader = 36.dp
-    /** How far a floating card pulls up over the header's bottom edge. */
-    val HeaderOverlap = 56.dp
-    val HeaderLeafLarge = 140.dp
-    val HeaderLeafSmall = 64.dp
-
     // ---- Radii ----
     val RadiusTile = 28.dp
     val RadiusCard = 24.dp
@@ -55,11 +48,9 @@ object Dimensions {
     val MinTouchTarget = 48.dp
     val ChatBubbleMaxWidth = 300.dp
 
-    // ---- Bottom navigation bar ----
-    val NavBarHeight = 64.dp
-    val NavPillWidth = 56.dp
-    val NavPillHeight = 30.dp
-    val NavFabSize = 52.dp
-    val NavFabRadius = 18.dp
-    val NavFabElevation = 8.dp
+    // ---- Dock (bottom navigation) ----
+    val DockItemSize = 48.dp
+    val DockPadding = 8.dp
+    val DockBottomMargin = 12.dp
+    val DockElevation = 16.dp
 }

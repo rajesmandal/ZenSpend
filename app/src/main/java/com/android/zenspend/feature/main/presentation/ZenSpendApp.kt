@@ -1,12 +1,5 @@
 package com.android.zenspend.feature.main.presentation
 
-import com.android.zenspend.core.ui.theme.ZenSpendTheme
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.windowInsetsTopHeight
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
@@ -103,16 +96,6 @@ fun ZenSpendApp(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        // Paints the status-bar area in the header colour so every screen starts with the same
-        // forest band, whether or not it draws a curved header of its own.
-        topBar = {
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .windowInsetsTopHeight(WindowInsets.statusBars)
-                    .background(ZenSpendTheme.colors.headerStart)
-            )
-        },
         bottomBar = {
             if (showBottomBar) {
                 Column {

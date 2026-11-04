@@ -9,11 +9,11 @@ import androidx.compose.ui.graphics.Color
  * and resolve it with `ZenSpendTheme.colors.tone(tone)`.
  */
 enum class ZenTone {
-    /** Hero tile: forest green (deeper forest in dark mode). */
+    /** Dark hero tile (flips to a raised dark grey in dark mode). */
     Ink,
     Lime,
     Coral,
-    Leaf,
+    Lilac,
     Sky,
     Sun,
     Mint,
@@ -26,7 +26,7 @@ enum class ZenTone {
          * Pastel tones handed out to categories/wallets in rotation, so every
          * category gets a stable colour without any per-category hardcoding.
          */
-        val Rotation: List<ZenTone> = listOf(Sun, Leaf, Sky, Mint, Coral, Lime)
+        val Rotation: List<ZenTone> = listOf(Sun, Lilac, Sky, Mint, Coral, Lime)
 
         /** Stable tone for any id (category id, wallet id, hash of a name, ...). */
         fun forKey(key: Long): ZenTone = Rotation[Math.floorMod(key, Rotation.size.toLong()).toInt()]
@@ -54,7 +54,7 @@ data class ZenTonePalette(
     val ink: ToneColors,
     val lime: ToneColors,
     val coral: ToneColors,
-    val leaf: ToneColors,
+    val lilac: ToneColors,
     val sky: ToneColors,
     val sun: ToneColors,
     val mint: ToneColors,
@@ -64,7 +64,7 @@ data class ZenTonePalette(
         ZenTone.Ink -> ink
         ZenTone.Lime -> lime
         ZenTone.Coral -> coral
-        ZenTone.Leaf -> leaf
+        ZenTone.Lilac -> lilac
         ZenTone.Sky -> sky
         ZenTone.Sun -> sun
         ZenTone.Mint -> mint
@@ -82,10 +82,10 @@ internal fun pastelTone(container: Color, ink: Color) = ToneColors(
 )
 
 internal fun lightTonePalette() = ZenTonePalette(
-    ink = ToneColors(Forest, Bone, Bone.copy(alpha = 0.72f), Bone.copy(alpha = 0.14f), Bone.copy(alpha = 0.16f)),
+    ink = ToneColors(Ink, Bone, BoneSoft, Bone.copy(alpha = 0.12f), Bone.copy(alpha = 0.14f)),
     lime = pastelTone(Lime, Ink),
     coral = pastelTone(Coral, Ink),
-    leaf = pastelTone(Leaf, Ink),
+    lilac = pastelTone(Lilac, Ink),
     sky = pastelTone(Sky, Ink),
     sun = pastelTone(Sun, Ink),
     mint = pastelTone(Mint, Ink),
@@ -93,10 +93,10 @@ internal fun lightTonePalette() = ZenTonePalette(
 )
 
 internal fun darkTonePalette() = ZenTonePalette(
-    ink = ToneColors(ForestDeep, Bone, Bone.copy(alpha = 0.72f), Bone.copy(alpha = 0.14f), Bone.copy(alpha = 0.16f)),
+    ink = ToneColors(NightRaised3, Bone, BoneSoft, Bone.copy(alpha = 0.12f), Bone.copy(alpha = 0.14f)),
     lime = pastelTone(Lime, Ink),
     coral = pastelTone(Coral, Ink),
-    leaf = pastelTone(Leaf, Ink),
+    lilac = pastelTone(Lilac, Ink),
     sky = pastelTone(Sky, Ink),
     sun = pastelTone(Sun, Ink),
     mint = pastelTone(Mint, Ink),

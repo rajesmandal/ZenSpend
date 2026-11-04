@@ -197,7 +197,7 @@ private fun JoinHouseholdSection(
     onJoin: () -> Unit,
     isLoading: Boolean
 ) {
-    ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Leaf) {
+    ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Lilac) {
         Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Icon(Icons.Default.Link, contentDescription = null)
             Spacer(Modifier.width(Dimensions.SpacingMedium))
