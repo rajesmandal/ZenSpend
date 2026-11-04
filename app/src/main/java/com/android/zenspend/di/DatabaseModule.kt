@@ -31,7 +31,8 @@ object DatabaseModule {
             AppDatabase.MIGRATION_3_4,
             AppDatabase.MIGRATION_4_5,
             AppDatabase.MIGRATION_5_6,
-            AppDatabase.MIGRATION_6_7
+            AppDatabase.MIGRATION_6_7,
+            AppDatabase.MIGRATION_7_8
         )
         .build()
     }
@@ -55,6 +56,10 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideEMIDao(database: AppDatabase): EMIDao = database.emiDao()
+
+    @Provides
+    @Singleton
+    fun provideEMIPaymentDao(database: AppDatabase): EMIPaymentDao = database.emiPaymentDao()
 
     @Provides
     @Singleton

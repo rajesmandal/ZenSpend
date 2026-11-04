@@ -47,6 +47,8 @@
     <string name="dashboard_ai_caption">Zen AI</string>
     <string name="dashboard_ai_body">Ask about your spending</string>
     <string name="dashboard_sms_caption">SMS detection</string>
+    <string name="dashboard_cards_caption">Credit cards</string>
+    <string name="dashboard_cards_body">Limits and dues</string>
     <string name="dashboard_sms_body">Review detected transactions</string>
     <string name="dashboard_quick_wallets">Wallets</string>
     <string name="dashboard_quick_cards">Cards</string>
@@ -382,4 +384,93 @@
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
+
+    <!-- EMI manager -->
+    <string name="emi_filter_all">All</string>
+    <string name="emi_filter_card">Cards</string>
+    <string name="emi_filter_bank">Banks</string>
+    <string name="emi_filter_person">People</string>
+    <string name="emi_filter_other">Other</string>
+    <string name="emi_tab_active">Active</string>
+    <string name="emi_tab_closed">Closed</string>
+    <string name="emi_summary_monthly">Every month</string>
+    <string name="emi_summary_remaining">Still to pay</string>
+    <string name="emi_summary_paid">Paid so far</string>
+    <string name="emi_summary_active">Active EMIs</string>
+    <string name="emi_summary_next">Next: %1$s • ₹%2$s on %3$s</string>
+    <string name="emi_item_progress">%1$d of %2$d paid</string>
+    <string name="emi_item_next_due">Next due %1$s</string>
+    <string name="emi_item_overdue">Overdue since %1$s</string>
+    <string name="emi_item_remaining">₹%1$s left</string>
+    <string name="emi_item_completed">All paid</string>
+    <string name="emi_item_closed">Closed</string>
+    <string name="emi_lender_card">Credit card</string>
+    <string name="emi_lender_bank">Bank / NBFC</string>
+    <string name="emi_lender_person">Person</string>
+    <string name="emi_lender_other">Other</string>
+    <string name="emi_empty_closed_title">No closed EMIs</string>
+    <string name="emi_empty_closed_body">EMIs you finish or close will show up here.</string>
+    <string name="emi_empty_filter_title">Nothing here</string>
+    <string name="emi_empty_filter_body">No EMIs for this filter.</string>
+
+    <string name="emi_form_title_add">Add EMI</string>
+    <string name="emi_form_title_edit">Edit EMI</string>
+    <string name="emi_form_subtitle_new">Track a loan or EMI</string>
+    <string name="emi_form_lender_type">Who is it owed to?</string>
+    <string name="emi_form_card">Credit card</string>
+    <string name="emi_form_no_cards">Add a credit card first to link this EMI.</string>
+    <string name="emi_form_lender_bank">Bank or lender name</string>
+    <string name="emi_form_lender_person">Person\'s name</string>
+    <string name="emi_form_lender_other">Lender name</string>
+    <string name="emi_form_principal">Loan or purchase amount</string>
+    <string name="emi_form_emi_amount">EMI per month</string>
+    <string name="emi_form_paid">Installments already paid</string>
+    <string name="emi_form_paid_hint">Fill this if the EMI started before you added it here.</string>
+    <string name="emi_form_note">Note (optional)</string>
+
+    <string name="emi_details_subtitle">EMI details</string>
+    <string name="emi_not_found">This EMI no longer exists.</string>
+    <string name="emi_detail_owed_to">Owed to</string>
+    <string name="emi_detail_principal">Principal</string>
+    <string name="emi_detail_per_month">EMI per month</string>
+    <string name="emi_detail_interest_rate">Interest rate</string>
+    <string name="emi_detail_total_interest">Total interest</string>
+    <string name="emi_detail_total_payable">Total to pay</string>
+    <string name="emi_detail_paid">Paid</string>
+    <string name="emi_detail_remaining">Remaining</string>
+    <string name="emi_detail_next_due">Next due</string>
+    <string name="emi_detail_last_due">Last installment</string>
+    <string name="emi_detail_due_day">Due on day %1$d of every month</string>
+    <string name="emi_detail_installments_left">%1$d installments left</string>
+    <string name="emi_detail_percent_done">%1$d%% done</string>
+    <string name="emi_schedule_title">Installments</string>
+    <string name="emi_schedule_number">Installment %1$d</string>
+    <string name="emi_schedule_paid">Paid %1$s</string>
+    <string name="emi_schedule_paid_earlier">Paid</string>
+    <string name="emi_schedule_due">Due %1$s</string>
+    <string name="emi_schedule_overdue">Overdue • was due %1$s</string>
+    <string name="emi_action_mark_paid">Mark installment paid</string>
+    <string name="emi_action_undo">Undo last payment</string>
+    <string name="emi_action_close">Close EMI</string>
+    <string name="emi_action_delete">Delete EMI</string>
+    <string name="emi_pay_title">Installment %1$d paid?</string>
+    <string name="emi_pay_body">Pick the wallet it was paid from to also add an expense, or just mark it paid.</string>
+    <string name="emi_pay_none">Just mark as paid</string>
+    <string name="emi_undo_title">Undo last payment?</string>
+    <string name="emi_undo_body">The last installment goes back to unpaid. An expense recorded for it is removed.</string>
+    <string name="emi_close_title">Close this EMI?</string>
+    <string name="emi_close_body">It moves to Closed and stops showing as due. Payments already recorded stay.</string>
+    <string name="emi_delete_title">Delete this EMI?</string>
+    <string name="emi_delete_body">The EMI and its payment history are removed. Expenses already added to wallets stay.</string>
+    <string name="emi_msg_saved">EMI saved</string>
+    <string name="emi_msg_paid">Installment marked as paid</string>
+    <string name="emi_msg_undone">Last payment undone</string>
+    <string name="emi_msg_closed">EMI closed</string>
+    <string name="emi_msg_deleted">EMI deleted</string>
+    <string name="emi_msg_failed">Could not update the EMI</string>
+
+    <string name="dashboard_emi_caption">EMIs</string>
+    <string name="dashboard_emi_empty">Track loans and EMIs</string>
+    <string name="dashboard_emi_summary">₹%1$s every month</string>
+    <string name="dashboard_emi_next">Next: %1$s • %2$s</string>
 </resources>

@@ -15,6 +15,7 @@ import com.android.zenspend.core.database.entity.*
         CategoryEntity::class,
         CreditCardEntity::class,
         EMIEntity::class,
+        EMIPaymentEntity::class,
         RecurringTransactionEntity::class,
         TransactionEntity::class,
         BudgetEntity::class,
@@ -27,7 +28,7 @@ import com.android.zenspend.core.database.entity.*
         HouseholdMemberEntity::class,
         SyncCursorEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -37,6 +38,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun creditCardDao(): CreditCardDao
     abstract fun emiDao(): EMIDao
+    abstract fun emiPaymentDao(): EMIPaymentDao
     abstract fun recurringTransactionDao(): RecurringTransactionDao
     abstract fun budgetDao(): BudgetDao
     abstract fun tagDao(): TagDao
@@ -249,6 +251,32 @@ abstract class AppDatabase : RoomDatabase() {
                         PRIMARY KEY(`householdId`, `entityType`)
                     )
                 """)
+            }
+        }
+
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `emis` ADD COLUMN `lenderType` TEXT NOT NULL DEFAULT 'CREDIT_CARD'")
+                db.execSQL("ALTER TABLE `emis` ADD COLUMN `lenderName` TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE `emis` ADD COLUMN `note` TEXT")
+                // Existing EMIs were all added on a credit card: show that card's bank as the lender.
+                db.execSQL(
+                    "UPDATE `emis` SET `lenderName` = COALESCE(" +
+                        "(SELECT `bankName` FROM `credit_cards` WHERE `credit_cards`.`walletId` = `emis`.`walletId` LIMIT 1), '')"
+                )
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `emi_payments` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`emiId` INTEGER NOT NULL, " +
+                        "`installmentNumber` INTEGER NOT NULL, " +
+                        "`amount` INTEGER NOT NULL, " +
+                        "`dueDate` INTEGER NOT NULL, " +
+                        "`paidDate` INTEGER NOT NULL, " +
+                        "`walletId` INTEGER, " +
+                        "`transactionId` INTEGER, " +
+                        "FOREIGN KEY(`emiId`) REFERENCES `emis`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_emi_payments_emiId` ON `emi_payments` (`emiId`)")
             }
         }
     }

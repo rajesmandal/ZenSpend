@@ -22,6 +22,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Sms
@@ -85,6 +87,7 @@ data class DashboardNavigation(
     val onBudgets: () -> Unit = {},
     val onWallets: () -> Unit = {},
     val onCreditCards: () -> Unit = {},
+    val onEmis: () -> Unit = {},
     val onSmsDrafts: () -> Unit = {},
     val onAssistant: () -> Unit = {},
     val onSettings: () -> Unit = {},
@@ -228,6 +231,29 @@ fun DashboardContent(
                             caption = stringResource(R.string.dashboard_sms_caption),
                             body = stringResource(R.string.dashboard_sms_body),
                             onClick = navigation.onSmsDrafts
+                        )
+                    }
+                }
+
+                item {
+                    BentoRow {
+                        ShortcutTile(
+                            tone = ZenTone.Lilac,
+                            icon = { Icon(Icons.Default.ReceiptLong, contentDescription = null) },
+                            caption = stringResource(R.string.dashboard_emi_caption),
+                            body = if (summary.activeEmiCount > 0) {
+                                stringResource(R.string.dashboard_emi_summary, formatMinorUnits(summary.emiMonthlyTotal))
+                            } else {
+                                stringResource(R.string.dashboard_emi_empty)
+                            },
+                            onClick = navigation.onEmis
+                        )
+                        ShortcutTile(
+                            tone = ZenTone.Coral,
+                            icon = { Icon(Icons.Default.CreditCard, contentDescription = null) },
+                            caption = stringResource(R.string.dashboard_cards_caption),
+                            body = stringResource(R.string.dashboard_cards_body),
+                            onClick = navigation.onCreditCards
                         )
                     }
                 }

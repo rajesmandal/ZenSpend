@@ -41,6 +41,12 @@ class Converters {
     fun toEMIStatus(value: String) = EMIStatus.valueOf(value)
 
     @TypeConverter
+    fun fromEMILenderType(value: EMILenderType) = value.name
+
+    @TypeConverter
+    fun toEMILenderType(value: String) = EMILenderType.valueOf(value)
+
+    @TypeConverter
     fun fromRecurrenceType(value: RecurrenceType) = value.name
 
     @TypeConverter

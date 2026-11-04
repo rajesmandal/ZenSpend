@@ -364,6 +364,12 @@ class SyncRepositoryImpl @Inject constructor(
             endDate = (data["endDate"] as? Number)?.toLong() ?: 0L,
             dueDay = (data["dueDay"] as? Number)?.toInt() ?: 1,
             status = EMIStatus.valueOf(data["status"] as? String ?: EMIStatus.ACTIVE.name),
+            lenderType = (data["lenderType"] as? String)
+                ?.let { runCatching { com.android.zenspend.core.database.model.EMILenderType.valueOf(it) }.getOrNull() }
+                ?: existing?.lenderType
+                ?: com.android.zenspend.core.database.model.EMILenderType.CREDIT_CARD,
+            lenderName = data["lenderName"] as? String ?: existing?.lenderName.orEmpty(),
+            note = data["note"] as? String ?: existing?.note,
             createdAt = (data["createdAt"] as? Number)?.toLong() ?: updatedAt,
             updatedAt = updatedAt,
             remoteId = remoteId,

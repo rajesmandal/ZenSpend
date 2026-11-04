@@ -34,7 +34,7 @@ class RecordEmiInstallmentPaidUseCaseTest {
 
     @Before
     fun setup() {
-        useCase = RecordEmiInstallmentPaidUseCase(emiRepository)
+        useCase = RecordEmiInstallmentPaidUseCase(emiRepository, mockk(relaxed = true))
     }
 
     @Test

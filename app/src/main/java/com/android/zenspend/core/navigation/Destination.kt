@@ -31,6 +31,17 @@ sealed class Destination(val route: String) {
         }
     }
 
+    data class EmiDetails(val id: Long) : Destination("emi_details/$id") {
+        companion object {
+            const val ROUTE = "emi_details/{emiId}"
+        }
+    }
+    data class EditEmi(val id: Long) : Destination("edit_emi/$id") {
+        companion object {
+            const val ROUTE = "edit_emi/{emiId}"
+        }
+    }
+
     object Budgets : Destination("budgets_list")
     object AddBudget : Destination("add_budget")
     object BudgetPlan : Destination("budget_plan")

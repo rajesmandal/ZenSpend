@@ -1,5 +1,6 @@
 package com.android.zenspend.feature.emi.domain.model
 
+import com.android.zenspend.core.database.model.EMILenderType
 import com.android.zenspend.core.database.model.EMIStatus
 
 data class EMI(
@@ -14,5 +15,20 @@ data class EMI(
     val startDate: Long,
     val endDate: Long,
     val dueDay: Int,
-    val status: EMIStatus = EMIStatus.ACTIVE
+    val status: EMIStatus = EMIStatus.ACTIVE,
+    val lenderType: EMILenderType = EMILenderType.CREDIT_CARD,
+    val lenderName: String = "",
+    val note: String? = null
+)
+
+/** One installment that was paid. */
+data class EMIPayment(
+    val id: Long = 0,
+    val emiId: Long,
+    val installmentNumber: Int,
+    val amount: Long,
+    val dueDate: Long,
+    val paidDate: Long,
+    val walletId: Long? = null,
+    val transactionId: Long? = null
 )

@@ -84,7 +84,12 @@ data class BackupEMI(
     val startDate: Long,
     val endDate: Long,
     val dueDay: Int,
-    val status: EMIStatus
+    val status: EMIStatus,
+    // Added with the EMI manager; defaults keep older backup files readable.
+    val lenderType: com.android.zenspend.core.database.model.EMILenderType =
+        com.android.zenspend.core.database.model.EMILenderType.CREDIT_CARD,
+    val lenderName: String = "",
+    val note: String? = null
 )
 
 @Serializable

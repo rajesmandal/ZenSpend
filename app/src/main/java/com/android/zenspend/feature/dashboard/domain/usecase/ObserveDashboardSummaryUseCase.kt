@@ -59,7 +59,8 @@ class ObserveDashboardSummaryUseCase @Inject constructor(
             val totalLimit = ccCards.sumOf { it.creditLimit }
             
             // 4. EMI Summary
-            val nextEmi = emis.filter { it.status.name == "ACTIVE" }.minByOrNull { it.dueDay }
+            val emiPortfolio = com.android.zenspend.feature.emi.domain.model.EmiPortfolio.of(emis)
+            val nextEmi = emiPortfolio.nextDue
             
             // 5. Budget Summary
             val monthlyBudget = budgets.find { it.categoryId == null && it.startDate == startDate }
@@ -80,8 +81,14 @@ class ObserveDashboardSummaryUseCase @Inject constructor(
                     activeCardsCount = ccCards.size
                 ),
                 upcomingEmi = nextEmi?.let { 
-                    UpcomingEmiSummary(name = it.name, amount = it.emiAmount, dueDate = 0L)
+                    UpcomingEmiSummary(
+                        name = it.name,
+                        amount = it.emiAmount,
+                        dueDate = com.android.zenspend.feature.emi.domain.model.EmiSchedule.nextDueDate(it) ?: 0L
+                    )
                 },
+                activeEmiCount = emiPortfolio.activeCount,
+                emiMonthlyTotal = emiPortfolio.monthlyTotal,
                 monthlyBudget = budgetProgress,
                 upcomingRecurring = upcomingRecurring,
                 recentTransactions = transactions.take(10)

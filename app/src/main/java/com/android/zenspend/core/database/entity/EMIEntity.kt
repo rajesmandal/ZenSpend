@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.android.zenspend.core.database.model.EMILenderType
 import com.android.zenspend.core.database.model.EMIStatus
 import com.android.zenspend.core.database.model.SyncState
 
@@ -38,6 +39,10 @@ data class EMIEntity(
     val endDate: Long,
     val dueDay: Int,
     val status: EMIStatus = EMIStatus.ACTIVE,
+    val lenderType: EMILenderType = EMILenderType.CREDIT_CARD,
+    /** Bank / card / person the EMI is owed to, e.g. "HDFC Bank" or "Ramesh". */
+    val lenderName: String = "",
+    val note: String? = null,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),
     val remoteId: String? = null,

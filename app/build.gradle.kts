@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -23,13 +25,24 @@ android {
         val hasGoogleServices = file("google-services.json").exists()
         buildConfigField("boolean", "FIREBASE_CONFIGURED", hasGoogleServices.toString())
 
-        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"\"")
+        // Secrets / per-developer switches live in local.properties (git-ignored), not in source.
+        val localProps = Properties().apply {
+            val f = rootProject.file("local.properties")
+            if (f.exists()) f.inputStream().use { load(it) }
+        }
+        val googleWebClientId = localProps.getProperty("GOOGLE_WEB_CLIENT_ID", "")
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
         buildConfigField("boolean", "USE_FIREBASE_EMULATORS", "false")
     }
 
     buildTypes {
         debug {
-            buildConfigField("boolean", "USE_FIREBASE_EMULATORS", "true")
+            // Real Firebase by default; set USE_FIREBASE_EMULATORS=true in local.properties to use the emulators.
+            val useEmulators = Properties().apply {
+                val f = rootProject.file("local.properties")
+                if (f.exists()) f.inputStream().use { load(it) }
+            }.getProperty("USE_FIREBASE_EMULATORS", "false")
+            buildConfigField("boolean", "USE_FIREBASE_EMULATORS", useEmulators)
         }
         release {
             isMinifyEnabled = true

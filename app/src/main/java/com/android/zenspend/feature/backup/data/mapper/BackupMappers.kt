@@ -41,14 +41,16 @@ fun EMIEntity.toBackup() = BackupEMI(
     id = id, name = name, walletId = walletId, principalAmount = principalAmount,
     emiAmount = emiAmount, interestRate = interestRate, totalTenure = totalTenure,
     remainingInstallments = remainingInstallments, startDate = startDate,
-    endDate = endDate, dueDay = dueDay, status = status
+    endDate = endDate, dueDay = dueDay, status = status,
+    lenderType = lenderType, lenderName = lenderName, note = note
 )
 
 fun BackupEMI.toEntity() = EMIEntity(
     id = id, name = name, walletId = walletId, principalAmount = principalAmount,
     emiAmount = emiAmount, interestRate = interestRate, totalTenure = totalTenure,
     remainingInstallments = remainingInstallments, startDate = startDate,
-    endDate = endDate, dueDay = dueDay, status = status
+    endDate = endDate, dueDay = dueDay, status = status,
+    lenderType = lenderType, lenderName = lenderName, note = note
 )
 
 fun RecurringTransactionEntity.toBackup() = BackupRecurringTransaction(

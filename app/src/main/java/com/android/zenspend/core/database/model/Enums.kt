@@ -44,6 +44,15 @@ enum class TransactionSource {
     RECURRING
 }
 
+/** Who the money is owed to. */
+@Serializable
+enum class EMILenderType {
+    CREDIT_CARD,
+    BANK,
+    PERSON,
+    OTHER
+}
+
 @Serializable
 enum class EMIStatus {
     ACTIVE,

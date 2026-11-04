@@ -8,6 +8,8 @@ data class DashboardSummary(
     val topCategories: List<CategorySpending>,
     val creditCardSummary: CreditCardDashboardSummary,
     val upcomingEmi: UpcomingEmiSummary?,
+    val activeEmiCount: Int = 0,
+    val emiMonthlyTotal: Long = 0,
     val monthlyBudget: com.android.zenspend.feature.budget.domain.model.BudgetProgress?,
     val upcomingRecurring: List<com.android.zenspend.feature.recurring.domain.model.RecurringTransaction> = emptyList(),
     val recentTransactions: List<Transaction>
