@@ -1,5 +1,6 @@
 package com.android.zenspend.feature.auth.presentation.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.zenspend.BuildConfig
@@ -39,7 +40,8 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun signInWithGoogle() {
+    /** [activityContext] must be the hosting Activity (needed to show the Google account picker). */
+    fun signInWithGoogle(activityContext: Context) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             val webClientId = BuildConfig.GOOGLE_WEB_CLIENT_ID
@@ -50,7 +52,7 @@ class LoginViewModel @Inject constructor(
                 )
                 return@launch
             }
-            when (val result = authRepositoryImpl.signInWithCredentialManager(webClientId)) {
+            when (val result = authRepositoryImpl.signInWithCredentialManager(activityContext, webClientId)) {
                 is Resource.Success -> _uiState.value = _uiState.value.copy(isLoading = false)
                 is Resource.Error -> _uiState.value = _uiState.value.copy(
                     isLoading = false,

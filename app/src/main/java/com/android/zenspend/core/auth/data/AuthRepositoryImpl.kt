@@ -95,7 +95,8 @@ class AuthRepositoryImpl @Inject constructor(
 
     override fun getGoogleSignInIntent(): Intent? = null
 
-    suspend fun signInWithCredentialManager(webClientId: String): Resource<AuthUser> {
+    /** [activityContext] must be an Activity: Credential Manager shows its account picker on top of it. */
+    suspend fun signInWithCredentialManager(activityContext: Context, webClientId: String): Resource<AuthUser> {
         return try {
             val googleIdOption = GetGoogleIdOption.Builder()
                 .setFilterByAuthorizedAccounts(false)
@@ -107,7 +108,7 @@ class AuthRepositoryImpl @Inject constructor(
                 .addCredentialOption(googleIdOption)
                 .build()
 
-            val result = credentialManager.getCredential(context, request)
+            val result = credentialManager.getCredential(activityContext, request)
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential.data)
             signInWithGoogle(googleIdTokenCredential.idToken)
         } catch (e: Exception) {

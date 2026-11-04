@@ -33,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -56,6 +57,7 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val activityContext = LocalContext.current
 
     LaunchedEffect(state.authState) {
         if (state.authState is AuthState.Authenticated) onAuthenticated()
@@ -108,7 +110,7 @@ fun LoginScreen(
             )
 
             ZenGoogleSignInButton(
-                onClick = viewModel::signInWithGoogle,
+                onClick = { viewModel.signInWithGoogle(activityContext) },
                 isLoading = state.isLoading
             )
             state.errorMessage?.let { ZenStatusBanner(message = it, isError = true) }
