@@ -491,44 +491,45 @@ private fun QuickChips(emiBadge: Int, navigation: DashboardNavigation) {
             .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
     ) {
-        QuickChip(Icons.Default.AutoAwesome, stringResource(R.string.dashboard_chip_ai), null, navigation.onAssistant)
-        QuickChip(Icons.Default.Sms, stringResource(R.string.dashboard_chip_sms), null, navigation.onSmsDrafts)
-        QuickChip(Icons.Default.ReceiptLong, stringResource(R.string.dashboard_emi_caption), emiBadge, navigation.onEmis)
-        QuickChip(Icons.Default.CreditCard, stringResource(R.string.dashboard_quick_cards), null, navigation.onCreditCards)
+        QuickChip(ZenTone.Sky, Icons.Default.AutoAwesome, stringResource(R.string.dashboard_chip_ai), null, navigation.onAssistant)
+        QuickChip(ZenTone.Sun, Icons.Default.Sms, stringResource(R.string.dashboard_chip_sms), null, navigation.onSmsDrafts)
+        QuickChip(ZenTone.Lilac, Icons.Default.ReceiptLong, stringResource(R.string.dashboard_emi_caption), emiBadge, navigation.onEmis)
+        QuickChip(ZenTone.Coral, Icons.Default.CreditCard, stringResource(R.string.dashboard_quick_cards), null, navigation.onCreditCards)
     }
 }
 
 @Composable
 private fun QuickChip(
+    tone: ZenTone,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     badge: Int?,
     onClick: () -> Unit
 ) {
+    val colors = ZenSpendTheme.colors.tone(tone)
     Row(
         modifier = Modifier
             .clip(PillShape)
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
-            .border(Dimensions.Hairline, MaterialTheme.colorScheme.outlineVariant, PillShape)
+            .background(colors.container)
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = Dimensions.SpacingMedium - 3.dp, vertical = Dimensions.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
     ) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(Dimensions.IconSizeSmall))
-        Text(label, style = MaterialTheme.typography.labelLarge, maxLines = 1)
+        Icon(icon, contentDescription = null, tint = colors.content, modifier = Modifier.size(Dimensions.IconSizeSmall))
+        Text(label, style = MaterialTheme.typography.labelLarge, color = colors.content, maxLines = 1)
         if (badge != null && badge > 0) {
             Box(
                 modifier = Modifier
                     .clip(PillShape)
-                    .background(MaterialTheme.colorScheme.primary)
+                    .background(colors.content)
                     .padding(horizontal = Dimensions.SpacingSmall),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = badge.toString(),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = colors.container
                 )
             }
         }
