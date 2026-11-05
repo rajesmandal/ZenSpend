@@ -38,6 +38,10 @@
     <string name="dashboard_liabilities">Liabilities</string>
     <string name="dashboard_income">Income</string>
     <string name="dashboard_spent">Spent</string>
+    <string name="dashboard_budget_per_day">₹%1$s per day left</string>
+    <string name="dashboard_liabilities_line">Liabilities ₹%1$s</string>
+    <string name="dashboard_chip_ai">Zen AI</string>
+    <string name="dashboard_chip_sms">SMS</string>
     <string name="dashboard_saved">Saved</string>
     <string name="dashboard_budget_left">Budget left</string>
     <string name="dashboard_budget_over">Over budget</string>

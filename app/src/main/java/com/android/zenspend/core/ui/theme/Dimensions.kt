@@ -48,6 +48,10 @@ object Dimensions {
     /** Income / spent capsules that straddle the net worth card edge. */
     val FlowCapsuleHeight = 60.dp
     val FlowCapsuleRing = 4.dp
+    /** Home screen keeps lists short. */
+    const val HomeRecentCount = 5
+    const val HomeUpcomingCount = 3
+    const val HomeUpcomingDays = 7L
 
     val MinTouchTarget = 48.dp
     val ChatBubbleMaxWidth = 300.dp

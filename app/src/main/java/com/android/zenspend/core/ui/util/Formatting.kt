@@ -35,3 +35,7 @@ fun relativeDateText(timestamp: Long): String {
         else -> SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(timestamp))
     }
 }
+
+/** Whole rupees only ("46,211"): the dashboard drops paise so numbers stay quick to read. */
+fun formatWholeRupees(amount: Long): String =
+    MoneyFormat.format(Math.round(amount / 100.0) * 100)

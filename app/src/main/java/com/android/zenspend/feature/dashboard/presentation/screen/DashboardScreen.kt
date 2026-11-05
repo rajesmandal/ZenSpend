@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -68,7 +70,7 @@ import com.android.zenspend.core.ui.theme.Dimensions
 import com.android.zenspend.core.ui.theme.PillShape
 import com.android.zenspend.core.ui.theme.ZenSpendTheme
 import com.android.zenspend.core.ui.theme.ZenTone
-import com.android.zenspend.core.ui.util.formatMinorUnits
+import com.android.zenspend.core.ui.util.formatWholeRupees
 import com.android.zenspend.core.ui.util.greetingText
 import com.android.zenspend.core.ui.util.relativeDateText
 import com.android.zenspend.feature.budget.domain.model.BudgetProgress
@@ -184,86 +186,34 @@ fun DashboardContent(
                 // ---- Bento grid -------------------------------------------------
                 item {
                     NetWorthTile(
-                        total = formatMinorUnits(summary.netWorth.total),
-                        assets = formatMinorUnits(summary.netWorth.assets),
-                        liabilities = formatMinorUnits(summary.netWorth.liabilities),
-                        income = formatMinorUnits(summary.monthlySummary.income),
-                        spent = formatMinorUnits(summary.monthlySummary.expense)
+                        total = formatWholeRupees(summary.netWorth.total),
+                        liabilities = summary.netWorth.liabilities.takeIf { it > 0 }
+                            ?.let { formatWholeRupees(it) },
+                        income = formatWholeRupees(summary.monthlySummary.income),
+                        spent = formatWholeRupees(summary.monthlySummary.expense)
                     )
                 }
 
                 item {
-                    BentoRow {
-                        FlowTile(
-                            tone = ZenTone.Mint,
-                            caption = stringResource(R.string.dashboard_saved),
-                            amount = formatMinorUnits(summary.monthlySummary.savings),
-                            onClick = navigation.onReports
-                        )
-                        BudgetTile(budget = summary.monthlyBudget, onClick = navigation.onBudgets)
-                    }
+                    BudgetCard(
+                        budget = summary.monthlyBudget,
+                        daysLeft = daysLeftInMonth(state.selectedMonth),
+                        onClick = navigation.onBudgets
+                    )
                 }
 
                 item {
-                    BentoRow {
-                        ShortcutTile(
-                            tone = ZenTone.Sky,
-                            icon = { Icon(Icons.Default.AutoAwesome, contentDescription = null) },
-                            caption = stringResource(R.string.dashboard_ai_caption),
-                            body = stringResource(R.string.dashboard_ai_body),
-                            onClick = navigation.onAssistant
-                        )
-                        ShortcutTile(
-                            tone = ZenTone.Sun,
-                            icon = { Icon(Icons.Default.Sms, contentDescription = null) },
-                            caption = stringResource(R.string.dashboard_sms_caption),
-                            body = stringResource(R.string.dashboard_sms_body),
-                            onClick = navigation.onSmsDrafts
-                        )
-                    }
-                }
-
-                item {
-                    BentoRow {
-                        ShortcutTile(
-                            tone = ZenTone.Lilac,
-                            icon = { Icon(Icons.Default.ReceiptLong, contentDescription = null) },
-                            caption = stringResource(R.string.dashboard_emi_caption),
-                            body = if (summary.activeEmiCount > 0) {
-                                stringResource(R.string.dashboard_emi_summary, formatMinorUnits(summary.emiMonthlyTotal))
-                            } else {
-                                stringResource(R.string.dashboard_emi_empty)
-                            },
-                            onClick = navigation.onEmis
-                        )
-                        ShortcutTile(
-                            tone = ZenTone.Coral,
-                            icon = { Icon(Icons.Default.CreditCard, contentDescription = null) },
-                            caption = stringResource(R.string.dashboard_cards_caption),
-                            body = stringResource(R.string.dashboard_cards_body),
-                            onClick = navigation.onCreditCards
-                        )
-                    }
+                    QuickChips(
+                        emiBadge = summary.activeEmiCount,
+                        navigation = navigation
+                    )
                 }
 
                 // ---- Lists ------------------------------------------------------
-                if (summary.topCategories.isNotEmpty()) {
+                val upcoming = upcomingItems(summary.upcomingEmi, summary.upcomingRecurring)
+                if (upcoming.isNotEmpty()) {
                     item {
-                        TopSpendingSection(
-                            categories = summary.topCategories.take(4),
-                            onViewAll = navigation.onReports
-                        )
-                    }
-                }
-
-                val hasUpcoming = summary.upcomingRecurring.isNotEmpty() || summary.upcomingEmi != null
-                if (hasUpcoming) {
-                    item {
-                        UpcomingSection(
-                            recurring = summary.upcomingRecurring.take(2),
-                            emi = summary.upcomingEmi,
-                            onViewAll = navigation.onRecurring
-                        )
+                        UpcomingSection(items = upcoming, onViewAll = navigation.onRecurring)
                     }
                 }
 
@@ -276,7 +226,7 @@ fun DashboardContent(
                             onAction = navigation.onTransactions
                         )
                     }
-                    items(summary.recentTransactions.take(5)) { tx ->
+                    items(summary.recentTransactions.take(Dimensions.HomeRecentCount)) { tx ->
                         RecentTransactionRow(tx = tx, onClick = navigation.onTransactions)
                     }
                 }
@@ -392,12 +342,10 @@ private fun BentoRow(content: @Composable androidx.compose.foundation.layout.Row
 @Composable
 private fun NetWorthTile(
     total: String,
-    assets: String,
-    liabilities: String,
+    liabilities: String?,
     income: String,
     spent: String
 ) {
-    val lime = ZenSpendTheme.colors.tone(ZenTone.Lime).container
     val coral = ZenSpendTheme.colors.tone(ZenTone.Coral).container
     val overhang = Dimensions.FlowCapsuleHeight / 2
 
@@ -414,24 +362,13 @@ private fun NetWorthTile(
                 text = stringResource(R.string.amount_rupees, total),
                 style = AmountHero
             )
-            Spacer(Modifier.height(Dimensions.SpacingMedium))
-            Row(horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingXLarge)) {
-                Column {
-                    ZenTileCaption(stringResource(R.string.dashboard_assets))
-                    ZenTileValue(
-                        text = stringResource(R.string.amount_rupees, assets),
-                        style = AmountSmall,
-                        color = lime
-                    )
-                }
-                Column {
-                    ZenTileCaption(stringResource(R.string.dashboard_liabilities))
-                    ZenTileValue(
-                        text = stringResource(R.string.amount_rupees, liabilities),
-                        style = AmountSmall,
-                        color = coral
-                    )
-                }
+            if (liabilities != null) {
+                Spacer(Modifier.height(Dimensions.SpacingSmall))
+                Text(
+                    text = stringResource(R.string.dashboard_liabilities_line, liabilities),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = coral
+                )
             }
             // Room for the top half of the capsules that straddle the bottom edge.
             Spacer(Modifier.height(overhang + Dimensions.SpacingSmall))
@@ -494,48 +431,10 @@ private fun FlowCapsule(
     }
 }
 
+/** Full-width budget card: what is left, a progress bar and what that means per day. */
 @Composable
-private fun androidx.compose.foundation.layout.RowScope.FlowTile(
-    tone: ZenTone,
-    caption: String,
-    amount: String,
-    onClick: () -> Unit
-) {
-    ZenTile(
-        modifier = Modifier
-            .weight(1f)
-            .fillMaxHeight(),
-        tone = tone,
-        onClick = onClick
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
-        ) {
-            ZenTileCaption(caption)
-            ZenArrowBadge()
-        }
-        Spacer(Modifier.height(Dimensions.SpacingLarge))
-        ZenTileValue(
-            text = stringResource(R.string.amount_rupees, amount),
-            style = AmountLarge
-        )
-    }
-}
-
-@Composable
-private fun androidx.compose.foundation.layout.RowScope.BudgetTile(
-    budget: BudgetProgress?,
-    onClick: () -> Unit
-) {
-    ZenTile(
-        modifier = Modifier
-            .weight(1f)
-            .fillMaxHeight(),
-        tone = ZenTone.Lilac,
-        onClick = onClick
-    ) {
+private fun BudgetCard(budget: BudgetProgress?, daysLeft: Int?, onClick: () -> Unit) {
+    ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Lilac, onClick = onClick) {
         if (budget == null) {
             ZenTileCaption(stringResource(R.string.dashboard_budget_empty_title))
             Spacer(Modifier.height(Dimensions.SpacingSmall))
@@ -545,18 +444,35 @@ private fun androidx.compose.foundation.layout.RowScope.BudgetTile(
             )
         } else {
             val over = budget.isOverBudget
-            ZenTileCaption(
-                stringResource(
-                    if (over) R.string.dashboard_budget_over else R.string.dashboard_budget_left
-                )
-            )
-            ZenTileValue(
-                text = stringResource(
-                    R.string.amount_rupees,
-                    formatMinorUnits(kotlin.math.abs(budget.remainingAmount))
-                ),
-                style = AmountLarge
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Column {
+                    ZenTileCaption(
+                        stringResource(
+                            if (over) R.string.dashboard_budget_over else R.string.dashboard_budget_left
+                        )
+                    )
+                    ZenTileValue(
+                        text = stringResource(
+                            R.string.amount_rupees,
+                            formatWholeRupees(kotlin.math.abs(budget.remainingAmount))
+                        ),
+                        style = AmountLarge
+                    )
+                }
+                if (!over && daysLeft != null && budget.remainingAmount > 0) {
+                    Text(
+                        text = stringResource(
+                            R.string.dashboard_budget_per_day,
+                            formatWholeRupees(budget.remainingAmount / daysLeft)
+                        ),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+            }
             Spacer(Modifier.height(Dimensions.SpacingMedium))
             ZenProgressBar(
                 progress = budget.progress,
@@ -566,69 +482,92 @@ private fun androidx.compose.foundation.layout.RowScope.BudgetTile(
     }
 }
 
+/** One calm row of shortcuts instead of four big tiles. */
 @Composable
-private fun androidx.compose.foundation.layout.RowScope.ShortcutTile(
-    tone: ZenTone,
-    icon: @Composable () -> Unit,
-    caption: String,
-    body: String,
-    onClick: () -> Unit
-) {
-    ZenTile(
+private fun QuickChips(emiBadge: Int, navigation: DashboardNavigation) {
+    Row(
         modifier = Modifier
-            .weight(1f)
-            .fillMaxHeight(),
-        tone = tone,
-        onClick = onClick
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
-        ) {
-            icon()
-            ZenArrowBadge()
-        }
-        Spacer(Modifier.height(Dimensions.SpacingMedium))
-        ZenTileCaption(caption)
-        Text(
-            text = body,
-            style = MaterialTheme.typography.titleSmall
-        )
+        QuickChip(Icons.Default.AutoAwesome, stringResource(R.string.dashboard_chip_ai), null, navigation.onAssistant)
+        QuickChip(Icons.Default.Sms, stringResource(R.string.dashboard_chip_sms), null, navigation.onSmsDrafts)
+        QuickChip(Icons.Default.ReceiptLong, stringResource(R.string.dashboard_emi_caption), emiBadge, navigation.onEmis)
+        QuickChip(Icons.Default.CreditCard, stringResource(R.string.dashboard_quick_cards), null, navigation.onCreditCards)
     }
 }
 
-// ---- Sections ---------------------------------------------------------------
-
 @Composable
-private fun TopSpendingSection(categories: List<CategorySpending>, onViewAll: () -> Unit) {
-    Column {
-        ZenSectionHeader(
-            title = stringResource(R.string.dashboard_top_spending),
-            modifier = Modifier.padding(top = Dimensions.SpacingMedium),
-            actionLabel = stringResource(R.string.action_view_all),
-            onAction = onViewAll
-        )
-        ZenTile(modifier = Modifier.fillMaxWidth()) {
-            Column(verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingLarge)) {
-                categories.forEach { category ->
-                    CategorySpendingBar(
-                        category = category.categoryName,
-                        amount = stringResource(R.string.amount_rupees, formatMinorUnits(category.amount)),
-                        percentage = category.percentage
-                    )
-                }
+private fun QuickChip(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    badge: Int?,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .clip(PillShape)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .border(Dimensions.Hairline, MaterialTheme.colorScheme.outlineVariant, PillShape)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = Dimensions.SpacingMedium - 3.dp, vertical = Dimensions.SpacingMedium),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
+    ) {
+        Icon(icon, contentDescription = null, modifier = Modifier.size(Dimensions.IconSizeSmall))
+        Text(label, style = MaterialTheme.typography.labelLarge, maxLines = 1)
+        if (badge != null && badge > 0) {
+            Box(
+                modifier = Modifier
+                    .clip(PillShape)
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(horizontal = Dimensions.SpacingSmall),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = badge.toString(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
     }
 }
 
-@Composable
-private fun UpcomingSection(
-    recurring: List<RecurringTransaction>,
+/** Days left in the selected month, today included; null when that month is not the current one. */
+private fun daysLeftInMonth(selected: Calendar): Int? {
+    val now = Calendar.getInstance()
+    if (now.get(Calendar.YEAR) != selected.get(Calendar.YEAR) ||
+        now.get(Calendar.MONTH) != selected.get(Calendar.MONTH)
+    ) return null
+    return now.getActualMaximum(Calendar.DAY_OF_MONTH) - now.get(Calendar.DAY_OF_MONTH) + 1
+}
+
+private data class UpcomingItem(
+    val title: String,
+    val amount: Long,
+    val date: Long,
+    val isEmi: Boolean
+)
+
+/** EMI + recurring merged, due within the next week, soonest first, capped for the home screen. */
+private fun upcomingItems(
     emi: UpcomingEmiSummary?,
-    onViewAll: () -> Unit
-) {
+    recurring: List<RecurringTransaction>
+): List<UpcomingItem> {
+    val horizon = System.currentTimeMillis() + Dimensions.HomeUpcomingDays * DAY_MILLIS
+    val all = listOfNotNull(emi?.let { UpcomingItem(it.name, it.amount, it.dueDate, true) }) +
+        recurring.map { UpcomingItem(it.name, it.amount, it.nextExecutionDate, false) }
+    return all.filter { it.date <= horizon }.sortedBy { it.date }.take(Dimensions.HomeUpcomingCount)
+}
+
+private const val DAY_MILLIS = 24L * 60 * 60 * 1000
+
+// ---- Sections ---------------------------------------------------------------
+
+@Composable
+private fun UpcomingSection(items: List<UpcomingItem>, onViewAll: () -> Unit) {
     Column {
         ZenSectionHeader(
             title = stringResource(R.string.dashboard_upcoming),
@@ -637,24 +576,15 @@ private fun UpcomingSection(
             onAction = onViewAll
         )
         Column(verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)) {
-            emi?.let {
+            items.forEach {
                 ZenTransactionRow(
-                    title = it.name,
-                    subtitle = stringResource(R.string.dashboard_emi_due_soon, relativeDateText(it.dueDate)),
-                    amount = stringResource(R.string.amount_rupees, formatMinorUnits(it.amount)),
-                    badgeTone = ZenTone.Sky,
-                    onClick = onViewAll
-                )
-            }
-            recurring.forEach {
-                ZenTransactionRow(
-                    title = it.name,
+                    title = it.title,
                     subtitle = stringResource(
-                        R.string.dashboard_recurring_on,
-                        relativeDateText(it.nextExecutionDate)
+                        if (it.isEmi) R.string.dashboard_emi_due_soon else R.string.dashboard_recurring_on,
+                        relativeDateText(it.date)
                     ),
-                    amount = stringResource(R.string.amount_rupees, formatMinorUnits(it.amount)),
-                    badgeTone = ZenTone.Lilac,
+                    amount = stringResource(R.string.amount_rupees, formatWholeRupees(it.amount)),
+                    badgeTone = if (it.isEmi) ZenTone.Sky else ZenTone.Lilac,
                     onClick = onViewAll
                 )
             }
@@ -666,7 +596,7 @@ private fun UpcomingSection(
 private fun RecentTransactionRow(tx: Transaction, onClick: () -> Unit) {
     val isIncome = tx.type == TransactionType.INCOME || tx.type == TransactionType.REFUND
     val isExpense = tx.type == TransactionType.EXPENSE
-    val formatted = formatMinorUnits(tx.amount)
+    val formatted = formatWholeRupees(tx.amount)
     ZenTransactionRow(
         title = tx.title.ifBlank { stringResource(R.string.untitled) },
         subtitle = relativeDateText(tx.date),
