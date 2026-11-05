@@ -45,6 +45,9 @@ object Dimensions {
     val RingStroke = 12.dp
     val RingSize = 96.dp
     val LoginLogoSize = 96.dp
+    /** Income / spent capsules that straddle the net worth card edge. */
+    val FlowCapsuleHeight = 60.dp
+    val FlowCapsuleRing = 4.dp
 
     val MinTouchTarget = 48.dp
     val ChatBubbleMaxWidth = 300.dp

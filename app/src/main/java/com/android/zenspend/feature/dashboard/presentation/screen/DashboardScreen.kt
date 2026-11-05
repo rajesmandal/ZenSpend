@@ -1,5 +1,7 @@
 package com.android.zenspend.feature.dashboard.presentation.screen
 
+import com.android.zenspend.core.ui.theme.AmountSmall
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,6 +21,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -381,6 +385,10 @@ private fun BentoRow(content: @Composable androidx.compose.foundation.layout.Row
     )
 }
 
+/**
+ * Net worth card, kept minimal: the total, then assets / liabilities. This month's income and
+ * spent sit in two capsules whose centre line is the card's bottom edge (half in, half out).
+ */
 @Composable
 private fun NetWorthTile(
     total: String,
@@ -391,56 +399,97 @@ private fun NetWorthTile(
 ) {
     val lime = ZenSpendTheme.colors.tone(ZenTone.Lime).container
     val coral = ZenSpendTheme.colors.tone(ZenTone.Coral).container
+    val overhang = Dimensions.FlowCapsuleHeight / 2
 
-    ZenTile(
-        modifier = Modifier.fillMaxWidth(),
-        tone = ZenTone.Ink,
-        contentPadding = PaddingValues(Dimensions.SpacingXLarge - 2.dp)
-    ) {
-        ZenTileCaption(stringResource(R.string.dashboard_net_worth))
-        Spacer(Modifier.height(Dimensions.SpacingXSmall))
-        ZenTileValue(
-            text = stringResource(R.string.amount_rupees, total),
-            style = AmountHero
-        )
-        Spacer(Modifier.height(Dimensions.SpacingLarge))
-        Row(horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingXLarge)) {
-            Column {
-                ZenTileCaption(stringResource(R.string.dashboard_assets))
-                ZenTileValue(
-                    text = stringResource(R.string.amount_rupees, assets),
-                    style = AmountMedium,
-                    color = lime
-                )
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .padding(bottom = overhang)) {
+        ZenTile(
+            modifier = Modifier.fillMaxWidth(),
+            tone = ZenTone.Ink,
+            contentPadding = PaddingValues(Dimensions.SpacingXLarge)
+        ) {
+            ZenTileCaption(stringResource(R.string.dashboard_net_worth))
+            ZenTileValue(
+                text = stringResource(R.string.amount_rupees, total),
+                style = AmountHero
+            )
+            Spacer(Modifier.height(Dimensions.SpacingMedium))
+            Row(horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingXLarge)) {
+                Column {
+                    ZenTileCaption(stringResource(R.string.dashboard_assets))
+                    ZenTileValue(
+                        text = stringResource(R.string.amount_rupees, assets),
+                        style = AmountSmall,
+                        color = lime
+                    )
+                }
+                Column {
+                    ZenTileCaption(stringResource(R.string.dashboard_liabilities))
+                    ZenTileValue(
+                        text = stringResource(R.string.amount_rupees, liabilities),
+                        style = AmountSmall,
+                        color = coral
+                    )
+                }
             }
-            Column {
-                ZenTileCaption(stringResource(R.string.dashboard_liabilities))
-                ZenTileValue(
-                    text = stringResource(R.string.amount_rupees, liabilities),
-                    style = AmountMedium,
-                    color = coral
-                )
-            }
+            // Room for the top half of the capsules that straddle the bottom edge.
+            Spacer(Modifier.height(overhang + Dimensions.SpacingSmall))
         }
-        Spacer(Modifier.height(Dimensions.SpacingLarge))
-        // This month's flow sits on the bottom line of the card.
-        Row(horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingXLarge)) {
-            Column {
-                ZenTileCaption(stringResource(R.string.dashboard_income))
-                ZenTileValue(
-                    text = stringResource(R.string.amount_rupees, income),
-                    style = AmountMedium,
-                    color = lime
-                )
-            }
-            Column {
-                ZenTileCaption(stringResource(R.string.dashboard_spent))
-                ZenTileValue(
-                    text = stringResource(R.string.amount_rupees, spent),
-                    style = AmountMedium,
-                    color = coral
-                )
-            }
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .offset(y = overhang)
+                .padding(horizontal = Dimensions.SpacingXLarge),
+            horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium)
+        ) {
+            FlowCapsule(
+                tone = ZenTone.Lime,
+                icon = Icons.Default.ArrowDownward,
+                caption = stringResource(R.string.dashboard_income),
+                amount = income,
+                modifier = Modifier.weight(1f)
+            )
+            FlowCapsule(
+                tone = ZenTone.Coral,
+                icon = Icons.Default.ArrowUpward,
+                caption = stringResource(R.string.dashboard_spent),
+                amount = spent,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+/** Pill with a ring in the screen background colour so it reads as cut out of the card edge. */
+@Composable
+private fun FlowCapsule(
+    tone: ZenTone,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    caption: String,
+    amount: String,
+    modifier: Modifier = Modifier
+) {
+    val colors = ZenSpendTheme.colors.tone(tone)
+    Row(
+        modifier = modifier
+            .height(Dimensions.FlowCapsuleHeight)
+            .border(Dimensions.FlowCapsuleRing, MaterialTheme.colorScheme.background, PillShape)
+            .clip(PillShape)
+            .background(colors.container)
+            .padding(horizontal = Dimensions.SpacingLarge),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
+    ) {
+        Icon(icon, contentDescription = null, tint = colors.content, modifier = Modifier.size(Dimensions.IconSizeSmall))
+        Column {
+            Text(caption, style = MaterialTheme.typography.labelSmall, color = colors.contentMuted, maxLines = 1)
+            Text(
+                text = stringResource(R.string.amount_rupees, amount),
+                style = AmountSmall,
+                color = colors.content,
+                maxLines = 1
+            )
         }
     }
 }
