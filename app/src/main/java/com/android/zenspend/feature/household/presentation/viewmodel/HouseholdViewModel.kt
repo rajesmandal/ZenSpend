@@ -59,6 +59,15 @@ class HouseholdViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
+            // Once per household id (not per Room emission: the refresh itself rewrites the cache),
+            // to pick up joins / removals made on the other phone.
+            householdRepository.observeActiveHousehold()
+                .map { it?.id }
+                .filterNotNull()
+                .distinctUntilChanged()
+                .collect { householdRepository.refreshActiveHousehold(it) }
+        }
+        viewModelScope.launch {
             householdRepository.observeActiveHousehold().collect { household ->
                 if (household == null) {
                     _uiState.value = _uiState.value.copy(members = emptyList())

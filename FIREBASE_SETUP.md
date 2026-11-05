@@ -1,40 +1,41 @@
-# Firebase Setup for ZenSpend Shared Cashbook
+# Firebase setup for the ZenSpend shared cashbook
 
-Google Sign-In and Firestore sync require manual Firebase project configuration.
+Everything runs on the **free Spark plan**. There are no Cloud Functions: creating, joining and
+leaving a household are done by the app with atomic Firestore batches that `firestore.rules` validates.
 
-## Steps
+## One-time console steps
 
-1. Create a Firebase project at https://console.firebase.google.com
-2. Add Android app with package `com.android.zenspend`
-3. Download `google-services.json` → place at `app/google-services.json` (gitignored)
-4. Enable **Authentication → Google** sign-in provider
-5. Create a **Firestore** database (production mode)
-6. Deploy security rules: `firebase deploy --only firestore:rules`
-7. Deploy Cloud Functions from `functions/`:
-   ```bash
-   cd functions && npm install && firebase deploy --only functions
-   ```
-8. Add SHA-1 and SHA-256 fingerprints (debug + release) in Firebase Console
-9. Set Web client ID in `app/build.gradle.kts`:
-   ```kotlin
-   buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"YOUR_WEB_CLIENT_ID\"")
-   ```
-10. Register deep link intent filter (already in AndroidManifest): `zenspend://join?token=...`
+1. Firebase console → your project → add the Android app `com.android.zenspend`
+   (add the debug SHA-1 / SHA-256, see `docs/SETUP_GOOGLE_LOGIN.md`).
+2. Download `google-services.json` → `app/google-services.json` (git-ignored).
+3. **Authentication → Sign-in method → Google → Enable.**
+4. **Firestore Database → Create database** (production mode).
+5. **Firestore → Rules** → paste the whole content of `firestore.rules` → **Publish**.
+   Re-publish whenever `firestore.rules` changes.
+6. Put `GOOGLE_WEB_CLIENT_ID=...` in `local.properties`.
 
-## Emulator testing (debug builds)
+## Data layout
 
-Debug builds set `USE_FIREBASE_EMULATORS=true` and connect to:
-- Auth: `10.0.2.2:9099`
-- Firestore: `10.0.2.2:8080`
-- Functions: `10.0.2.2:5001`
-
-Start emulators:
-```bash
-firebase emulators:start --only auth,firestore,functions
 ```
+users/{uid}                          currentHouseholdId
+invitations/{sha256(token)}          householdId, householdName, expiresAt, status PENDING|USED|REVOKED
+households/{hid}                     name, ownerUserId, memberLimit (2), memberCount
+households/{hid}/members/{uid}       role OWNER|MEMBER, displayName
+households/{hid}/transactions|wallets|categories|budgets|creditCards|emis|recurringTransactions/...
+```
+
+The invitation id is the SHA-256 of the secret token, so only the person holding the token can read it.
+Joining is one batch: invitation → `USED`, member document created, `memberCount + 1`; the rules check all
+three together, so an invitation works once and a household never exceeds two members.
+
+## Testing with two accounts on one phone
+
+1. Account A: Settings → Shared Cashbook → create household → create invitation → copy the token.
+2. Sign out, sign in with account B → Shared Cashbook → paste the token → Join.
+3. Back on account A: the partner appears in the member list after the next refresh/sync.
 
 ## Important
 
-- Do **not** commit `google-services.json` or service account keys
-- Google Sign-In is **not** functional until steps 1–9 are complete
-- Restoring a `.zenspend` backup does **not** auto-overwrite Firestore cloud data
+- Never commit `google-services.json`.
+- Restoring a `.zenspend` backup does not overwrite Firestore data.
+- Cloud Functions are intentionally not used; if one is added later it needs the Blaze plan.

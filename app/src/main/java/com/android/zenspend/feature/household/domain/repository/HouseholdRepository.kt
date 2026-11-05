@@ -17,5 +17,6 @@ interface HouseholdRepository {
     suspend fun leaveHousehold(householdId: String, userId: String): Resource<Unit>
     suspend fun removeMember(householdId: String, memberUserId: String, ownerUserId: String): Resource<Unit>
     suspend fun renameHousehold(householdId: String, name: String): Resource<Unit>
+    suspend fun refreshActiveHousehold(householdId: String)
     suspend fun clearLocalHouseholdCache()
 }

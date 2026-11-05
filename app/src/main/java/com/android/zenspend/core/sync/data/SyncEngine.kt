@@ -13,6 +13,7 @@ import com.android.zenspend.core.sync.domain.SyncStatusManager
 import com.android.zenspend.core.sync.domain.model.SyncStatus
 import com.android.zenspend.core.sync.domain.repository.SyncRepository
 import com.android.zenspend.core.sync.worker.SyncWorker
+import com.android.zenspend.feature.household.domain.repository.HouseholdRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -25,6 +26,7 @@ class SyncEngine @Inject constructor(
     private val authRepository: AuthRepository,
     private val scopeManager: HouseholdScopeManager,
     private val syncStatusManager: SyncStatusManager,
+    private val householdRepository: HouseholdRepository,
     @ApplicationContext private val context: Context
 ) : SyncScheduler {
 
@@ -40,6 +42,12 @@ class SyncEngine @Inject constructor(
             }
             syncStatusManager.setStatus(SyncStatus.SYNCING)
             try {
+                householdRepository.refreshActiveHousehold(householdId)
+                // Removed from the household? Then there is nothing to sync any more.
+                if (scopeManager.activeHouseholdId.value == null) {
+                    syncStatusManager.setStatus(SyncStatus.OFFLINE)
+                    return
+                }
                 syncRepository.uploadPendingChanges(householdId, user.userId)
                 syncRepository.downloadIncrementalChanges(householdId)
                 syncStatusManager.setStatus(SyncStatus.SYNCED)
