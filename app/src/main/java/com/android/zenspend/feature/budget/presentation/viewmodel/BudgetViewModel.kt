@@ -36,8 +36,7 @@ class BudgetViewModel @Inject constructor(
     fun handleEvent(event: BudgetUiEvent) {
         when (event) {
             is BudgetUiEvent.LoadBudgets -> observeBudgets()
-            is BudgetUiEvent.NextMonth -> changeMonth(1)
-            is BudgetUiEvent.PreviousMonth -> changeMonth(-1)
+            is BudgetUiEvent.SelectMonth -> selectMonth(event.month)
             is BudgetUiEvent.OnAmountChange -> _uiState.update { it.copy(amountText = event.amount) }
             is BudgetUiEvent.OnCategoryChange -> _uiState.update { it.copy(selectedCategoryId = event.categoryId) }
             is BudgetUiEvent.SaveBudget -> saveBudget()
@@ -70,12 +69,8 @@ class BudgetViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    private fun changeMonth(delta: Int) {
-        _uiState.update { state ->
-            val newCalendar = state.selectedMonth.clone() as Calendar
-            newCalendar.add(Calendar.MONTH, delta)
-            state.copy(selectedMonth = newCalendar)
-        }
+    private fun selectMonth(month: java.util.Calendar) {
+        _uiState.update { it.copy(selectedMonth = month.clone() as java.util.Calendar) }
         observeBudgets()
     }
 

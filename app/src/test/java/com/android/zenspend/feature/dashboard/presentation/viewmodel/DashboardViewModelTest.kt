@@ -44,12 +44,13 @@ class DashboardViewModelTest {
     }
 
     @Test
-    fun `next month event should increment selected month`() = runTest {
-        val initialMonth = viewModel.uiState.value.selectedMonth.get(Calendar.MONTH)
-        
-        viewModel.handleEvent(DashboardUiEvent.NextMonth)
-        
-        val newMonth = viewModel.uiState.value.selectedMonth.get(Calendar.MONTH)
-        assertEquals((initialMonth + 1) % 12, newMonth)
+    fun `select month event should change selected month`() = runTest {
+        val target = Calendar.getInstance().apply { add(Calendar.MONTH, -3) }
+
+        viewModel.handleEvent(DashboardUiEvent.SelectMonth(target))
+
+        val selected = viewModel.uiState.value.selectedMonth
+        assertEquals(target.get(Calendar.MONTH), selected.get(Calendar.MONTH))
+        assertEquals(target.get(Calendar.YEAR), selected.get(Calendar.YEAR))
     }
 }

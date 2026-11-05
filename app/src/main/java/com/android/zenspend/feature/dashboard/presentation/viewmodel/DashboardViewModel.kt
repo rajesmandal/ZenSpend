@@ -33,8 +33,7 @@ class DashboardViewModel @Inject constructor(
     fun handleEvent(event: DashboardUiEvent) {
         when (event) {
             is DashboardUiEvent.LoadSummary -> observeSummary()
-            is DashboardUiEvent.NextMonth -> changeMonth(1)
-            is DashboardUiEvent.PreviousMonth -> changeMonth(-1)
+            is DashboardUiEvent.SelectMonth -> selectMonth(event.month)
             is DashboardUiEvent.Refresh -> observeSummary()
         }
     }
@@ -56,12 +55,8 @@ class DashboardViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    private fun changeMonth(delta: Int) {
-        _uiState.update { state ->
-            val newCalendar = state.selectedMonth.clone() as Calendar
-            newCalendar.add(Calendar.MONTH, delta)
-            state.copy(selectedMonth = newCalendar)
-        }
+    private fun selectMonth(month: java.util.Calendar) {
+        _uiState.update { it.copy(selectedMonth = month.clone() as java.util.Calendar) }
         observeSummary()
     }
 

@@ -40,8 +40,10 @@
     <string name="dashboard_spent">Spent</string>
     <string name="dashboard_budget_per_day">₹%1$s per day left</string>
     <string name="dashboard_liabilities_line">Liabilities ₹%1$s</string>
+    <string name="month_this_month">This month</string>
+    <string name="action_pick_month">Pick month</string>
     <string name="dashboard_balance">Balance</string>
-    <string name="dashboard_balance_hint">Income − Spent this month</string>
+    <string name="dashboard_balance_hint">Income − Spent</string>
     <string name="dashboard_budget_on_track">On track</string>
     <string name="dashboard_budget_ahead">Spending ahead of pace</string>
     <string name="dashboard_chip_ai">Zen AI</string>

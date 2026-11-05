@@ -18,8 +18,7 @@ data class BudgetUiState(
 
 sealed interface BudgetUiEvent {
     object LoadBudgets : BudgetUiEvent
-    object NextMonth : BudgetUiEvent
-    object PreviousMonth : BudgetUiEvent
+    data class SelectMonth(val month: java.util.Calendar) : BudgetUiEvent
     
     // Form events
     data class OnAmountChange(val amount: String) : BudgetUiEvent

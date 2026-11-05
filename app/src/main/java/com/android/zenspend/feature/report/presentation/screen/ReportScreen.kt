@@ -87,8 +87,7 @@ fun ReportScreen(
                     item {
                         MonthSelector(
                             selectedMonth = state.selectedMonth,
-                            onPrevious = { viewModel.handleEvent(ReportUiEvent.PreviousMonth) },
-                            onNext = { viewModel.handleEvent(ReportUiEvent.NextMonth) }
+                            onMonthSelected = { viewModel.handleEvent(ReportUiEvent.SelectMonth(it)) }
                         )
                     }
 

@@ -97,8 +97,7 @@ fun BudgetListScreen(
                 item {
                     MonthSelector(
                         selectedMonth = state.selectedMonth,
-                        onPrevious = { viewModel.handleEvent(BudgetUiEvent.PreviousMonth) },
-                        onNext = { viewModel.handleEvent(BudgetUiEvent.NextMonth) }
+                        onMonthSelected = { viewModel.handleEvent(BudgetUiEvent.SelectMonth(it)) }
                     )
                 }
 

@@ -23,7 +23,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -178,8 +184,7 @@ fun DashboardContent(
                 item {
                     MonthSelector(
                         selectedMonth = state.selectedMonth,
-                        onPrevious = { onEvent(DashboardUiEvent.PreviousMonth) },
-                        onNext = { onEvent(DashboardUiEvent.NextMonth) }
+                        onMonthSelected = { onEvent(DashboardUiEvent.SelectMonth(it)) }
                     )
                 }
 
@@ -289,31 +294,67 @@ private fun HeaderIconButton(
     }
 }
 
-/** ‹  November 2026  › — shared by Dashboard, Budgets and Insights. */
+/**
+ * "November 2026 ▾" — one tap opens the last few months, so nobody has to step back month by month.
+ * Future months are not offered. A "This month" pill appears when looking at an older month.
+ */
 @Composable
 fun MonthSelector(
     selectedMonth: Calendar,
-    onPrevious: () -> Unit,
-    onNext: () -> Unit,
+    onMonthSelected: (Calendar) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val label = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(selectedMonth.time)
+    val format = remember { SimpleDateFormat("MMMM yyyy", Locale.getDefault()) }
+    val now = remember { Calendar.getInstance() }
+    val isCurrent = selectedMonth.get(Calendar.YEAR) == now.get(Calendar.YEAR) &&
+        selectedMonth.get(Calendar.MONTH) == now.get(Calendar.MONTH)
+    var expanded by remember { mutableStateOf(false) }
+
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onPrevious) {
-            Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                contentDescription = stringResource(R.string.action_previous_month)
-            )
+        Box {
+            Row(
+                modifier = Modifier
+                    .clip(PillShape)
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                    .border(Dimensions.Hairline, MaterialTheme.colorScheme.outlineVariant, PillShape)
+                    .clickable(role = Role.Button) { expanded = true }
+                    .padding(horizontal = Dimensions.SpacingLarge, vertical = Dimensions.SpacingMedium),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
+            ) {
+                Text(format.format(selectedMonth.time), style = MaterialTheme.typography.titleSmall)
+                Icon(
+                    Icons.Default.ArrowDropDown,
+                    contentDescription = stringResource(R.string.action_pick_month),
+                    modifier = Modifier.size(Dimensions.IconSizeSmall)
+                )
+            }
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                for (back in 0 until Dimensions.MonthPickerCount) {
+                    val month = (now.clone() as Calendar).apply { add(Calendar.MONTH, -back) }
+                    DropdownMenuItem(
+                        text = { Text(format.format(month.time)) },
+                        onClick = {
+                            expanded = false
+                            onMonthSelected(month)
+                        }
+                    )
+                }
+            }
         }
-        Text(text = label, style = MaterialTheme.typography.titleMedium)
-        IconButton(onClick = onNext) {
-            Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = stringResource(R.string.action_next_month)
+        if (!isCurrent) {
+            Text(
+                text = stringResource(R.string.month_this_month),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .clip(PillShape)
+                    .clickable(role = Role.Button) { onMonthSelected(Calendar.getInstance()) }
+                    .padding(horizontal = Dimensions.SpacingMedium, vertical = Dimensions.SpacingSmall)
             )
         }
     }

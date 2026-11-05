@@ -19,8 +19,7 @@ data class ReportUiState(
 
 sealed interface ReportUiEvent {
     object LoadReports : ReportUiEvent
-    object NextMonth : ReportUiEvent
-    object PreviousMonth : ReportUiEvent
+    data class SelectMonth(val month: java.util.Calendar) : ReportUiEvent
     object Refresh : ReportUiEvent
 }
 

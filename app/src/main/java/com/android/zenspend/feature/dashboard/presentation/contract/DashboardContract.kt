@@ -12,8 +12,7 @@ data class DashboardUiState(
 
 sealed interface DashboardUiEvent {
     object LoadSummary : DashboardUiEvent
-    object NextMonth : DashboardUiEvent
-    object PreviousMonth : DashboardUiEvent
+    data class SelectMonth(val month: java.util.Calendar) : DashboardUiEvent
     object Refresh : DashboardUiEvent
 }
 

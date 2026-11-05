@@ -38,8 +38,7 @@ class ReportViewModel @Inject constructor(
     fun handleEvent(event: ReportUiEvent) {
         when (event) {
             is ReportUiEvent.LoadReports -> observeReports()
-            is ReportUiEvent.NextMonth -> changeMonth(1)
-            is ReportUiEvent.PreviousMonth -> changeMonth(-1)
+            is ReportUiEvent.SelectMonth -> selectMonth(event.month)
             is ReportUiEvent.Refresh -> observeReports()
         }
     }
@@ -86,12 +85,8 @@ class ReportViewModel @Inject constructor(
         .launchIn(viewModelScope)
     }
 
-    private fun changeMonth(delta: Int) {
-        _uiState.update { state ->
-            val newCalendar = state.selectedMonth.clone() as Calendar
-            newCalendar.add(Calendar.MONTH, delta)
-            state.copy(selectedMonth = newCalendar)
-        }
+    private fun selectMonth(month: java.util.Calendar) {
+        _uiState.update { it.copy(selectedMonth = month.clone() as java.util.Calendar) }
         observeReports()
     }
 

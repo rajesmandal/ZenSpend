@@ -68,6 +68,6 @@ fun EmptyDashboardPreview() {
 @Composable
 fun MonthSelectorPreview() {
     ZenSpendTheme {
-        MonthSelector(selectedMonth = Calendar.getInstance(), onPrevious = {}, onNext = {})
+        MonthSelector(selectedMonth = Calendar.getInstance(), onMonthSelected = {})
     }
 }
