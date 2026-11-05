@@ -51,6 +51,8 @@ object Dimensions {
     /** Home screen keeps lists short. */
     const val HomeRecentCount = 5
     const val HomeUpcomingCount = 3
+    /** How far ahead of the calendar a budget may run before the home card warns. */
+    const val BudgetPaceTolerance = 0.05f
     const val HomeUpcomingDays = 7L
 
     val MinTouchTarget = 48.dp

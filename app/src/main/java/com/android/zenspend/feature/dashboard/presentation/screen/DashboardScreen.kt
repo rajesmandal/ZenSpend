@@ -185,10 +185,8 @@ fun DashboardContent(
 
                 // ---- Bento grid -------------------------------------------------
                 item {
-                    NetWorthTile(
-                        total = formatWholeRupees(summary.netWorth.total),
-                        liabilities = summary.netWorth.liabilities.takeIf { it > 0 }
-                            ?.let { formatWholeRupees(it) },
+                    BalanceTile(
+                        balance = formatWholeRupees(summary.monthlySummary.savings),
                         income = formatWholeRupees(summary.monthlySummary.income),
                         spent = formatWholeRupees(summary.monthlySummary.expense)
                     )
@@ -336,17 +334,15 @@ private fun BentoRow(content: @Composable androidx.compose.foundation.layout.Row
 }
 
 /**
- * Net worth card, kept minimal: the total, then assets / liabilities. This month's income and
+ * Balance card, kept minimal: this month's income minus spent. This month's income and
  * spent sit in two capsules whose centre line is the card's bottom edge (half in, half out).
  */
 @Composable
-private fun NetWorthTile(
-    total: String,
-    liabilities: String?,
+private fun BalanceTile(
+    balance: String,
     income: String,
     spent: String
 ) {
-    val coral = ZenSpendTheme.colors.tone(ZenTone.Coral).container
     val overhang = Dimensions.FlowCapsuleHeight / 2
 
     Box(modifier = Modifier
@@ -357,19 +353,16 @@ private fun NetWorthTile(
             tone = ZenTone.Ink,
             contentPadding = PaddingValues(Dimensions.SpacingXLarge)
         ) {
-            ZenTileCaption(stringResource(R.string.dashboard_net_worth))
+            ZenTileCaption(stringResource(R.string.dashboard_balance))
             ZenTileValue(
-                text = stringResource(R.string.amount_rupees, total),
+                text = stringResource(R.string.amount_rupees, balance),
                 style = AmountHero
             )
-            if (liabilities != null) {
-                Spacer(Modifier.height(Dimensions.SpacingSmall))
-                Text(
-                    text = stringResource(R.string.dashboard_liabilities_line, liabilities),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = coral
-                )
-            }
+            Text(
+                text = stringResource(R.string.dashboard_balance_hint),
+                style = MaterialTheme.typography.labelMedium,
+                color = ZenSpendTheme.colors.tone(ZenTone.Ink).contentMuted
+            )
             // Room for the top half of the capsules that straddle the bottom edge.
             Spacer(Modifier.height(overhang + Dimensions.SpacingSmall))
         }
@@ -478,6 +471,21 @@ private fun BudgetCard(budget: BudgetProgress?, daysLeft: Int?, onClick: () -> U
                 progress = budget.progress,
                 fillColor = if (over) ZenSpendTheme.colors.expense else androidx.compose.ui.graphics.Color.Unspecified
             )
+            if (!over && daysLeft != null) {
+                val daysInMonth = Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH)
+                val elapsed = (daysInMonth - daysLeft + 1).toFloat() / daysInMonth
+                Spacer(Modifier.height(Dimensions.SpacingSmall))
+                Text(
+                    text = stringResource(
+                        if (budget.progress > elapsed + Dimensions.BudgetPaceTolerance) {
+                            R.string.dashboard_budget_ahead
+                        } else {
+                            R.string.dashboard_budget_on_track
+                        }
+                    ),
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
         }
     }
 }
