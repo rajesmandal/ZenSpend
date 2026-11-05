@@ -6,7 +6,9 @@ import com.android.zenspend.core.auth.domain.model.AuthState
 import com.android.zenspend.core.auth.domain.usecase.GetCurrentUserUseCase
 import com.android.zenspend.core.auth.domain.usecase.ObserveAuthStateUseCase
 import com.android.zenspend.core.common.result.Resource
+import com.android.zenspend.core.auth.domain.usecase.SignOutUseCase
 import com.android.zenspend.core.household.HouseholdScopeManager
+import com.android.zenspend.core.household.InviteLinkHolder
 import com.android.zenspend.core.sync.domain.SyncScheduler
 import com.android.zenspend.feature.household.domain.model.Household
 import com.android.zenspend.feature.household.domain.model.HouseholdMember
@@ -40,6 +42,8 @@ class HouseholdViewModel @Inject constructor(
     private val householdRepository: HouseholdRepository,
     private val scopeManager: HouseholdScopeManager,
     private val syncScheduler: SyncScheduler,
+    private val signOutUseCase: SignOutUseCase,
+    private val inviteLinkHolder: InviteLinkHolder,
     val entitlementManager: com.android.zenspend.core.monetization.domain.EntitlementManager
 ) : ViewModel() {
 
@@ -47,6 +51,12 @@ class HouseholdViewModel @Inject constructor(
     val uiState: StateFlow<HouseholdUiState> = _uiState.asStateFlow()
 
     init {
+        viewModelScope.launch {
+            inviteLinkHolder.token.filterNotNull().collect { token ->
+                _uiState.value = _uiState.value.copy(inviteToken = token)
+                inviteLinkHolder.consume()
+            }
+        }
         viewModelScope.launch {
             observeAuthStateUseCase().collect { auth ->
                 _uiState.value = _uiState.value.copy(authState = auth)
@@ -143,6 +153,14 @@ class HouseholdViewModel @Inject constructor(
             val household = _uiState.value.household ?: return@launch
             householdRepository.leaveHousehold(household.id, user.userId)
             scopeManager.setActiveHouseholdId(null)
+        }
+    }
+
+    fun signOut() {
+        viewModelScope.launch {
+            householdRepository.clearLocalHouseholdCache()
+            scopeManager.setActiveHouseholdId(null)
+            signOutUseCase()
         }
     }
 

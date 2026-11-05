@@ -14,10 +14,16 @@ class JoinHouseholdUseCase @Inject constructor(
         if (token.isBlank()) {
             return Resource.Error(com.android.zenspend.core.common.error.AppError.ValidationError.GenericError("Invalid invitation token"))
         }
-        val result = householdRepository.joinHouseholdWithToken(token.trim())
+        val result = householdRepository.joinHouseholdWithToken(extractInviteToken(token))
         if (result is Resource.Success) {
             syncRepository.performInitialSync(result.data.id) {}
         }
         return result
     }
 }
+
+private val TOKEN_IN_LINK = Regex("token=([A-Za-z0-9_-]+)")
+
+/** Accepts a bare token, a `zenspend://join?token=...` link, or the whole shared message. */
+fun extractInviteToken(raw: String): String =
+    TOKEN_IN_LINK.find(raw)?.groupValues?.get(1) ?: raw.trim()

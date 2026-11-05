@@ -113,6 +113,13 @@ fun SharedCashbookScreen(
                     )
                 }
             }
+            item {
+                ZenSecondaryButton(
+                    text = stringResource(R.string.cashbook_sign_out),
+                    onClick = viewModel::signOut,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             item { Spacer(modifier = Modifier.height(Dimensions.SpacingLarge)) }
         }
     }

@@ -33,6 +33,9 @@ android {
         val googleWebClientId = localProps.getProperty("GOOGLE_WEB_CLIENT_ID", "")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
         buildConfigField("boolean", "USE_FIREBASE_EMULATORS", "false")
+        // Master switch for the Premium paywall. false = every feature is open (testing phase).
+        // Flip to true when the Play Billing products are ready and testing is done.
+        buildConfigField("boolean", "PREMIUM_GATES_ENABLED", "false")
     }
 
     buildTypes {
