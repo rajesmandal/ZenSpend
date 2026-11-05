@@ -325,6 +325,10 @@
     <string name="cashbook_invite_subject">Invite to ZenSpend</string>
     <string name="cashbook_invite_text">Join my ZenSpend shared cashbook:\nzenspend://join?token=%1$s</string>
     <string name="cashbook_owner_cannot_leave">Owner cannot leave until ownership is transferred.</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
     <string name="cashbook_sign_out">Sign out</string>
     <string name="cashbook_leave">Leave household</string>
 

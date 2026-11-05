@@ -15,7 +15,10 @@ import com.android.zenspend.core.ui.designsystem.component.ZenSettingsRow
 import com.android.zenspend.core.ui.designsystem.component.ZenTopAppBar
 import com.android.zenspend.core.ui.theme.Dimensions
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.android.zenspend.core.datastore.ThemeMode
+import com.android.zenspend.core.ui.designsystem.component.ZenSegmentedControl
 import com.android.zenspend.feature.settings.presentation.viewmodel.SettingsViewModel
+import com.android.zenspend.feature.settings.presentation.viewmodel.ThemeViewModel
 
 @Composable
 fun SettingsScreen(
@@ -31,6 +34,9 @@ fun SettingsScreen(
     val state by viewModel.uiState.collectAsState()
     val premiumViewModel: com.android.zenspend.feature.premium.presentation.viewmodel.PremiumViewModel = hiltViewModel()
     val isPremium by premiumViewModel.state.collectAsState()
+
+    val themeViewModel: ThemeViewModel = hiltViewModel()
+    val themeMode by themeViewModel.themeMode.collectAsState()
 
     var showSmsDisclosure by remember { mutableStateOf(false) }
 
@@ -68,6 +74,17 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
+            item { SettingsSectionHeader(stringResource(R.string.settings_appearance)) }
+            item {
+                val modes = ThemeMode.entries
+                ZenSegmentedControl(
+                    options = modes.map { stringResource(it.labelRes()) },
+                    selectedIndex = modes.indexOf(themeMode),
+                    onSelected = { themeViewModel.setThemeMode(modes[it]) },
+                    modifier = Modifier.padding(horizontal = Dimensions.ScreenPadding)
+                )
+            }
+            item { Spacer(modifier = Modifier.height(Dimensions.SpacingSmall)) }
             item { SettingsSectionHeader("Cloud") }
             item {
                 ZenSettingsRow(
@@ -166,6 +183,12 @@ fun SettingsScreen(
             }
         }
     }
+}
+
+private fun ThemeMode.labelRes(): Int = when (this) {
+    ThemeMode.SYSTEM -> R.string.theme_system
+    ThemeMode.LIGHT -> R.string.theme_light
+    ThemeMode.DARK -> R.string.theme_dark
 }
 
 @Composable
