@@ -183,25 +183,9 @@ fun DashboardContent(
                         total = formatMinorUnits(summary.netWorth.total),
                         assets = formatMinorUnits(summary.netWorth.assets),
                         liabilities = formatMinorUnits(summary.netWorth.liabilities),
-                        navigation = navigation
+                        income = formatMinorUnits(summary.monthlySummary.income),
+                        spent = formatMinorUnits(summary.monthlySummary.expense)
                     )
-                }
-
-                item {
-                    BentoRow {
-                        FlowTile(
-                            tone = ZenTone.Lime,
-                            caption = stringResource(R.string.dashboard_income),
-                            amount = formatMinorUnits(summary.monthlySummary.income),
-                            onClick = navigation.onReports
-                        )
-                        FlowTile(
-                            tone = ZenTone.Coral,
-                            caption = stringResource(R.string.dashboard_spent),
-                            amount = formatMinorUnits(summary.monthlySummary.expense),
-                            onClick = navigation.onReports
-                        )
-                    }
                 }
 
                 item {
@@ -402,7 +386,8 @@ private fun NetWorthTile(
     total: String,
     assets: String,
     liabilities: String,
-    navigation: DashboardNavigation
+    income: String,
+    spent: String
 ) {
     val lime = ZenSpendTheme.colors.tone(ZenTone.Lime).container
     val coral = ZenSpendTheme.colors.tone(ZenTone.Coral).container
@@ -437,50 +422,26 @@ private fun NetWorthTile(
                 )
             }
         }
-        Spacer(Modifier.height(Dimensions.SpacingXLarge - 8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)) {
-            HeroAction(
-                label = stringResource(R.string.action_add),
-                highlighted = true,
-                onClick = navigation.onAddTransaction,
-                modifier = Modifier.weight(1f)
-            )
-            HeroAction(
-                label = stringResource(R.string.dashboard_quick_wallets),
-                onClick = navigation.onWallets,
-                modifier = Modifier.weight(1f)
-            )
-            HeroAction(
-                label = stringResource(R.string.dashboard_quick_cards),
-                onClick = navigation.onCreditCards,
-                modifier = Modifier.weight(1f)
-            )
+        Spacer(Modifier.height(Dimensions.SpacingLarge))
+        // This month's flow sits on the bottom line of the card.
+        Row(horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingXLarge)) {
+            Column {
+                ZenTileCaption(stringResource(R.string.dashboard_income))
+                ZenTileValue(
+                    text = stringResource(R.string.amount_rupees, income),
+                    style = AmountMedium,
+                    color = lime
+                )
+            }
+            Column {
+                ZenTileCaption(stringResource(R.string.dashboard_spent))
+                ZenTileValue(
+                    text = stringResource(R.string.amount_rupees, spent),
+                    style = AmountMedium,
+                    color = coral
+                )
+            }
         }
-    }
-}
-
-@Composable
-private fun HeroAction(
-    label: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    highlighted: Boolean = false
-) {
-    val lime = ZenSpendTheme.colors.tone(ZenTone.Lime)
-    val ink = ZenSpendTheme.colors.tone(ZenTone.Ink)
-    Box(
-        modifier = modifier
-            .clip(PillShape)
-            .background(if (highlighted) lime.container else ink.overlay)
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(vertical = Dimensions.SpacingMedium),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = if (highlighted) lime.content else ink.content
-        )
     }
 }
 
