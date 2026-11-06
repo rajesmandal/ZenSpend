@@ -16,10 +16,12 @@ import javax.inject.Inject
 @HiltViewModel
 class RecurringViewModel @Inject constructor(
     private val observeRecurringTransactionsUseCase: ObserveRecurringTransactionsUseCase,
+    private val observeArchivedRecurringTransactionsUseCase: ObserveArchivedRecurringTransactionsUseCase,
     private val addRecurringTransactionUseCase: AddRecurringTransactionUseCase,
     private val updateRecurringTransactionUseCase: UpdateRecurringTransactionUseCase,
     private val setRecurringStatusUseCase: SetRecurringStatusUseCase,
     private val archiveRecurringTransactionUseCase: ArchiveRecurringTransactionUseCase,
+    private val restoreRecurringTransactionUseCase: RestoreRecurringTransactionUseCase,
     private val confirmRecurringOccurrenceUseCase: ConfirmRecurringOccurrenceUseCase
 ) : ViewModel() {
 
@@ -31,6 +33,7 @@ class RecurringViewModel @Inject constructor(
 
     init {
         handleEvent(RecurringUiEvent.LoadRecurring)
+        observeArchived()
     }
 
     fun handleEvent(event: RecurringUiEvent) {
@@ -38,6 +41,7 @@ class RecurringViewModel @Inject constructor(
             is RecurringUiEvent.LoadRecurring -> observeRecurring()
             is RecurringUiEvent.ToggleActive -> toggleStatus(event.id, event.current)
             is RecurringUiEvent.Archive -> viewModelScope.launch { archiveRecurringTransactionUseCase(event.id) }
+            is RecurringUiEvent.Restore -> restore(event.id)
             is RecurringUiEvent.ConfirmOccurrence -> confirmOccurrence(event.id, event.date)
             
             is RecurringUiEvent.OnNameChange -> _uiState.update { it.copy(formState = it.formState.copy(name = event.name)) }
@@ -59,6 +63,24 @@ class RecurringViewModel @Inject constructor(
             .onEach { list -> _uiState.update { it.copy(isLoading = false, recurringTransactions = list) } }
             .catch { error -> _uiState.update { it.copy(isLoading = false, error = error.message) } }
             .launchIn(viewModelScope)
+    }
+
+    private fun observeArchived() {
+        observeArchivedRecurringTransactionsUseCase()
+            .onEach { list -> _uiState.update { it.copy(archivedTransactions = list) } }
+            .catch { error -> _uiState.update { it.copy(error = error.message) } }
+            .launchIn(viewModelScope)
+    }
+
+    private fun restore(id: Long) {
+        viewModelScope.launch {
+            try {
+                restoreRecurringTransactionUseCase(id)
+                _uiEffect.send(RecurringUiEffect.ShowSnackbar("Rule restored (paused)"))
+            } catch (e: Exception) {
+                _uiEffect.send(RecurringUiEffect.ShowSnackbar("Failed to restore rule"))
+            }
+        }
     }
 
     private fun toggleStatus(id: Long, current: Boolean) {

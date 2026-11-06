@@ -244,6 +244,8 @@
     <string name="recurring_empty_body">Automate rent, salary and subscriptions.</string>
     <string name="recurring_active">Active</string>
     <string name="recurring_paused">Paused</string>
+    <string name="recurring_archived">Archived</string>
+    <string name="recurring_restore">Restore</string>
     <string name="recurring_type_next">%1$s • Next: %2$s</string>
     <string name="recurring_confirm_now">Confirm now</string>
     <string name="recurring_details_title">Rule details</string>

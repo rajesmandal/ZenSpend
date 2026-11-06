@@ -37,6 +37,16 @@ class RecurringTransactionRepositoryImpl @Inject constructor(
         dao.updateRecurringTransaction(recurring.toEntity())
     }
 
+    override fun getArchivedRecurringTransactions(): Flow<List<RecurringTransaction>> {
+        return dao.getArchivedRecurringTransactions().map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
+    override suspend fun restoreRecurringTransaction(id: Long) {
+        dao.restoreRecurringTransaction(id, System.currentTimeMillis())
+    }
+
     override suspend fun archiveRecurringTransaction(id: Long) {
         dao.archiveRecurringTransaction(id, System.currentTimeMillis())
     }

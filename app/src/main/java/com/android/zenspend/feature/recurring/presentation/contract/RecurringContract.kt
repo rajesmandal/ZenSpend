@@ -7,6 +7,7 @@ import com.android.zenspend.feature.recurring.domain.model.RecurringTransaction
 data class RecurringUiState(
     val isLoading: Boolean = false,
     val recurringTransactions: List<RecurringTransaction> = emptyList(),
+    val archivedTransactions: List<RecurringTransaction> = emptyList(),
     val error: String? = null,
     val formState: RecurringFormState = RecurringFormState()
 )
@@ -32,6 +33,7 @@ sealed interface RecurringUiEvent {
     object LoadRecurring : RecurringUiEvent
     data class ToggleActive(val id: Long, val current: Boolean) : RecurringUiEvent
     data class Archive(val id: Long) : RecurringUiEvent
+    data class Restore(val id: Long) : RecurringUiEvent
     data class ConfirmOccurrence(val id: Long, val date: Long) : RecurringUiEvent
     
     // Form events

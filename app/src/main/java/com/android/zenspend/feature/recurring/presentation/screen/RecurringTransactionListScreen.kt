@@ -16,6 +16,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -72,7 +73,7 @@ fun RecurringTransactionListScreen(
     ) { padding ->
         when {
             state.isLoading -> LoadingState(modifier = Modifier.padding(padding))
-            state.recurringTransactions.isEmpty() -> EmptyState(
+            state.recurringTransactions.isEmpty() && state.archivedTransactions.isEmpty() -> EmptyState(
                 title = stringResource(R.string.recurring_empty_title),
                 message = stringResource(R.string.recurring_empty_body),
                 action = { ZenPrimaryButton(text = stringResource(R.string.recurring_add), onClick = onNavigateToAdd) },
@@ -111,8 +112,38 @@ fun RecurringTransactionListScreen(
                             RecurringRuleCard(rule = rule, onConfirm = {}, onClick = { onNavigateToDetails(rule.id) })
                         }
                     }
+                    if (state.archivedTransactions.isNotEmpty()) {
+                        item { ZenSectionHeader(title = stringResource(R.string.recurring_archived)) }
+                        items(state.archivedTransactions, key = { "archived-${it.id}" }) { rule ->
+                            ArchivedRuleCard(
+                                rule = rule,
+                                onRestore = { viewModel.handleEvent(RecurringUiEvent.Restore(rule.id)) }
+                            )
+                        }
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun ArchivedRuleCard(
+    rule: RecurringTransaction,
+    onRestore: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ZenTile(modifier = modifier.fillMaxWidth(), tone = ZenTone.Surface) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(rule.name, style = MaterialTheme.typography.titleMedium)
+                ZenTileCaption(rule.recurrenceType.name)
+            }
+            TextButton(onClick = onRestore) { Text(stringResource(R.string.recurring_restore)) }
         }
     }
 }

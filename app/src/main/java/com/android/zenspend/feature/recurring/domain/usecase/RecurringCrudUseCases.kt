@@ -50,6 +50,21 @@ class ArchiveRecurringTransactionUseCase @Inject constructor(
     }
 }
 
+class RestoreRecurringTransactionUseCase @Inject constructor(
+    private val repository: RecurringTransactionRepository
+) {
+    suspend operator fun invoke(id: Long) {
+        repository.restoreRecurringTransaction(id)
+    }
+}
+
+class ObserveArchivedRecurringTransactionsUseCase @Inject constructor(
+    private val repository: RecurringTransactionRepository
+) {
+    operator fun invoke(): kotlinx.coroutines.flow.Flow<List<com.android.zenspend.feature.recurring.domain.model.RecurringTransaction>> =
+        repository.getArchivedRecurringTransactions()
+}
+
 class SetRecurringStatusUseCase @Inject constructor(
     private val repository: RecurringTransactionRepository
 ) {

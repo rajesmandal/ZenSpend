@@ -9,6 +9,8 @@ interface RecurringTransactionRepository {
     suspend fun getRecurringTransactionById(id: Long): RecurringTransaction?
     suspend fun insertRecurringTransaction(recurring: RecurringTransaction): Long
     suspend fun updateRecurringTransaction(recurring: RecurringTransaction)
+    fun getArchivedRecurringTransactions(): Flow<List<RecurringTransaction>>
     suspend fun archiveRecurringTransaction(id: Long)
+    suspend fun restoreRecurringTransaction(id: Long)
     suspend fun setRecurringTransactionStatus(id: Long, isActive: Boolean)
 }

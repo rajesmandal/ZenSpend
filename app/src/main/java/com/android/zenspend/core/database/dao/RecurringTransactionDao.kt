@@ -12,6 +12,9 @@ interface RecurringTransactionDao {
     @Query("SELECT * FROM recurring_transactions WHERE isDeleted = 0 ORDER BY createdAt DESC")
     fun getAllRecurringTransactions(): Flow<List<RecurringTransactionEntity>>
 
+    @Query("SELECT * FROM recurring_transactions WHERE isDeleted = 1 ORDER BY updatedAt DESC")
+    fun getArchivedRecurringTransactions(): Flow<List<RecurringTransactionEntity>>
+
     @Query("SELECT * FROM recurring_transactions WHERE id = :id")
     suspend fun getRecurringTransactionById(id: Long): RecurringTransactionEntity?
 
@@ -23,6 +26,10 @@ interface RecurringTransactionDao {
 
     @Query("UPDATE recurring_transactions SET isDeleted = 1, isActive = 0, updatedAt = :updatedAt WHERE id = :id")
     suspend fun archiveRecurringTransaction(id: Long, updatedAt: Long)
+
+    /** Only touches archived rows, and brings them back paused so nothing fires unexpectedly. */
+    @Query("UPDATE recurring_transactions SET isDeleted = 0, isActive = 0, updatedAt = :updatedAt WHERE id = :id AND isDeleted = 1")
+    suspend fun restoreRecurringTransaction(id: Long, updatedAt: Long)
 
     @Query("UPDATE recurring_transactions SET isActive = :isActive WHERE id = :id")
     suspend fun setRecurringTransactionStatus(id: Long, isActive: Boolean)
