@@ -1,5 +1,6 @@
 package com.android.zenspend.feature.sms.data.repository
 
+import com.android.zenspend.core.database.model.TransactionType
 import com.android.zenspend.feature.sms.data.dao.SmsDraftDao
 import com.android.zenspend.feature.sms.data.entity.SmsDraftStatus
 import com.android.zenspend.feature.sms.data.mapper.toDomain
@@ -31,4 +32,12 @@ class SmsDraftRepositoryImpl @Inject constructor(
     override suspend fun getDraftByFingerprint(fingerprint: String): SmsTransactionDraft? {
         return smsDraftDao.getDraftByFingerprint(fingerprint)?.toDomain()
     }
+
+    override suspend fun hasSimilarDraft(
+        sender: String,
+        amount: Long,
+        type: TransactionType,
+        from: Long,
+        to: Long
+    ): Boolean = smsDraftDao.countSimilarDrafts(sender, amount, type, from, to) > 0
 }

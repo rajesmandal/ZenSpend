@@ -10,11 +10,27 @@ class SmsParserUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(message: String, sender: String, timestamp: Long) {
         val draft = SmsParser.parse(message, sender, timestamp) ?: return
-        
-        // Deduplication check
-        if (repository.getDraftByFingerprint(draft.fingerprint) == null) {
-            repository.insertDraft(draft)
+
+        // Same SMS can arrive twice with different timestamps (live receiver uses the SMSC send
+        // time, inbox import uses the device receive time), so the exact fingerprint is not enough.
+        if (repository.getDraftByFingerprint(draft.fingerprint) != null) return
+        if (repository.hasSimilarDraft(
+                sender = draft.sender,
+                amount = draft.amount,
+                type = draft.type,
+                from = timestamp - DUPLICATE_WINDOW_MS,
+                to = timestamp + DUPLICATE_WINDOW_MS
+            )
+        ) return
+
+        // The unique index ignores a racing second insert (-1): do not notify for it.
+        if (repository.insertDraft(draft) > 0) {
             notificationHelper.showSmsDetectedNotification(draft.merchant, draft.amount)
         }
+    }
+
+    private companion object {
+        /** Delivery lag between SMSC time and device time stays well inside this. */
+        const val DUPLICATE_WINDOW_MS = 10 * 60 * 1000L
     }
 }
