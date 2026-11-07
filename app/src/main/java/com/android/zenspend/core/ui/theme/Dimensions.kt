@@ -64,5 +64,8 @@ object Dimensions {
     val DockItemSize = 48.dp
     val DockPadding = 8.dp
     val DockBottomMargin = 12.dp
+
+    /** Opacity of the dock pill (1f = solid). Lower it for more see-through. */
+    const val DockAlpha = 0.88f
     val DockElevation = 16.dp
 }

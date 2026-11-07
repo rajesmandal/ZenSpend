@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -95,7 +96,8 @@ fun ZenNavigationBar(
                 spotColor = dock.container.copy(alpha = 0.4f)
             ),
             shape = PillShape,
-            color = dock.container
+            // Slightly see-through so the list scrolling behind the dock stays faintly visible.
+            color = dock.container.copy(alpha = Dimensions.DockAlpha)
         ) {
             Row(
                 modifier = Modifier.padding(Dimensions.DockPadding),
@@ -128,7 +130,7 @@ private fun ZenDockItem(
     val label = stringResource(item.labelRes)
 
     val background by animateColorAsState(
-        targetValue = if (selected) active.container else dock.container,
+        targetValue = if (selected) active.container else Color.Transparent,
         animationSpec = tween(durationMillis = 220),
         label = "dockItemBg"
     )
