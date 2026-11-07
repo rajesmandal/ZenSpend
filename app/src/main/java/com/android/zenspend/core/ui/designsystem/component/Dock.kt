@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,6 +44,13 @@ import com.android.zenspend.core.ui.theme.Dimensions
 import com.android.zenspend.core.ui.theme.PillShape
 import com.android.zenspend.core.ui.theme.ZenSpendTheme
 import com.android.zenspend.core.ui.theme.ZenTone
+
+/**
+ * Height the floating dock covers at the bottom of the screen (0 when it is hidden).
+ * Scrollable screens add it to their bottom content padding so the last item can scroll clear of
+ * the dock while the list still shows behind it.
+ */
+val LocalDockInset = compositionLocalOf { 0.dp }
 
 data class ZenNavItem(
     @StringRes val labelRes: Int,

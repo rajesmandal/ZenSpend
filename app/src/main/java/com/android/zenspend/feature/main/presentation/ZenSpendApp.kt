@@ -1,13 +1,23 @@
 package com.android.zenspend.feature.main.presentation
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -21,6 +31,7 @@ import com.android.zenspend.core.navigation.NavEvent
 import com.android.zenspend.core.navigation.NavigationChrome
 import com.android.zenspend.core.navigation.Navigator
 import com.android.zenspend.core.sync.domain.model.SyncStatus
+import com.android.zenspend.core.ui.designsystem.component.LocalDockInset
 import com.android.zenspend.core.ui.designsystem.component.ZenDockAction
 import com.android.zenspend.core.ui.designsystem.component.ZenNavItem
 import com.android.zenspend.core.ui.designsystem.component.ZenNavigationBar
@@ -97,253 +108,273 @@ fun ZenSpendApp(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = {
-            if (showBottomBar) {
-                Column {
-                    if (activeHouseholdId != null) {
-                        val syncMessage = when (syncStatus) {
-                            SyncStatus.SYNCED -> "Synced"
-                            SyncStatus.SYNCING -> "Syncing..."
-                            SyncStatus.OFFLINE -> "Offline — saved on this device"
-                            SyncStatus.FAILED -> "Sync failed — will retry"
-                        }
-                        ZenStatusBanner(
-                            message = syncMessage,
-                            isError = syncStatus == SyncStatus.FAILED,
-                            modifier = Modifier.padding(
-                                horizontal = Dimensions.ScreenPadding,
-                                vertical = Dimensions.SpacingSmall
-                            )
-                        )
-                    }
-                    ZenNavigationBar(
-                        selectedIndex = selectedTabIndex,
-                        items = dockItems,
-                        action = ZenDockAction(
-                            icon = Icons.Default.Add,
-                            contentDescription = stringResource(R.string.action_add),
-                            onClick = {
-                                navigator.navigate(NavigationChrome.primaryActionDestination(currentRoute))
-                            }
-                        ),
-                        onItemSelected = { index ->
-                            navController.navigate(NavigationChrome.dockRoutes[index]) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    )
-                }
-            }
-        },
     ) { padding ->
-        NavHost(
-            navController = navController,
-            startDestination = Destination.Dashboard.route,
-            // consumeWindowInsets: the padding already covers the status bar, so the screens' own
-            // top bars must not add it a second time (that was the large blank gap at the top).
-            modifier = Modifier.padding(padding).consumeWindowInsets(padding)
-        ) {
-            composable(Destination.Dashboard.route) {
-                DashboardScreen(
-                    navigation = DashboardNavigation(
-                        onAddTransaction = { navigator.navigate(Destination.AddTransaction) },
-                        onTransactions = { navigator.navigate(Destination.Transactions) },
-                        onRecurring = { navigator.navigate(Destination.RecurringTransactions) },
-                        onBudgets = { navigator.navigate(Destination.Budgets) },
-                        onWallets = { navigator.navigate(Destination.Wallets) },
-                        onCreditCards = { navigator.navigate(Destination.CreditCards) },
-                        onEmis = { navigator.navigate(Destination.Emis) },
-                        onSmsDrafts = { navigator.navigate(Destination.SmsDrafts) },
-                        onAssistant = { navigator.navigate(Destination.AiAssistant) },
-                        onSettings = { navigator.navigate(Destination.Settings) },
-                        onReports = { navigator.navigate(Destination.Reports) }
-                    ),
-                    ledgerScope = ledgerScope,
-                    onLedgerScopeChange = { scope -> shellViewModel.scopeManager.setScope(scope) },
-                    showScopeToggle = activeHouseholdId != null
-                )
+        val layoutDirection = LocalLayoutDirection.current
+        val density = LocalDensity.current
+        var dockHeight by remember { mutableStateOf(0.dp) }
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Screens read this to keep their last item scrollable clear of the floating dock.
+            CompositionLocalProvider(LocalDockInset provides if (showBottomBar) dockHeight else 0.dp) {
+                        NavHost(
+                            navController = navController,
+                            startDestination = Destination.Dashboard.route,
+                            // consumeWindowInsets: the padding already covers the status bar, so the screens' own
+                            // top bars must not add it a second time (that was the large blank gap at the top).
+                            modifier = Modifier
+                                .padding(
+                                    PaddingValues(
+                                        start = padding.calculateStartPadding(layoutDirection),
+                                        top = padding.calculateTopPadding(),
+                                        end = padding.calculateEndPadding(layoutDirection),
+                                        // The dock floats over the content, so only reserve the system bar when it is hidden.
+                                        bottom = if (showBottomBar) 0.dp else padding.calculateBottomPadding()
+                                    )
+                                )
+                                .consumeWindowInsets(padding)
+                        ) {
+                            composable(Destination.Dashboard.route) {
+                                DashboardScreen(
+                                    navigation = DashboardNavigation(
+                                        onAddTransaction = { navigator.navigate(Destination.AddTransaction) },
+                                        onTransactions = { navigator.navigate(Destination.Transactions) },
+                                        onRecurring = { navigator.navigate(Destination.RecurringTransactions) },
+                                        onBudgets = { navigator.navigate(Destination.Budgets) },
+                                        onWallets = { navigator.navigate(Destination.Wallets) },
+                                        onCreditCards = { navigator.navigate(Destination.CreditCards) },
+                                        onEmis = { navigator.navigate(Destination.Emis) },
+                                        onSmsDrafts = { navigator.navigate(Destination.SmsDrafts) },
+                                        onAssistant = { navigator.navigate(Destination.AiAssistant) },
+                                        onSettings = { navigator.navigate(Destination.Settings) },
+                                        onReports = { navigator.navigate(Destination.Reports) }
+                                    ),
+                                    ledgerScope = ledgerScope,
+                                    onLedgerScopeChange = { scope -> shellViewModel.scopeManager.setScope(scope) },
+                                    showScopeToggle = activeHouseholdId != null
+                                )
+                            }
+                            composable(Destination.Transactions.route) {
+                                TransactionListScreen(
+                                    onNavigateToAdd = { navigator.navigate(Destination.AddTransaction) },
+                                    onNavigateToDetails = { id -> navigator.navigate(Destination.TransactionDetails(id)) }
+                                )
+                            }
+                            composable(Destination.Wallets.route) {
+                                WalletListScreen(
+                                    onNavigateToAdd = { navigator.navigate(Destination.AddWallet) },
+                                    onNavigateToDetails = { id -> navigator.navigate(Destination.WalletDetails(id)) }
+                                )
+                            }
+                            composable(Destination.AddWallet.route) {
+                                WalletAddEditScreen(onNavigateBack = { navigator.navigateUp() })
+                            }
+                            composable(Destination.WalletDetails.ROUTE) { backStackEntry ->
+                                val id = backStackEntry.arguments?.getString("walletId")?.toLongOrNull() ?: 0L
+                                WalletDetailsScreen(
+                                    walletId = id,
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onNavigateToEdit = { navigator.navigate(Destination.EditWallet(it)) }
+                                )
+                            }
+                            composable(Destination.EditWallet.ROUTE) { backStackEntry ->
+                                val id = backStackEntry.arguments?.getString("walletId")?.toLongOrNull() ?: 0L
+                                WalletAddEditScreen(onNavigateBack = { navigator.navigateUp() }, walletId = id)
+                            }
+                            composable(Destination.CreditCards.route) {
+                                CreditCardListScreen(
+                                    onNavigateToAdd = { navigator.navigate(Destination.AddCreditCard) },
+                                    onNavigateToDetails = { id -> navigator.navigate(Destination.CreditCardDetails(id)) }
+                                )
+                            }
+                            composable(Destination.AddCreditCard.route) {
+                                AddEditCreditCardScreen(onNavigateBack = { navigator.navigateUp() })
+                            }
+                            composable(Destination.CreditCardDetails.ROUTE) { backStackEntry ->
+                                val id = backStackEntry.arguments?.getString("cardId")?.toLongOrNull() ?: 0L
+                                CreditCardDetailsScreen(
+                                    cardId = id,
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onNavigateToAddEmi = { cardId -> navigator.navigate(Destination.AddEmi(cardId)) }
+                                )
+                            }
+                            composable(Destination.AddEmi.ROUTE) { backStackEntry ->
+                                val id = backStackEntry.arguments?.getString("creditCardId")?.toLongOrNull() ?: 0L
+                                AddEditEMIScreen(
+                                    creditCardId = id,
+                                    emiId = 0L,
+                                    onNavigateBack = { navigator.navigateUp() }
+                                )
+                            }
+                            composable(Destination.EditEmi.ROUTE) { backStackEntry ->
+                                val id = backStackEntry.arguments?.getString("emiId")?.toLongOrNull() ?: 0L
+                                AddEditEMIScreen(
+                                    creditCardId = 0L,
+                                    emiId = id,
+                                    onNavigateBack = { navigator.navigateUp() }
+                                )
+                            }
+                            composable(Destination.EmiDetails.ROUTE) {
+                                EMIDetailsScreen(
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onEdit = { id -> navigator.navigate(Destination.EditEmi(id)) }
+                                )
+                            }
+                            composable(Destination.Emis.route) {
+                                EMIListScreen(
+                                    onNavigateToAdd = { navigator.navigate(Destination.AddEmi(0L)) },
+                                    onNavigateToDetails = { id -> navigator.navigate(Destination.EmiDetails(id)) },
+                                    onNavigateBack = { navigator.navigateUp() }
+                                )
+                            }
+                            composable(Destination.Budgets.route) {
+                                BudgetListScreen(
+                                    onNavigateToAdd = { navigator.navigate(Destination.AddBudget) },
+                                    onNavigateToPlan = { navigator.navigate(Destination.BudgetPlan) }
+                                )
+                            }
+                            composable(Destination.BudgetPlan.route) {
+                                com.android.zenspend.feature.budget.presentation.screen.BudgetPlanScreen(
+                                    onNavigateBack = { navigator.navigateUp() }
+                                )
+                            }
+                            composable(Destination.AddBudget.route) {
+                                AddEditBudgetScreen(onNavigateBack = { navigator.navigateUp() })
+                            }
+                            composable(Destination.BudgetDetails.ROUTE) { backStackEntry ->
+                                val id = backStackEntry.arguments?.getString("budgetId")?.toLongOrNull() ?: 0L
+                                com.android.zenspend.feature.budget.presentation.screen.BudgetDetailsScreen(
+                                    budgetId = id,
+                                    onNavigateBack = { navigator.navigateUp() }
+                                )
+                            }
+                            composable(Destination.RecurringTransactions.route) {
+                                RecurringTransactionListScreen(
+                                    onNavigateToAdd = { navigator.navigate(Destination.AddRecurringTransaction) },
+                                    onNavigateToDetails = { id -> navigator.navigate(Destination.RecurringDetails(id)) },
+                                    onNavigateBack = { navigator.navigateUp() }
+                                )
+                            }
+                            composable(Destination.AddRecurringTransaction.route) {
+                                AddEditRecurringTransactionScreen(onNavigateBack = { navigator.navigateUp() })
+                            }
+                            composable(Destination.RecurringDetails.ROUTE) { backStackEntry ->
+                                val id = backStackEntry.arguments?.getString("recurringId")?.toLongOrNull() ?: 0L
+                                RecurringTransactionDetailsScreen(
+                                    recurringId = id,
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onNavigateToEdit = { navigator.navigate(Destination.EditRecurring(it)) }
+                                )
+                            }
+                            composable(Destination.EditRecurring.ROUTE) {
+                                AddEditRecurringTransactionScreen(onNavigateBack = { navigator.navigateUp() })
+                            }
+                            composable(Destination.AddTransaction.route) {
+                                TransactionAddEditScreen(onNavigateBack = { navigator.navigateUp() })
+                            }
+                            composable(Destination.TransactionDetails.ROUTE) { backStackEntry ->
+                                val id = backStackEntry.arguments?.getString("transactionId")?.toLongOrNull() ?: 0L
+                                TransactionDetailsScreen(
+                                    transactionId = id,
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onNavigateToEdit = { navigator.navigate(Destination.EditTransaction(it)) }
+                                )
+                            }
+                            composable(Destination.EditTransaction.ROUTE) {
+                                TransactionAddEditScreen(onNavigateBack = { navigator.navigateUp() })
+                            }
+                            composable(Destination.Reports.route) { ReportScreen() }
+                            composable(Destination.Settings.route) {
+                                SettingsScreen(
+                                    onNavigateToBackup = { navigator.navigate(Destination.Backup) },
+                                    onNavigateToSmsDrafts = { navigator.navigate(Destination.SmsDrafts) },
+                                    onNavigateToAiAssistant = { navigator.navigate(Destination.AiAssistant) },
+                                    onNavigateToPremium = { navigator.navigate(Destination.Premium) },
+                                    onNavigateToSharedCashbook = { navigator.navigate(Destination.SharedCashbook) },
+                                    onNavigateToCreditCards = { navigator.navigate(Destination.CreditCards) },
+                                    onNavigateToAbout = { }
+                                )
+                            }
+                            composable(Destination.Login.route) {
+                                LoginScreen(
+                                    onAuthenticated = { navigator.navigateUp() },
+                                    onNavigateBack = { navigator.navigateUp() }
+                                )
+                            }
+                            composable(Destination.SharedCashbook.route) {
+                                SharedCashbookScreen(
+                                    onNavigateToLogin = { navigator.navigate(Destination.Login) },
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onNavigateToPremium = { navigator.navigate(Destination.Premium) }
+                                )
+                            }
+                            composable(Destination.Backup.route) {
+                                BackupScreen(onNavigateBack = { navigator.navigateUp() })
+                            }
+                            composable(Destination.AiAssistant.route) {
+                                AiAssistantScreen(
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onNavigateToPremium = { navigator.navigate(Destination.Premium) }
+                                )
+                            }
+                            composable(Destination.SmsDrafts.route) {
+                                SmsDraftListScreen(
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onNavigateToReview = { id -> navigator.navigate(Destination.SmsReview(id)) }
+                                )
+                            }
+                            composable(Destination.SmsReview.ROUTE) {
+                                SmsDraftReviewScreen(
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onSuccess = { navigator.navigateUp() }
+                                )
+                            }
+                            composable(Destination.Premium.route) {
+                                PremiumScreen(onNavigateBack = { navigator.navigateUp() })
+                            }
+                        }
             }
-            composable(Destination.Transactions.route) {
-                TransactionListScreen(
-                    onNavigateToAdd = { navigator.navigate(Destination.AddTransaction) },
-                    onNavigateToDetails = { id -> navigator.navigate(Destination.TransactionDetails(id)) }
-                )
-            }
-            composable(Destination.Wallets.route) {
-                WalletListScreen(
-                    onNavigateToAdd = { navigator.navigate(Destination.AddWallet) },
-                    onNavigateToDetails = { id -> navigator.navigate(Destination.WalletDetails(id)) }
-                )
-            }
-            composable(Destination.AddWallet.route) {
-                WalletAddEditScreen(onNavigateBack = { navigator.navigateUp() })
-            }
-            composable(Destination.WalletDetails.ROUTE) { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("walletId")?.toLongOrNull() ?: 0L
-                WalletDetailsScreen(
-                    walletId = id,
-                    onNavigateBack = { navigator.navigateUp() },
-                    onNavigateToEdit = { navigator.navigate(Destination.EditWallet(it)) }
-                )
-            }
-            composable(Destination.EditWallet.ROUTE) { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("walletId")?.toLongOrNull() ?: 0L
-                WalletAddEditScreen(onNavigateBack = { navigator.navigateUp() }, walletId = id)
-            }
-            composable(Destination.CreditCards.route) {
-                CreditCardListScreen(
-                    onNavigateToAdd = { navigator.navigate(Destination.AddCreditCard) },
-                    onNavigateToDetails = { id -> navigator.navigate(Destination.CreditCardDetails(id)) }
-                )
-            }
-            composable(Destination.AddCreditCard.route) {
-                AddEditCreditCardScreen(onNavigateBack = { navigator.navigateUp() })
-            }
-            composable(Destination.CreditCardDetails.ROUTE) { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("cardId")?.toLongOrNull() ?: 0L
-                CreditCardDetailsScreen(
-                    cardId = id,
-                    onNavigateBack = { navigator.navigateUp() },
-                    onNavigateToAddEmi = { cardId -> navigator.navigate(Destination.AddEmi(cardId)) }
-                )
-            }
-            composable(Destination.AddEmi.ROUTE) { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("creditCardId")?.toLongOrNull() ?: 0L
-                AddEditEMIScreen(
-                    creditCardId = id,
-                    emiId = 0L,
-                    onNavigateBack = { navigator.navigateUp() }
-                )
-            }
-            composable(Destination.EditEmi.ROUTE) { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("emiId")?.toLongOrNull() ?: 0L
-                AddEditEMIScreen(
-                    creditCardId = 0L,
-                    emiId = id,
-                    onNavigateBack = { navigator.navigateUp() }
-                )
-            }
-            composable(Destination.EmiDetails.ROUTE) {
-                EMIDetailsScreen(
-                    onNavigateBack = { navigator.navigateUp() },
-                    onEdit = { id -> navigator.navigate(Destination.EditEmi(id)) }
-                )
-            }
-            composable(Destination.Emis.route) {
-                EMIListScreen(
-                    onNavigateToAdd = { navigator.navigate(Destination.AddEmi(0L)) },
-                    onNavigateToDetails = { id -> navigator.navigate(Destination.EmiDetails(id)) },
-                    onNavigateBack = { navigator.navigateUp() }
-                )
-            }
-            composable(Destination.Budgets.route) {
-                BudgetListScreen(
-                    onNavigateToAdd = { navigator.navigate(Destination.AddBudget) },
-                    onNavigateToPlan = { navigator.navigate(Destination.BudgetPlan) }
-                )
-            }
-            composable(Destination.BudgetPlan.route) {
-                com.android.zenspend.feature.budget.presentation.screen.BudgetPlanScreen(
-                    onNavigateBack = { navigator.navigateUp() }
-                )
-            }
-            composable(Destination.AddBudget.route) {
-                AddEditBudgetScreen(onNavigateBack = { navigator.navigateUp() })
-            }
-            composable(Destination.BudgetDetails.ROUTE) { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("budgetId")?.toLongOrNull() ?: 0L
-                com.android.zenspend.feature.budget.presentation.screen.BudgetDetailsScreen(
-                    budgetId = id,
-                    onNavigateBack = { navigator.navigateUp() }
-                )
-            }
-            composable(Destination.RecurringTransactions.route) {
-                RecurringTransactionListScreen(
-                    onNavigateToAdd = { navigator.navigate(Destination.AddRecurringTransaction) },
-                    onNavigateToDetails = { id -> navigator.navigate(Destination.RecurringDetails(id)) },
-                    onNavigateBack = { navigator.navigateUp() }
-                )
-            }
-            composable(Destination.AddRecurringTransaction.route) {
-                AddEditRecurringTransactionScreen(onNavigateBack = { navigator.navigateUp() })
-            }
-            composable(Destination.RecurringDetails.ROUTE) { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("recurringId")?.toLongOrNull() ?: 0L
-                RecurringTransactionDetailsScreen(
-                    recurringId = id,
-                    onNavigateBack = { navigator.navigateUp() },
-                    onNavigateToEdit = { navigator.navigate(Destination.EditRecurring(it)) }
-                )
-            }
-            composable(Destination.EditRecurring.ROUTE) {
-                AddEditRecurringTransactionScreen(onNavigateBack = { navigator.navigateUp() })
-            }
-            composable(Destination.AddTransaction.route) {
-                TransactionAddEditScreen(onNavigateBack = { navigator.navigateUp() })
-            }
-            composable(Destination.TransactionDetails.ROUTE) { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("transactionId")?.toLongOrNull() ?: 0L
-                TransactionDetailsScreen(
-                    transactionId = id,
-                    onNavigateBack = { navigator.navigateUp() },
-                    onNavigateToEdit = { navigator.navigate(Destination.EditTransaction(it)) }
-                )
-            }
-            composable(Destination.EditTransaction.ROUTE) {
-                TransactionAddEditScreen(onNavigateBack = { navigator.navigateUp() })
-            }
-            composable(Destination.Reports.route) { ReportScreen() }
-            composable(Destination.Settings.route) {
-                SettingsScreen(
-                    onNavigateToBackup = { navigator.navigate(Destination.Backup) },
-                    onNavigateToSmsDrafts = { navigator.navigate(Destination.SmsDrafts) },
-                    onNavigateToAiAssistant = { navigator.navigate(Destination.AiAssistant) },
-                    onNavigateToPremium = { navigator.navigate(Destination.Premium) },
-                    onNavigateToSharedCashbook = { navigator.navigate(Destination.SharedCashbook) },
-                    onNavigateToCreditCards = { navigator.navigate(Destination.CreditCards) },
-                    onNavigateToAbout = { }
-                )
-            }
-            composable(Destination.Login.route) {
-                LoginScreen(
-                    onAuthenticated = { navigator.navigateUp() },
-                    onNavigateBack = { navigator.navigateUp() }
-                )
-            }
-            composable(Destination.SharedCashbook.route) {
-                SharedCashbookScreen(
-                    onNavigateToLogin = { navigator.navigate(Destination.Login) },
-                    onNavigateBack = { navigator.navigateUp() },
-                    onNavigateToPremium = { navigator.navigate(Destination.Premium) }
-                )
-            }
-            composable(Destination.Backup.route) {
-                BackupScreen(onNavigateBack = { navigator.navigateUp() })
-            }
-            composable(Destination.AiAssistant.route) {
-                AiAssistantScreen(
-                    onNavigateBack = { navigator.navigateUp() },
-                    onNavigateToPremium = { navigator.navigate(Destination.Premium) }
-                )
-            }
-            composable(Destination.SmsDrafts.route) {
-                SmsDraftListScreen(
-                    onNavigateBack = { navigator.navigateUp() },
-                    onNavigateToReview = { id -> navigator.navigate(Destination.SmsReview(id)) }
-                )
-            }
-            composable(Destination.SmsReview.ROUTE) {
-                SmsDraftReviewScreen(
-                    onNavigateBack = { navigator.navigateUp() },
-                    onSuccess = { navigator.navigateUp() }
-                )
-            }
-            composable(Destination.Premium.route) {
-                PremiumScreen(onNavigateBack = { navigator.navigateUp() })
+            if (showBottomBar) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .onSizeChanged { dockHeight = with(density) { it.height.toDp() } }
+                ) {
+                        if (activeHouseholdId != null) {
+                            val syncMessage = when (syncStatus) {
+                                SyncStatus.SYNCED -> "Synced"
+                                SyncStatus.SYNCING -> "Syncing..."
+                                SyncStatus.OFFLINE -> "Offline — saved on this device"
+                                SyncStatus.FAILED -> "Sync failed — will retry"
+                            }
+                            ZenStatusBanner(
+                                message = syncMessage,
+                                isError = syncStatus == SyncStatus.FAILED,
+                                modifier = Modifier.padding(
+                                    horizontal = Dimensions.ScreenPadding,
+                                    vertical = Dimensions.SpacingSmall
+                                )
+                            )
+                        }
+                        ZenNavigationBar(
+                            selectedIndex = selectedTabIndex,
+                            items = dockItems,
+                            action = ZenDockAction(
+                                icon = Icons.Default.Add,
+                                contentDescription = stringResource(R.string.action_add),
+                                onClick = {
+                                    navigator.navigate(NavigationChrome.primaryActionDestination(currentRoute))
+                                }
+                            ),
+                            onItemSelected = { index ->
+                                navController.navigate(NavigationChrome.dockRoutes[index]) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        )
+                }
             }
         }
     }

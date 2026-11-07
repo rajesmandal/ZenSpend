@@ -2,6 +2,7 @@ package com.android.zenspend.feature.transaction.presentation.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import com.android.zenspend.core.ui.designsystem.component.LocalDockInset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -115,7 +116,7 @@ fun TransactionListScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
-                contentPadding = PaddingValues(bottom = Dimensions.SpacingXLarge),
+                contentPadding = PaddingValues(bottom = Dimensions.SpacingXLarge + LocalDockInset.current),
                 verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
             ) {
                 item {

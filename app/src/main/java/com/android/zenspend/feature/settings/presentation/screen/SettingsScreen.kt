@@ -2,6 +2,7 @@ package com.android.zenspend.feature.settings.presentation.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import com.android.zenspend.core.ui.designsystem.component.LocalDockInset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -72,7 +73,8 @@ fun SettingsScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(padding),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = LocalDockInset.current)
         ) {
             item { SettingsSectionHeader(stringResource(R.string.settings_appearance)) }
             item {

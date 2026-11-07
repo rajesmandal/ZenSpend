@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import com.android.zenspend.core.ui.util.formatMinorUnits
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import com.android.zenspend.core.ui.designsystem.component.LocalDockInset
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -79,8 +80,10 @@ fun ReportScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(
-                        horizontal = Dimensions.ScreenPadding,
-                        vertical = Dimensions.SpacingSmall
+                        start = Dimensions.ScreenPadding,
+                        end = Dimensions.ScreenPadding,
+                        top = Dimensions.SpacingSmall,
+                        bottom = Dimensions.SpacingSmall + LocalDockInset.current
                     ),
                     verticalArrangement = Arrangement.spacedBy(Dimensions.TileGap)
                 ) {
