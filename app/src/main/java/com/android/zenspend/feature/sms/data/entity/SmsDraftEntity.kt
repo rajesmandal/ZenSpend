@@ -1,5 +1,6 @@
 package com.android.zenspend.feature.sms.data.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -23,6 +24,9 @@ data class SmsDraftEntity(
     val sender: String,
     val fingerprint: String, // Unique hash for deduplication
     val status: SmsDraftStatus = SmsDraftStatus.PENDING,
+    /** The SMS was about a credit card (not a bank account), so its last 4 digits can suggest a card. */
+    @ColumnInfo(defaultValue = "0")
+    val isCard: Boolean = false,
     val createdAt: Long = System.currentTimeMillis()
 )
 

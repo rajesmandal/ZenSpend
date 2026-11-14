@@ -82,6 +82,8 @@ class TransactionRepositoryImpl @Inject constructor(
         transactionDao.deleteTransaction(transaction.toEntity())
     }
 
+    override fun observeEarliestDate(): Flow<Long?> = transactionDao.observeEarliestDate()
+
     override fun getTotalIncome(startDate: Long, endDate: Long): Flow<Long> {
         return transactionDao.getTotalAmountByType(TransactionType.INCOME, startDate, endDate)
     }

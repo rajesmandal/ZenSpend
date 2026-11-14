@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZenSpend Verdant Theme</title>
+<style>
+  /* ---------- TOKENS: the only place colours live (maps 1:1 to Color.kt) ---------- */
+  :root{
+    /* brand, taken from the launcher icon */
+    --forest:#0B5443;     /* Z letter */
+    --emerald:#2E9B50;    /* wallet body */
+    --leaf:#7CC84A;       /* leaf */
+    --mint:#CDEBD3;       /* soft fill */
+    --sprout:#E8F5E4;     /* lightest fill */
+    --gold:#E9B949;       /* accent: cards, warnings */
+    --clay:#E8704F;       /* accent: expense */
+    --sky:#9CD3EA;        /* accent: transfer */
+
+    --bg:#F6F8F2; --surface:#FFFFFF; --surface2:#EEF3E8; --line:#DDE5D3;
+    --text:#10261F; --text2:#5B6F66;
+    --hero:#0B5443; --on-hero:#F1F8EE;
+    --income:#1F9A4F; --expense:#D9573A; --transfer:#2E7CB8;
+    --shadow:0 8px 24px rgba(11,84,67,.10);
+  }
+  [data-theme="dark"]{
+    --bg:#08130F; --surface:#10201A; --surface2:#172B23; --line:#22372E;
+    --text:#EAF4EC; --text2:#93AA9E;
+    --hero:#134F40; --on-hero:#EAF6E8;
+    --mint:#1C3A2D; --sprout:#142A21;
+    --income:#6EDC8F; --expense:#FF8A6B; --transfer:#7DBDF0;
+    --shadow:none;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;transition:background .25s,color .25s;padding:28px 18px 60px}
+  header{max-width:1180px;margin:0 auto 22px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+  h1{font-size:28px;letter-spacing:-.02em} .sub{color:var(--text2);font-size:14px;margin-top:4px}
+  .toggle{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:4px}
+  .toggle button{border:0;background:none;padding:8px 18px;border-radius:99px;font:600 13px inherit;color:var(--text2);cursor:pointer}
+  .toggle button.on{background:var(--forest);color:#fff}
+  .wrap{max-width:1180px;margin:auto}
+  h2{font-size:15px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin:30px 0 12px}
+
+  /* palette */
+  .pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+  .sw{border-radius:18px;padding:14px;min-height:92px;display:flex;flex-direction:column;justify-content:flex-end;font-size:12px;border:1px solid var(--line)}
+  .sw b{font-size:13px}
+  .light{color:#10261F}.darkc{color:#fff}
+
+  /* phones */
+  .phones{display:flex;flex-wrap:wrap;gap:22px;justify-content:center}
+  .phone{width:320px;background:var(--bg);border:8px solid #111;border-radius:40px;overflow:hidden;position:relative;height:640px;box-shadow:var(--shadow)}
+  .scr{padding:18px 16px 90px;height:100%;overflow:hidden}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .top small{color:var(--text2);font-size:12px} .top h3{font-size:22px;letter-spacing:-.02em}
+  .ib{width:34px;height:34px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-size:14px}
+  .hero{background:var(--hero);color:var(--on-hero);border-radius:26px;padding:18px;position:relative;overflow:hidden}
+  .hero:after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:var(--leaf);opacity:.18}
+  .hero small{opacity:.75;font-size:12px}.hero .big{font-size:32px;font-weight:700;letter-spacing:-.03em;margin:4px 0 12px}
+  .pills{display:flex;gap:8px}.pill{flex:1;text-align:center;font-size:12px;font-weight:600;padding:9px;border-radius:99px;background:#ffffff1f}
+  .pill.pri{background:var(--leaf);color:#0B2A20}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .tile{border-radius:22px;padding:14px;font-size:12px;min-height:92px;display:flex;flex-direction:column;justify-content:space-between}
+  .tile b{font-size:19px;letter-spacing:-.02em}
+  .t-in{background:var(--mint);color:var(--text)} .t-out{background:#F6D9CE;color:#4A1D10}
+  [data-theme="dark"] .t-out{background:#3A2019;color:#FFD9CC}
+  .t-sav{background:var(--sprout);color:var(--text);border:1px solid var(--line)}
+  .t-bud{background:var(--leaf);color:#0B2A20}
+  .bar{height:7px;border-radius:9px;background:#0b54431f;margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;width:62%;background:var(--forest)}
+  .sec{display:flex;justify-content:space-between;margin:16px 2px 8px;font-size:14px;font-weight:700}.sec span{color:var(--emerald);font-weight:600;font-size:12px}
+  .row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:10px 12px;margin-bottom:8px}
+  .av{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;font-size:17px}
+  .row .m{flex:1;font-size:13px;font-weight:600}.row .m small{display:block;font-weight:400;color:var(--text2);font-size:11px;margin-top:2px}
+  .neg{color:var(--expense);font-weight:700;font-size:13px}.pos{color:var(--income);font-weight:700;font-size:13px}
+  .dock{position:absolute;left:14px;right:14px;bottom:14px;background:var(--surface);border:1px solid var(--line);border-radius:30px;padding:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)}
+  .dock span{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;color:var(--text2)}
+  .dock .act{width:auto;padding:0 16px;background:var(--forest);color:#fff;font-size:13px;font-weight:600;border-radius:99px;height:42px}
+  .dock .fab{background:var(--leaf);color:#0B2A20;font-size:22px}
+  /* add screen */
+  .amt{text-align:center;font-size:44px;font-weight:700;letter-spacing:-.03em;margin:14px 0 4px}.amt small{color:var(--text2);font-size:26px}
+  .seg{display:flex;background:var(--surface2);border-radius:99px;padding:4px;margin:10px 0}.seg div{flex:1;text-align:center;padding:8px;font-size:12px;font-weight:600;border-radius:99px;color:var(--text2)}.seg .on{background:var(--forest);color:#fff}
+  .keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.keys div{background:var(--surface);border:1px solid var(--line);border-radius:16px;text-align:center;padding:13px;font-size:18px;font-weight:600}.keys .ok{background:var(--leaf);color:#0B2A20}
+  /* budget */
+  .ring{width:150px;height:150px;margin:8px auto;border-radius:50%;background:conic-gradient(var(--emerald) 0 62%,var(--gold) 62% 74%,var(--line) 74% 100%);display:grid;place-items:center}
+  .ring div{width:112px;height:112px;border-radius:50%;background:var(--bg);display:grid;place-items:center;text-align:center;font-size:11px;color:var(--text2)}.ring b{display:block;font-size:22px;color:var(--text)}
+  .chip{display:inline-block;border-radius:99px;padding:6px 12px;font-size:11px;font-weight:600;margin:0 6px 6px 0}
+  .c1{background:var(--forest);color:#fff}.c2{background:var(--mint);color:var(--text)}.c3{background:var(--surface2);color:var(--text2)}
+  /* components */
+  .comp{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:20px}
+  .btn{border-radius:99px;padding:12px 22px;font-weight:600;font-size:14px;border:0}
+  .b1{background:var(--forest);color:#fff}.b2{background:var(--leaf);color:#0B2A20}.b3{background:var(--mint);color:var(--text)}.b4{background:none;border:1.5px solid var(--forest);color:var(--forest)}
+  [data-theme="dark"] .b4{border-color:var(--leaf);color:var(--leaf)} [data-theme="dark"] .b1{background:var(--emerald)}
+  .tag{border-radius:99px;padding:5px 11px;font-size:11px;font-weight:700}.tg1{background:var(--mint);color:var(--income)}.tg2{background:#F6D9CE;color:#B23A1F}.tg3{background:#D6EAF6;color:#1F5F92}.tg4{background:#F7E8BE;color:#7A5A00}
+  .note{max-width:700px;color:var(--text2);font-size:14px;line-height:1.55;margin-top:14px}
+</style>
+</head>
+<body data-theme="light">
+<header>
+  <div><h1>ZenSpend · Verdant theme</h1>
+  <p class="sub">Current icon ke colours (forest Z, emerald wallet, leaf) se banaya theme — Bento layout wahi.</p></div>
+  <div class="toggle"><button class="on" onclick="setT('light',this)">Light</button><button onclick="setT('dark',this)">Dark</button></div>
+</header>
+
+<div class="wrap">
+  <h2>Palette (icon se)</h2>
+  <div class="pal">
+    <div class="sw darkc" style="background:var(--forest)"><b>Forest</b>#0B5443 · Z, hero</div>
+    <div class="sw darkc" style="background:var(--emerald)"><b>Emerald</b>#2E9B50 · wallet</div>
+    <div class="sw light" style="background:var(--leaf)"><b>Leaf</b>#7CC84A · accent, FAB</div>
+    <div class="sw light" style="background:var(--mint)"><b>Mint</b>#CDEBD3 · income tile</div>
+    <div class="sw light" style="background:var(--sprout)"><b>Sprout</b>#E8F5E4 · soft fill</div>
+    <div class="sw light" style="background:var(--gold)"><b>Gold</b>#E9B949 · cards</div>
+    <div class="sw darkc" style="background:var(--clay)"><b>Clay</b>#E8704F · expense</div>
+    <div class="sw light" style="background:var(--sky)"><b>Sky</b>#9CD3EA · transfer</div>
+  </div>
+
+  <h2>Screens</h2>
+  <div class="phones">
+    <!-- Dashboard -->
+    <div class="phone"><div class="scr">
+      <div class="top"><div><small>Good morning</small><h3>Dashboard</h3></div><div style="display:flex;gap:8px"><div class="ib">🔔</div><div class="ib">⚙</div></div></div>
+      <div class="hero"><small>Net worth</small><div class="big">₹26,622.60</div>
+        <div class="pills"><div class="pill pri">Add</div><div class="pill">Wallets</div><div class="pill">Cards</div></div></div>
+      <div class="tiles">
+        <div class="tile t-in"><span>Income</span><b>₹0</b></div>
+        <div class="tile t-out"><span>Spent</span><b>₹6,153.90</b></div>
+        <div class="tile t-sav"><span>Saved</span><b>₹-6,153.90</b></div>
+        <div class="tile t-bud"><span>Budget left</span><b>₹21,846.10</b><div class="bar"><i></i></div></div>
+      </div>
+      <div class="sec">Recent <span>See all</span></div>
+      <div class="row"><div class="av" style="background:var(--mint)">🛒</div><div class="m">Groceries<small>Today</small></div><div class="neg">-₹1,240</div></div>
+      <div class="dock"><span class="act">🏠 Home</span><span>🕘</span><span>👛</span><span>📊</span><span class="fab">+</span></div>
+    </div></div>
+
+    <!-- Transactions -->
+    <div class="phone"><div class="scr">
+      <div class="top"><div><small>November 2026</small><h3>Transactions</h3></div><div class="ib">🔍</div></div>
+      <div><span class="chip c1">All</span><span class="chip c2">Expense</span><span class="chip c3">Income</span><span class="chip c3">Transfer</span></div>
+      <div class="sec">Today</div>
+      <div class="row"><div class="av" style="background:var(--mint)">🛒</div><div class="m">Groceries<small>SBI · Food</small></div><div class="neg">-₹1,240</div></div>
+      <div class="row"><div class="av" style="background:#F7E8BE">⛽</div><div class="m">Fuel<small>Cash · Transport</small></div><div class="neg">-₹800</div></div>
+      <div class="sec">Yesterday</div>
+      <div class="row"><div class="av" style="background:#D6EAF6">🔁</div><div class="m">To savings<small>Transfer</small></div><div class="m" style="flex:0;color:var(--transfer);font-weight:700;font-size:13px">₹5,000</div></div>
+      <div class="row"><div class="av" style="background:var(--mint)">💼</div><div class="m">Salary<small>SBI · Income</small></div><div class="pos">+₹50,000</div></div>
+      <div class="row"><div class="av" style="background:#F6D9CE">🍔</div><div class="m">Swiggy<small>Food</small></div><div class="neg">-₹420</div></div>
+      <div class="dock"><span>🏠</span><span class="act">🕘 History</span><span>👛</span><span>📊</span><span class="fab">+</span></div>
+    </div></div>
+
+    <!-- Add -->
+    <div class="phone"><div class="scr">
+      <div class="top"><div><small>New</small><h3>Add transaction</h3></div><div class="ib">✕</div></div>
+      <div class="seg"><div class="on">Expense</div><div>Income</div><div>Transfer</div></div>
+      <div class="amt"><small>₹</small>12,450.50</div>
+      <div style="text-align:center"><span class="tag tg1">Food</span> <span class="tag tg4">SBI</span></div>
+      <div class="keys"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>.</div><div>0</div><div class="ok">✓</div></div>
+    </div></div>
+
+    <!-- Budget -->
+    <div class="phone"><div class="scr">
+      <div class="top"><div><small>November 2026</small><h3>Budgets</h3></div><div class="ib">+</div></div>
+      <div class="ring"><div><span><b>62%</b>used</span></div></div>
+      <div class="tile t-bud" style="min-height:70px;margin-top:6px"><span>50/30/20 plan</span><b>₹25,000 · ₹15,000 · ₹10,000</b></div>
+      <div class="sec">Categories</div>
+      <div class="row"><div class="av" style="background:var(--mint)">🛒</div><div class="m">Food<small>₹3,100 of ₹5,000</small><div class="bar" style="background:var(--line)"><i style="width:62%;background:var(--emerald)"></i></div></div></div>
+      <div class="row"><div class="av" style="background:#F7E8BE">🚌</div><div class="m">Transport<small>₹1,900 of ₹2,000</small><div class="bar" style="background:var(--line)"><i style="width:95%;background:var(--gold)"></i></div></div></div>
+      <div class="row"><div class="av" style="background:#F6D9CE">🎬</div><div class="m">Fun<small>₹1,300 of ₹1,000</small><div class="bar" style="background:var(--line)"><i style="width:100%;background:var(--clay)"></i></div></div></div>
+      <div class="dock"><span>🏠</span><span>🕘</span><span>👛</span><span class="act">📊 Insights</span><span class="fab">+</span></div>
+    </div></div>
+  </div>
+
+  <h2>Components</h2>
+  <div class="comp">
+    <button class="btn b1">Primary</button><button class="btn b2">Accent</button><button class="btn b3">Soft</button><button class="btn b4">Outline</button>
+    <span class="tag tg1">Income</span><span class="tag tg2">Expense</span><span class="tag tg3">Transfer</span><span class="tag tg4">Card due</span>
+  </div>
+  <p class="note">Mapping: <b>Forest</b> → primary / hero tile, <b>Emerald</b> → progress &amp; links, <b>Leaf</b> → FAB &amp; highlights, <b>Mint/Sprout</b> → soft tiles, <b>Gold/Clay/Sky</b> → warning, expense, transfer. Implement karne par sirf <code>Color.kt</code> ki hex values aur <code>Tone.kt</code> ka mapping badlega — screens ko haath nahi lagana padega.</p>
+</div>
+<script>
+function setT(t,b){document.body.dataset.theme=t;document.querySelectorAll('.toggle button').forEach(x=>x.classList.remove('on'));b.classList.add('on')}
+</script>
+</body>
+</html>

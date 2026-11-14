@@ -13,5 +13,6 @@ data class SmsTransactionDraft(
     val sender: String,
     val fingerprint: String,
     val status: SmsDraftStatus = SmsDraftStatus.PENDING,
-    val confidence: Float = 1.0f
+    val confidence: Float = 1.0f,
+    val isCard: Boolean = false
 )

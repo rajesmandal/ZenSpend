@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZenSpend Zen Paper Theme</title>
+<style>
+  /* Tokens — icon colours, used sparingly: one forest accent on warm paper. */
+  :root{
+    --forest:#0B5443; --emerald:#2E9B50; --leaf:#7CC84A; --moss:#DCE9D2;
+    --gold:#C99A2E; --clay:#C8553A;
+    --paper:#FAF8F2; --paper2:#F1EEE4; --card:#FFFFFF; --line:#E4E0D3;
+    --ink:#14221C; --ink2:#66736B; --ink3:#9AA39C;
+    --in:#1F8A4B; --out:#C8553A;
+    --serif:"Iowan Old Style","Palatino Linotype",Georgia,serif;
+  }
+  [data-theme="dark"]{
+    --paper:#0A1410; --paper2:#101C17; --card:#101C17; --line:#1F2E27;
+    --ink:#EDF2EA; --ink2:#9BAAA1; --ink3:#66756C; --moss:#173026;
+    --forest:#5FC48A; --in:#6EDC8F; --out:#F08A6C; --gold:#E5B94F;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--paper2);color:var(--ink);font-family:Inter,system-ui,sans-serif;padding:28px 18px 60px;transition:.25s}
+  .bar{max-width:1180px;margin:0 auto 22px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+  h1{font-family:var(--serif);font-weight:500;font-size:30px;letter-spacing:-.01em}.sub{color:var(--ink2);font-size:14px;margin-top:4px}
+  .tg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:4px}
+  .tg button{border:0;background:none;padding:8px 18px;border-radius:99px;font:600 13px inherit;color:var(--ink2);cursor:pointer}.tg .on{background:var(--forest);color:var(--paper)}
+  [data-theme="dark"] .tg .on{color:#06120D}
+  .wrap{max-width:1180px;margin:auto}
+  h2{font-size:12px;color:var(--ink2);text-transform:uppercase;letter-spacing:.14em;margin:32px 0 12px;font-weight:600}
+  .pal{display:flex;flex-wrap:wrap;gap:14px}
+  .dot{text-align:center;font-size:11px;color:var(--ink2)}.dot i{display:block;width:64px;height:64px;border-radius:50%;margin-bottom:6px;border:1px solid var(--line)}
+  .phones{display:flex;flex-wrap:wrap;gap:24px;justify-content:center}
+  .phone{width:320px;height:660px;border:8px solid #111;border-radius:40px;background:var(--paper);position:relative;overflow:hidden}
+  .scr{padding:26px 22px 90px;height:100%;overflow:hidden}
+  .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}
+  .display{font-family:var(--serif);font-weight:500;letter-spacing:-.02em}
+  .hero{margin:6px 0 4px}.hero .n{font-size:46px;line-height:1.05}.hero .n sup{font-size:22px;color:var(--ink2);margin-right:2px;vertical-align:top;position:relative;top:8px}
+  .delta{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--in);background:var(--moss);padding:4px 10px;border-radius:99px;margin-top:8px}
+  .breath{display:flex;align-items:center;gap:16px;margin:22px 0;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .ring{width:72px;height:72px;border-radius:50%;flex:none;background:conic-gradient(var(--forest) 0 62%,var(--line) 62% 100%);display:grid;place-items:center}
+  .ring div{width:56px;height:56px;border-radius:50%;background:var(--paper);display:grid;place-items:center;font-size:13px;font-weight:600}
+  .breath p{font-size:13px;color:var(--ink2);line-height:1.45}.breath b{color:var(--ink);font-family:var(--serif);font-size:17px;font-weight:500;display:block;margin-bottom:2px}
+  .list .it{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .list .ic{width:36px;height:36px;border-radius:50%;background:var(--moss);display:grid;place-items:center;font-size:15px;flex:none}
+  .it .m{flex:1;font-size:14px}.it .m small{display:block;color:var(--ink3);font-size:11px;margin-top:2px}
+  .it .a{font-size:14px;font-variant-numeric:tabular-nums}.neg{color:var(--out)}.pos{color:var(--in)}
+  .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .head h3{font-family:var(--serif);font-weight:500;font-size:26px}
+  .link{color:var(--forest);font-size:12px;font-weight:600}
+  .tabs{position:absolute;left:0;right:0;bottom:0;padding:12px 22px 20px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(transparent,var(--paper) 35%)}
+  .tabs span{font-size:11px;color:var(--ink3);text-align:center;width:50px}.tabs i{display:block;font-style:normal;font-size:19px;margin-bottom:2px}
+  .tabs .on{color:var(--forest);font-weight:700}.tabs .on:after{content:"";display:block;width:5px;height:5px;border-radius:50%;background:var(--leaf);margin:3px auto 0}
+  .plus{width:52px!important;height:52px;border-radius:50%;background:var(--forest);color:var(--paper)!important;display:grid;place-items:center;font-size:26px}
+  [data-theme="dark"] .plus{color:#06120D!important}
+  /* budget lines */
+  .bl{margin:14px 0}.bl .t{display:flex;justify-content:space-between;font-size:13px;margin-bottom:7px}.bl .t small{color:var(--ink3)}
+  .trk{height:5px;border-radius:5px;background:var(--line);overflow:hidden}.trk i{display:block;height:100%;border-radius:5px;background:var(--forest)}
+  .plan{display:flex;gap:0;border:1px solid var(--line);border-radius:18px;overflow:hidden;margin:14px 0;background:var(--card)}
+  .plan div{flex:1;padding:12px 10px;text-align:center;border-right:1px solid var(--line)}.plan div:last-child{border:0}
+  .plan b{display:block;font-family:var(--serif);font-size:20px;font-weight:500}.plan small{font-size:10px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase}
+  /* add */
+  .big{text-align:center;margin:22px 0 6px}.big .n{font-size:52px}.big sup{font-size:24px;color:var(--ink2);vertical-align:top;position:relative;top:8px}
+  .seg{display:flex;justify-content:center;gap:20px;font-size:13px;color:var(--ink3);margin:14px 0}.seg .on{color:var(--ink);font-weight:600;border-bottom:2px solid var(--leaf);padding-bottom:4px}
+  .keys{display:grid;grid-template-columns:repeat(3,1fr);margin-top:10px}.keys div{text-align:center;padding:14px;font-family:var(--serif);font-size:24px}.keys .ok{color:var(--forest)}
+  .btn{border:0;border-radius:99px;padding:13px 26px;font-weight:600;font-size:14px}.p{background:var(--forest);color:var(--paper)}.o{background:none;border:1.5px solid var(--forest);color:var(--forest)}.t{background:none;color:var(--forest)}
+  [data-theme="dark"] .p{color:#06120D}
+  .comp{display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px}
+  .note{max-width:720px;color:var(--ink2);font-size:14px;line-height:1.6;margin-top:14px}
+</style>
+</head>
+<body data-theme="light">
+<div class="bar">
+  <div><h1>ZenSpend · Zen Paper</h1><p class="sub">Icon ke colours, par minimal: warm paper, serif numbers, hairline lists, sirf ek forest accent.</p></div>
+  <div class="tg"><button class="on" onclick="t('light',this)">Light</button><button onclick="t('dark',this)">Dark</button></div>
+</div>
+<div class="wrap">
+  <h2>Palette</h2>
+  <div class="pal">
+    <div class="dot"><i style="background:#0B5443"></i>Forest</div>
+    <div class="dot"><i style="background:#2E9B50"></i>Emerald</div>
+    <div class="dot"><i style="background:#7CC84A"></i>Leaf</div>
+    <div class="dot"><i style="background:#DCE9D2"></i>Moss</div>
+    <div class="dot"><i style="background:#FAF8F2"></i>Paper</div>
+    <div class="dot"><i style="background:#14221C"></i>Ink</div>
+    <div class="dot"><i style="background:#C99A2E"></i>Gold</div>
+    <div class="dot"><i style="background:#C8553A"></i>Clay</div>
+  </div>
+
+  <h2>Screens</h2>
+  <div class="phones">
+    <div class="phone"><div class="scr">
+      <div class="head"><div><div class="eyebrow">Good morning</div></div><div class="link">Settings</div></div>
+      <div class="eyebrow" style="margin-top:14px">Net worth</div>
+      <div class="hero display"><div class="n"><sup>₹</sup>26,622.60</div></div>
+      <span class="delta">↘ ₹6,153.90 spent this month</span>
+      <div class="breath"><div class="ring"><div>62%</div></div><p><b>Calm so far.</b>₹21,846 left in your November budget.</p></div>
+      <div class="head"><div class="eyebrow">Recent</div><div class="link">See all</div></div>
+      <div class="list">
+        <div class="it"><div class="ic">🛒</div><div class="m">Groceries<small>Today</small></div><div class="a neg">−1,240</div></div>
+        <div class="it"><div class="ic">⛽</div><div class="m">Fuel<small>Today</small></div><div class="a neg">−800</div></div>
+        <div class="it"><div class="ic">💼</div><div class="m">Salary<small>Yesterday</small></div><div class="a pos">+50,000</div></div>
+      </div>
+      <div class="tabs"><span class="on"><i>◉</i>Home</span><span><i>≡</i>History</span><span class="plus">+</span><span><i>▭</i>Wallets</span><span><i>◔</i>Insights</span></div>
+    </div></div>
+
+    <div class="phone"><div class="scr">
+      <div class="head"><h3>Budgets</h3><div class="link">+ New</div></div>
+      <div class="eyebrow">November 2026 · 50/30/20</div>
+      <div class="plan"><div><b>₹25k</b><small>Needs</small></div><div><b>₹15k</b><small>Wants</small></div><div><b>₹10k</b><small>Save</small></div></div>
+      <div class="bl"><div class="t"><span>Food</span><small>₹3,100 / ₹5,000</small></div><div class="trk"><i style="width:62%"></i></div></div>
+      <div class="bl"><div class="t"><span>Transport</span><small>₹1,900 / ₹2,000</small></div><div class="trk"><i style="width:95%;background:var(--gold)"></i></div></div>
+      <div class="bl"><div class="t"><span>Fun</span><small>₹1,300 / ₹1,000</small></div><div class="trk"><i style="width:100%;background:var(--clay)"></i></div></div>
+      <div class="bl"><div class="t"><span>Bills</span><small>₹4,200 / ₹6,000</small></div><div class="trk"><i style="width:70%"></i></div></div>
+      <div class="tabs"><span><i>◉</i>Home</span><span><i>≡</i>History</span><span class="plus">+</span><span><i>▭</i>Wallets</span><span class="on"><i>◔</i>Insights</span></div>
+    </div></div>
+
+    <div class="phone"><div class="scr">
+      <div class="head"><h3>New</h3><div class="link">Close</div></div>
+      <div class="seg"><span class="on">Expense</span><span>Income</span><span>Transfer</span></div>
+      <div class="big display"><div class="n"><sup>₹</sup>12,450.50</div></div>
+      <div style="text-align:center;font-size:12px;color:var(--ink2)">Food · State Bank Of India · Today</div>
+      <div class="keys display"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>.</div><div>0</div><div class="ok">✓</div></div>
+    </div></div>
+  </div>
+
+  <h2>Components</h2>
+  <div class="comp"><button class="btn p">Primary</button><button class="btn o">Outline</button><button class="btn t">Text</button></div>
+  <p class="note">Teeno directions me fark: <b>Verdant</b> = Bento tiles, <b>Canopy</b> = gradient header + tab bar, <b>Zen Paper</b> = tiles/cards nahi, bas typography, hairlines aur khali jagah. Numbers serif me, taaki amount hi hero lage. Ye "zen" naam ke sabse close hai, par information density kam hai.</p>
+</div>
+<script>function t(m,b){document.body.dataset.theme=m;document.querySelectorAll('.tg button').forEach(x=>x.classList.remove('on'));b.classList.add('on')}</script>
+</body>
+</html>

@@ -53,6 +53,10 @@ import com.android.zenspend.feature.creditcard.presentation.screen.AddEditCredit
 import com.android.zenspend.feature.creditcard.presentation.screen.CreditCardDetailsScreen
 import com.android.zenspend.feature.creditcard.presentation.screen.CreditCardListScreen
 import com.android.zenspend.feature.emi.presentation.screen.AddEditEMIScreen
+import com.android.zenspend.feature.people.presentation.screen.LoanDetailsScreen
+import com.android.zenspend.feature.people.presentation.screen.LoanFormScreen
+import com.android.zenspend.feature.people.presentation.screen.PeopleScreen
+import com.android.zenspend.feature.people.presentation.screen.PersonDetailsScreen
 import com.android.zenspend.feature.emi.presentation.screen.EMIDetailsScreen
 import com.android.zenspend.feature.emi.presentation.screen.EMIListScreen
 import com.android.zenspend.feature.recurring.presentation.screen.AddEditRecurringTransactionScreen
@@ -142,6 +146,7 @@ fun ZenSpendApp(
                                         onWallets = { navigator.navigate(Destination.Wallets) },
                                         onCreditCards = { navigator.navigate(Destination.CreditCards) },
                                         onEmis = { navigator.navigate(Destination.Emis) },
+                                        onPeople = { navigator.navigate(Destination.People) },
                                         onSmsDrafts = { navigator.navigate(Destination.SmsDrafts) },
                                         onAssistant = { navigator.navigate(Destination.AiAssistant) },
                                         onSettings = { navigator.navigate(Destination.Settings) },
@@ -188,6 +193,13 @@ fun ZenSpendApp(
                             composable(Destination.AddCreditCard.route) {
                                 AddEditCreditCardScreen(onNavigateBack = { navigator.navigateUp() })
                             }
+                            composable(Destination.AddCreditCardSuggested.ROUTE) { entry ->
+                                AddEditCreditCardScreen(
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    prefillLast4 = entry.arguments?.getString("last4"),
+                                    prefillBank = entry.arguments?.getString("bank")
+                                )
+                            }
                             composable(Destination.CreditCardDetails.ROUTE) { backStackEntry ->
                                 val id = backStackEntry.arguments?.getString("cardId")?.toLongOrNull() ?: 0L
                                 CreditCardDetailsScreen(
@@ -201,7 +213,8 @@ fun ZenSpendApp(
                                 AddEditEMIScreen(
                                     creditCardId = id,
                                     emiId = 0L,
-                                    onNavigateBack = { navigator.navigateUp() }
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onNavigateToAddCard = { navigator.navigate(Destination.AddCreditCard) }
                                 )
                             }
                             composable(Destination.EditEmi.ROUTE) { backStackEntry ->
@@ -209,13 +222,41 @@ fun ZenSpendApp(
                                 AddEditEMIScreen(
                                     creditCardId = 0L,
                                     emiId = id,
-                                    onNavigateBack = { navigator.navigateUp() }
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onNavigateToAddCard = { navigator.navigate(Destination.AddCreditCard) }
                                 )
                             }
                             composable(Destination.EmiDetails.ROUTE) {
                                 EMIDetailsScreen(
                                     onNavigateBack = { navigator.navigateUp() },
                                     onEdit = { id -> navigator.navigate(Destination.EditEmi(id)) }
+                                )
+                            }
+                            composable(Destination.People.route) {
+                                PeopleScreen(
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onPersonClick = { id -> navigator.navigate(Destination.PersonDetails(id)) }
+                                )
+                            }
+                            composable(Destination.PersonDetails.ROUTE) {
+                                PersonDetailsScreen(
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onGiveLoan = { id -> navigator.navigate(Destination.AddLoan(id)) },
+                                    onLoanClick = { id -> navigator.navigate(Destination.LoanDetails(id)) }
+                                )
+                            }
+                            composable(Destination.AddLoan.ROUTE) { entry ->
+                                val id = entry.arguments?.getString("personId")?.toLongOrNull() ?: 0L
+                                LoanFormScreen(personId = id, loanId = 0L, onNavigateBack = { navigator.navigateUp() })
+                            }
+                            composable(Destination.EditLoan.ROUTE) { entry ->
+                                val id = entry.arguments?.getString("loanId")?.toLongOrNull() ?: 0L
+                                LoanFormScreen(personId = 0L, loanId = id, onNavigateBack = { navigator.navigateUp() })
+                            }
+                            composable(Destination.LoanDetails.ROUTE) {
+                                LoanDetailsScreen(
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onEdit = { id -> navigator.navigate(Destination.EditLoan(id)) }
                                 )
                             }
                             composable(Destination.Emis.route) {
@@ -318,7 +359,8 @@ fun ZenSpendApp(
                             composable(Destination.SmsDrafts.route) {
                                 SmsDraftListScreen(
                                     onNavigateBack = { navigator.navigateUp() },
-                                    onNavigateToReview = { id -> navigator.navigate(Destination.SmsReview(id)) }
+                                    onNavigateToReview = { id -> navigator.navigate(Destination.SmsReview(id)) },
+                                    onAddCard = { bank, last4 -> navigator.navigate(Destination.AddCreditCardSuggested(last4, bank)) }
                                 )
                             }
                             composable(Destination.SmsReview.ROUTE) {

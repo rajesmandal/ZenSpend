@@ -12,6 +12,8 @@ data class AddEMIUiState(
     val lenderType: EMILenderType = EMILenderType.BANK,
     val lenderName: String = "",
     val cards: List<CardOption> = emptyList(),
+    /** Lender names already used on other EMIs, offered first while typing. */
+    val savedLenders: List<String> = emptyList(),
     val selectedCardId: Long? = null,
     val name: String = "",
     val principalText: String = "",

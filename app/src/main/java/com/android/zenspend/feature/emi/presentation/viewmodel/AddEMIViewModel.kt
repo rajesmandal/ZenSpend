@@ -69,10 +69,7 @@ class AddEMIViewModel @Inject constructor(
         if (initialised) return
         initialised = true
         viewModelScope.launch {
-            val cards = creditCardRepository.getAllActiveCreditCards().first().map { card ->
-                val last4 = card.lastFourDigits?.let { " ••••$it" }.orEmpty()
-                CardOption(card.id, "${card.bankName}$last4")
-            }
+            val cards = loadCards()
             val now = System.currentTimeMillis()
             _uiState.update {
                 it.copy(
@@ -85,6 +82,36 @@ class AddEMIViewModel @Inject constructor(
             }
             if (emiId > 0) loadForEdit(emiId, cards)
         }
+        // Keep the card list live so a card added from this screen shows up on return.
+        viewModelScope.launch {
+            creditCardRepository.getAllActiveCreditCards().collect { list ->
+                val cards = list.map(::cardOption)
+                _uiState.update {
+                    it.copy(
+                        cards = cards,
+                        selectedCardId = it.selectedCardId?.takeIf { id -> cards.any { c -> c.id == id } }
+                            ?: cards.singleOrNull()?.id
+                    )
+                }
+            }
+        }
+        viewModelScope.launch {
+            emiRepository.observeAllEMIs().collect { list ->
+                val names = list.filter { it.lenderType != EMILenderType.CREDIT_CARD }
+                    .map { it.lenderName.trim() }
+                    .filter { it.isNotEmpty() }
+                    .distinctBy { it.lowercase() }
+                _uiState.update { it.copy(savedLenders = names) }
+            }
+        }
+    }
+
+    private suspend fun loadCards(): List<CardOption> =
+        creditCardRepository.getAllActiveCreditCards().first().map(::cardOption)
+
+    private fun cardOption(card: com.android.zenspend.feature.creditcard.domain.model.CreditCard): CardOption {
+        val last4 = card.lastFourDigits?.let { " ••••$it" }.orEmpty()
+        return CardOption(card.id, "${card.bankName}$last4")
     }
 
     private suspend fun loadForEdit(emiId: Long, cards: List<CardOption>) {

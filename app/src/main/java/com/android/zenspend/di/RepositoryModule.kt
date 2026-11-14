@@ -19,6 +19,8 @@ import com.android.zenspend.feature.creditcard.data.repository.CreditCardReposit
 import com.android.zenspend.feature.creditcard.domain.repository.CreditCardRepository
 import com.android.zenspend.feature.emi.data.repository.EMIRepositoryImpl
 import com.android.zenspend.feature.emi.domain.repository.EMIRepository
+import com.android.zenspend.feature.people.data.PeopleRepositoryImpl
+import com.android.zenspend.feature.people.domain.repository.PeopleRepository
 import com.android.zenspend.feature.recurring.data.repository.RecurringTransactionRepositoryImpl
 import com.android.zenspend.feature.recurring.domain.repository.RecurringTransactionRepository
 import com.android.zenspend.feature.report.data.repository.ReportRepositoryImpl
@@ -72,6 +74,12 @@ abstract class RepositoryModule {
     abstract fun bindEMIRepository(
         emiRepositoryImpl: EMIRepositoryImpl
     ): EMIRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPeopleRepository(
+        peopleRepositoryImpl: PeopleRepositoryImpl
+    ): PeopleRepository
 
     @Binds
     @Singleton

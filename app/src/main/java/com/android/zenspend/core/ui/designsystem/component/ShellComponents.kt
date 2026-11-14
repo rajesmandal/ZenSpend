@@ -302,7 +302,8 @@ fun ZenMemberChip(
     displayName: String,
     role: String,
     modifier: Modifier = Modifier,
-    isCurrentUser: Boolean = false
+    isCurrentUser: Boolean = false,
+    onRemove: (() -> Unit)? = null
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -321,13 +322,13 @@ fun ZenMemberChip(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                    .background((if (isCurrentUser) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary).copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = displayName.take(1).uppercase(),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = if (isCurrentUser) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary
                 )
             }
             Spacer(modifier = Modifier.width(Dimensions.SpacingLarge))
@@ -338,6 +339,11 @@ fun ZenMemberChip(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+            if (onRemove != null) {
+                androidx.compose.material3.TextButton(onClick = onRemove) {
+                    Text(androidx.compose.ui.res.stringResource(com.android.zenspend.R.string.cashbook_remove_member))
+                }
             }
         }
     }

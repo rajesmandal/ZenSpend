@@ -8,6 +8,7 @@ import com.android.zenspend.core.auth.data.AuthRepositoryImpl
 import com.android.zenspend.core.auth.domain.model.AuthState
 import com.android.zenspend.core.auth.domain.usecase.ObserveAuthStateUseCase
 import com.android.zenspend.core.auth.domain.usecase.SignOutUseCase
+import com.android.zenspend.core.common.error.AppError
 import com.android.zenspend.core.common.result.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,7 +57,7 @@ class LoginViewModel @Inject constructor(
                 is Resource.Success -> _uiState.value = _uiState.value.copy(isLoading = false)
                 is Resource.Error -> _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = result.error.toString()
+                    errorMessage = describe(result.error)
                 )
                 Resource.Loading -> Unit
             }
@@ -65,5 +66,18 @@ class LoginViewModel @Inject constructor(
 
     fun signOut() {
         viewModelScope.launch { signOutUseCase() }
+    }
+
+    /** Plain-language reason plus the technical type, so a failure on another phone can be diagnosed from a screenshot. */
+    private fun describe(error: AppError): String {
+        val t = (error as? AppError.UnexpectedError)?.throwable ?: return error.toString()
+        val hint = when (t) {
+            is androidx.credentials.exceptions.GetCredentialCancellationException -> "Sign-in cancelled."
+            is androidx.credentials.exceptions.NoCredentialException ->
+                "No Google account found on this phone, or this app's SHA-1 is not registered in Firebase."
+            is com.google.firebase.FirebaseNetworkException -> "No internet connection."
+            else -> "Sign-in failed."
+        }
+        return "$hint (${t.javaClass.simpleName}: ${t.message.orEmpty().take(160)})"
     }
 }

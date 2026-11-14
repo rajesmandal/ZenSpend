@@ -41,6 +41,24 @@ fun SettingsScreen(
 
     var showSmsDisclosure by remember { mutableStateOf(false) }
 
+    // Android 13+ needs the notification permission before the pinned notification can show.
+    val notificationPermission = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { granted -> if (granted) viewModel.setQuickAddNotification(true) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val requestQuickAdd = { enable: Boolean ->
+        val needsPermission = enable &&
+            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU &&
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                context, android.Manifest.permission.POST_NOTIFICATIONS
+            ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        if (needsPermission) {
+            notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            viewModel.setQuickAddNotification(enable)
+        }
+    }
+
     if (showSmsDisclosure) {
         AlertDialog(
             onDismissRequest = { showSmsDisclosure = false },
@@ -115,6 +133,22 @@ fun SettingsScreen(
                         if (state.isSmsDetectionEnabled) onNavigateToSmsDrafts() else showSmsDisclosure = true
                     }
                 )
+            }
+            item {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ZenSettingsRow(
+                        title = stringResource(R.string.settings_quick_add_title),
+                        subtitle = stringResource(R.string.settings_quick_add_subtitle),
+                        icon = Icons.Default.AddCircle,
+                        onClick = { requestQuickAdd(!state.isQuickAddNotificationEnabled) },
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(
+                        checked = state.isQuickAddNotificationEnabled,
+                        onCheckedChange = requestQuickAdd,
+                        modifier = Modifier.padding(end = Dimensions.ScreenPadding)
+                    )
+                }
             }
             item {
                 ZenSettingsRow(

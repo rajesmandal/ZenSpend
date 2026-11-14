@@ -30,18 +30,21 @@ object EmiSchedule {
      * [EMI.dueDay] on or after the start date; each next one is a month later. Months shorter than
      * the due day use their last day.
      */
-    fun installmentDueDate(emi: EMI, number: Int): Long {
-        val start = Calendar.getInstance().apply { timeInMillis = emi.startDate }
-        val firstMonthOffset = if (start.get(Calendar.DAY_OF_MONTH) <= emi.dueDay) 0 else 1
+    fun installmentDueDate(emi: EMI, number: Int): Long = installmentDueDate(emi.startDate, emi.dueDay, number)
+
+    /** Same rule for anything repaid in monthly installments (also used for money lent to people). */
+    fun installmentDueDate(startDate: Long, dueDay: Int, number: Int): Long {
+        val start = Calendar.getInstance().apply { timeInMillis = startDate }
+        val firstMonthOffset = if (start.get(Calendar.DAY_OF_MONTH) <= dueDay) 0 else 1
         return Calendar.getInstance().apply {
-            timeInMillis = emi.startDate
+            timeInMillis = startDate
             set(Calendar.DAY_OF_MONTH, 1)
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
             add(Calendar.MONTH, firstMonthOffset + (number - 1))
-            set(Calendar.DAY_OF_MONTH, emi.dueDay.coerceAtMost(getActualMaximum(Calendar.DAY_OF_MONTH)))
+            set(Calendar.DAY_OF_MONTH, dueDay.coerceAtMost(getActualMaximum(Calendar.DAY_OF_MONTH)))
         }.timeInMillis
     }
 

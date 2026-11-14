@@ -20,11 +20,19 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun AddEditCreditCardScreen(
     onNavigateBack: () -> Unit,
+    prefillLast4: String? = null,
+    prefillBank: String? = null,
     viewModel: CreditCardViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val form = state.formState
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // Coming from an SMS suggestion: the bank and last 4 digits are already known.
+    LaunchedEffect(prefillLast4, prefillBank) {
+        prefillBank?.takeIf { it.isNotBlank() }?.let { viewModel.handleEvent(CreditCardUiEvent.OnBankNameChange(it)) }
+        prefillLast4?.takeIf { it.isNotBlank() }?.let { viewModel.handleEvent(CreditCardUiEvent.OnLastFourChange(it)) }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.uiEffect.collectLatest { effect ->

@@ -2,6 +2,8 @@ package com.android.zenspend.feature.household.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.android.zenspend.R
+import com.android.zenspend.core.common.error.AppError
 import com.android.zenspend.core.auth.domain.model.AuthState
 import com.android.zenspend.core.auth.domain.usecase.GetCurrentUserUseCase
 import com.android.zenspend.core.auth.domain.usecase.ObserveAuthStateUseCase
@@ -28,9 +30,13 @@ data class HouseholdUiState(
     val inviteToken: String = "",
     val lastInvitation: Invitation? = null,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    val successMessage: String? = null
-)
+    /** Either a string resource or, for server-provided validation text, the raw message. */
+    val errorRes: Int? = null,
+    val errorRaw: String? = null,
+    val successRes: Int? = null
+) {
+    val hasError: Boolean get() = errorRes != null || errorRaw != null
+}
 
 @HiltViewModel
 class HouseholdViewModel @Inject constructor(
@@ -101,16 +107,16 @@ class HouseholdViewModel @Inject constructor(
     fun createHousehold() {
         viewModelScope.launch {
             val user = getCurrentUserUseCase() ?: return@launch
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorRes = null, errorRaw = null, successRes = null)
             when (val result = createHouseholdUseCase(_uiState.value.householdName, user.userId)) {
                 is Resource.Success -> {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        successMessage = "Household created. Invite your partner!"
+                        successRes = R.string.cashbook_msg_created
                     )
                     syncScheduler.scheduleSync()
                 }
-                is Resource.Error -> _uiState.value = _uiState.value.copy(isLoading = false, errorMessage = result.error.toString())
+                is Resource.Error -> fail(result.error)
                 Resource.Loading -> Unit
             }
         }
@@ -120,14 +126,14 @@ class HouseholdViewModel @Inject constructor(
         viewModelScope.launch {
             val user = getCurrentUserUseCase() ?: return@launch
             val household = _uiState.value.household ?: return@launch
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorRes = null, errorRaw = null, successRes = null)
             when (val result = createInvitationUseCase(household.id, user.userId)) {
                 is Resource.Success -> _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     lastInvitation = result.data,
-                    successMessage = "Invitation created"
+                    successRes = R.string.cashbook_msg_invite_ready
                 )
-                is Resource.Error -> _uiState.value = _uiState.value.copy(isLoading = false, errorMessage = result.error.toString())
+                is Resource.Error -> fail(result.error)
                 Resource.Loading -> Unit
             }
         }
@@ -135,13 +141,13 @@ class HouseholdViewModel @Inject constructor(
 
     fun joinHousehold() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorRes = null, errorRaw = null, successRes = null)
             when (val result = joinHouseholdUseCase(_uiState.value.inviteToken)) {
                 is Resource.Success -> {
-                    _uiState.value = _uiState.value.copy(isLoading = false, successMessage = "Joined household")
+                    _uiState.value = _uiState.value.copy(isLoading = false, inviteToken = "", successRes = R.string.cashbook_msg_joined)
                     syncScheduler.scheduleSync()
                 }
-                is Resource.Error -> _uiState.value = _uiState.value.copy(isLoading = false, errorMessage = result.error.toString())
+                is Resource.Error -> fail(result.error)
                 Resource.Loading -> Unit
             }
         }
@@ -151,9 +157,52 @@ class HouseholdViewModel @Inject constructor(
         viewModelScope.launch {
             val user = getCurrentUserUseCase() ?: return@launch
             val household = _uiState.value.household ?: return@launch
-            householdRepository.leaveHousehold(household.id, user.userId)
-            scopeManager.setActiveHouseholdId(null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorRes = null, errorRaw = null, successRes = null)
+            when (val result = householdRepository.leaveHousehold(household.id, user.userId)) {
+                is Resource.Success -> {
+                    scopeManager.setActiveHouseholdId(null)
+                    _uiState.value = _uiState.value.copy(isLoading = false, successRes = R.string.cashbook_msg_left)
+                }
+                is Resource.Error -> fail(result.error)
+                Resource.Loading -> Unit
+            }
         }
+    }
+
+    fun removeMember(memberUserId: String) {
+        viewModelScope.launch {
+            val user = getCurrentUserUseCase() ?: return@launch
+            val household = _uiState.value.household ?: return@launch
+            _uiState.value = _uiState.value.copy(isLoading = true, errorRes = null, errorRaw = null, successRes = null)
+            when (val result = householdRepository.removeMember(household.id, memberUserId, user.userId)) {
+                is Resource.Success -> _uiState.value =
+                    _uiState.value.copy(isLoading = false, successRes = R.string.cashbook_msg_removed)
+                is Resource.Error -> fail(result.error)
+                Resource.Loading -> Unit
+            }
+        }
+    }
+
+    fun renameHousehold(name: String) {
+        if (name.isBlank()) return
+        viewModelScope.launch {
+            val household = _uiState.value.household ?: return@launch
+            when (val result = householdRepository.renameHousehold(household.id, name)) {
+                is Resource.Success -> _uiState.value =
+                    _uiState.value.copy(errorRes = null, errorRaw = null, successRes = R.string.cashbook_msg_renamed)
+                is Resource.Error -> fail(result.error)
+                Resource.Loading -> Unit
+            }
+        }
+    }
+
+    /** The share sheet was shown; stop re-sharing the same invitation. */
+    fun invitationShared() {
+        _uiState.value = _uiState.value.copy(lastInvitation = null)
+    }
+
+    fun dismissMessage() {
+        _uiState.value = _uiState.value.copy(errorRes = null, errorRaw = null, successRes = null)
     }
 
     fun signOut() {
@@ -164,10 +213,12 @@ class HouseholdViewModel @Inject constructor(
         }
     }
 
-    fun renameHousehold(name: String) {
-        viewModelScope.launch {
-            val household = _uiState.value.household ?: return@launch
-            householdRepository.renameHousehold(household.id, name)
-        }
+    private fun fail(error: AppError) {
+        val raw = (error as? AppError.ValidationError.GenericError)?.message
+        _uiState.value = _uiState.value.copy(
+            isLoading = false,
+            errorRaw = raw,
+            errorRes = if (raw == null) R.string.cashbook_msg_failed else null
+        )
     }
 }

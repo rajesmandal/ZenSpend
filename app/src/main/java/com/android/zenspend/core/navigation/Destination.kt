@@ -42,6 +42,36 @@ sealed class Destination(val route: String) {
         }
     }
 
+    /** Add-card form pre-filled from what an SMS showed (bank may be unknown, so it is optional). */
+    data class AddCreditCardSuggested(val last4: String, val bank: String?) :
+        Destination("add_credit_card_suggested/$last4?bank=${android.net.Uri.encode(bank.orEmpty())}") {
+        companion object {
+            const val ROUTE = "add_credit_card_suggested/{last4}?bank={bank}"
+        }
+    }
+
+    object People : Destination("people_list")
+    data class PersonDetails(val id: Long) : Destination("person_details/$id") {
+        companion object {
+            const val ROUTE = "person_details/{personId}"
+        }
+    }
+    data class AddLoan(val personId: Long) : Destination("add_loan/$personId") {
+        companion object {
+            const val ROUTE = "add_loan/{personId}"
+        }
+    }
+    data class EditLoan(val loanId: Long) : Destination("edit_loan/$loanId") {
+        companion object {
+            const val ROUTE = "edit_loan/{loanId}"
+        }
+    }
+    data class LoanDetails(val loanId: Long) : Destination("loan_details/$loanId") {
+        companion object {
+            const val ROUTE = "loan_details/{loanId}"
+        }
+    }
+
     object Budgets : Destination("budgets_list")
     object AddBudget : Destination("add_budget")
     object BudgetPlan : Destination("budget_plan")

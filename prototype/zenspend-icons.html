@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZenSpend App Icons</title>
+<style>
+  :root{
+    --cream:#F6F1E7; --paper:#fff; --ink:#141414; --soft:#6F6A5E; --sand:#E4DDCE;
+    --lime:#CDF45C; --coral:#FF7A59; --lilac:#C9B8FF; --sky:#A9D8FF; --sun:#FFD166; --mint:#9AE6B4;
+    --night:#0E0E0E;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--cream);color:var(--ink);font-family:Inter,system-ui,sans-serif;padding:32px 20px 64px}
+  h1{font-size:30px;letter-spacing:-.02em}
+  .lead{color:var(--soft);margin:6px 0 28px;max-width:640px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;max-width:1100px;margin:auto}
+  .card{background:var(--paper);border-radius:28px;padding:22px;border:1px solid var(--sand)}
+  .card h2{font-size:17px;display:flex;gap:8px;align-items:center}
+  .num{background:var(--ink);color:var(--lime);border-radius:99px;font-size:12px;padding:2px 9px}
+  .card p{color:var(--soft);font-size:13px;margin:6px 0 16px;min-height:38px}
+  .stage{background:var(--cream);border-radius:20px;padding:20px;display:flex;justify-content:center}
+  .row{display:flex;gap:14px;align-items:flex-end;justify-content:center;margin-top:14px}
+  .ic{display:block}
+  .circle{border-radius:50%} .squircle{border-radius:30%} .round{border-radius:22%}
+  .ic svg{display:block;width:100%;height:100%}
+  .big{width:132px;height:132px}.mid{width:64px;height:64px}.sm{width:40px;height:40px}.xs{width:28px;height:28px}
+  .phone{max-width:420px;margin:36px auto 0;border-radius:36px;padding:28px 22px;background:linear-gradient(160deg,#2b2f3a,#12141a);color:#fff}
+  .phone h3{font-size:13px;font-weight:500;opacity:.7;margin-bottom:16px}
+  .apps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 8px;text-align:center;font-size:11px}
+  .apps div{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .apps .ph{width:56px;height:56px;border-radius:30%;background:#ffffff22}
+  .pick{max-width:1100px;margin:28px auto 0;color:var(--soft);font-size:14px}
+</style>
+</head>
+<body>
+<h1>ZenSpend — icon ideas</h1>
+<p class="lead">Bento theme ke hisaab se: cream, ink, aur lime / coral / lilac / sky tiles. Har concept 3 shapes (circle, squircle, rounded) aur chhote sizes me dikha hai.</p>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <!-- 1. Ink + lime Z -->
+    <symbol id="i1" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#141414"/>
+      <path d="M32 34h44v12L47 74h30v12H32V74l29-28H32z" fill="#CDF45C"/>
+      <circle cx="80" cy="30" r="7" fill="#FF7A59"/>
+    </symbol>
+    <!-- 2. Bento 2x2 -->
+    <symbol id="i2" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#F6F1E7"/>
+      <rect x="18" y="18" width="38" height="38" rx="12" fill="#CDF45C"/>
+      <rect x="60" y="18" width="30" height="38" rx="12" fill="#FF7A59"/>
+      <rect x="18" y="60" width="30" height="30" rx="12" fill="#C9B8FF"/>
+      <rect x="52" y="60" width="38" height="30" rx="12" fill="#141414"/>
+      <circle cx="71" cy="75" r="6" fill="#CDF45C"/>
+    </symbol>
+    <!-- 3. Lime + ink Z with coin -->
+    <symbol id="i3" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#CDF45C"/>
+      <path d="M30 32h48v13L48 72h30v13H30V72l30-27H30z" fill="#141414"/>
+      <circle cx="78" cy="78" r="12" fill="#FF7A59"/>
+      <path d="M72.5 78h11M78 72.5v11" stroke="#141414" stroke-width="3" stroke-linecap="round" opacity="0"/>
+    </symbol>
+    <!-- 4. Wallet -->
+    <symbol id="i4" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#C9B8FF"/>
+      <rect x="22" y="32" width="64" height="48" rx="14" fill="#141414"/>
+      <rect x="22" y="24" width="44" height="14" rx="7" fill="#F6F1E7" transform="rotate(-8 22 24)"/>
+      <rect x="22" y="32" width="64" height="48" rx="14" fill="#141414"/>
+      <rect x="60" y="48" width="26" height="18" rx="9" fill="#CDF45C"/>
+      <circle cx="70" cy="57" r="3.5" fill="#141414"/>
+    </symbol>
+    <!-- 5. Zen enso -->
+    <symbol id="i5" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#141414"/>
+      <path d="M78 30a33 33 0 1 0 6 26" fill="none" stroke="#F5F2EA" stroke-width="9" stroke-linecap="round"/>
+      <circle cx="54" cy="54" r="9" fill="#CDF45C"/>
+      <circle cx="82" cy="34" r="5" fill="#FF7A59"/>
+    </symbol>
+    <!-- 6. Three tiles forming Z -->
+    <symbol id="i6" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#F6F1E7"/>
+      <rect x="22" y="22" width="64" height="18" rx="9" fill="#CDF45C"/>
+      <rect x="22" y="68" width="64" height="18" rx="9" fill="#FF7A59"/>
+      <path d="M72 38 36 70" stroke="#141414" stroke-width="18" stroke-linecap="round"/>
+    </symbol>
+    <!-- 7. Rupee + rising bars (track) -->
+    <symbol id="i7" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#141414"/>
+      <rect x="20" y="62" width="14" height="26" rx="6" fill="#C9B8FF"/>
+      <rect x="40" y="48" width="14" height="40" rx="6" fill="#A9D8FF"/>
+      <rect x="60" y="34" width="14" height="54" rx="6" fill="#CDF45C"/>
+      <path d="M20 40 44 28 62 34 88 16" fill="none" stroke="#FF7A59" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="88" cy="16" r="6" fill="#FF7A59"/>
+    </symbol>
+    <!-- 8. Budget ring with rupee -->
+    <symbol id="i8" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#F6F1E7"/>
+      <circle cx="54" cy="54" r="32" fill="none" stroke="#E4DDCE" stroke-width="12"/>
+      <circle cx="54" cy="54" r="32" fill="none" stroke="#CDF45C" stroke-width="12" stroke-linecap="round" stroke-dasharray="130 201" transform="rotate(-90 54 54)"/>
+      <circle cx="54" cy="54" r="32" fill="none" stroke="#FF7A59" stroke-width="12" stroke-linecap="round" stroke-dasharray="0.1 201" stroke-dashoffset="-140" transform="rotate(-90 54 54)"/>
+      <path d="M44 42h20M44 50h20M44 42h5c8 0 10 12 0 12h-5l14 14" fill="none" stroke="#141414" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <!-- 9. Receipt + AI sparkle -->
+    <symbol id="i9" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#CDF45C"/>
+      <path d="M30 20h48v62l-8-6-8 6-8-6-8 6-8-6-8 6z" fill="#141414"/>
+      <rect x="38" y="32" width="28" height="5" rx="2.5" fill="#F5F2EA"/>
+      <rect x="38" y="44" width="20" height="5" rx="2.5" fill="#9D998C"/>
+      <rect x="38" y="56" width="24" height="5" rx="2.5" fill="#9D998C"/>
+      <path d="M78 54l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" fill="#FF7A59" stroke="#CDF45C" stroke-width="3" stroke-linejoin="round"/>
+    </symbol>
+    <!-- 10. Magnifier on coin (smart tracking) -->
+    <symbol id="i10" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#A9D8FF"/>
+      <circle cx="46" cy="46" r="24" fill="#141414"/>
+      <circle cx="46" cy="46" r="16" fill="#CDF45C"/>
+      <path d="M41 39h12M41 45h12M41 39h3c6 0 7 8 0 8h-3l10 10" fill="none" stroke="#141414" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M64 64l20 20" stroke="#141414" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="84" cy="24" r="5" fill="#FFD166"/>
+    </symbol>
+    <!-- 11. SMS bubble turning into rupee (auto-detect) -->
+    <symbol id="i11" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#141414"/>
+      <path d="M22 24h64a8 8 0 0 1 8 8v34a8 8 0 0 1-8 8H52L34 90V74h-12a8 8 0 0 1-8-8V32a8 8 0 0 1 8-8z" fill="#FFD166"/>
+      <path d="M42 36h24M42 44h24M42 36h8c13 0 15 18 0 18h-8l20 18" fill="none" stroke="#141414" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="90" cy="24" r="8" fill="#FF7A59"/>
+    </symbol>
+    <!-- 12. Donut split 50/30/20 -->
+    <symbol id="i12" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#C9B8FF"/>
+      <g transform="rotate(-90 54 54)" fill="none" stroke-width="22">
+        <circle cx="54" cy="54" r="26" stroke="#141414" stroke-dasharray="81.7 163.4"/>
+        <circle cx="54" cy="54" r="26" stroke="#CDF45C" stroke-dasharray="49 163.4" stroke-dashoffset="-81.7"/>
+        <circle cx="54" cy="54" r="26" stroke="#FF7A59" stroke-dasharray="32.7 163.4" stroke-dashoffset="-130.7"/>
+      </g>
+      <circle cx="54" cy="54" r="11" fill="#C9B8FF"/>
+    </symbol>
+
+    <!-- 13 current DNA on ink -->
+    <symbol id="i13" viewBox="0 0 108 108"><rect width="108" height="108" fill="#141414"/><path d="M33 30H68L36 66H66" fill="none" stroke="#F5F2EA" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><rect x="52" y="64" width="34" height="24" rx="8" fill="#CDF45C"/><circle cx="78" cy="76" r="3.5" fill="#141414"/><path d="M72 20c12-1 18 4 17 15-11 1-18-3-17-15z" fill="#CDF45C"/><path d="M74 34c4-5 8-9 13-12" stroke="#141414" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+    <!-- 14 on lime -->
+    <symbol id="i14" viewBox="0 0 108 108"><rect width="108" height="108" fill="#CDF45C"/><path d="M33 30H68L36 66H66" fill="none" stroke="#141414" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><rect x="52" y="64" width="34" height="24" rx="8" fill="#141414"/><circle cx="78" cy="76" r="3.5" fill="#CDF45C"/><path d="M72 20c12-1 18 4 17 15-11 1-18-3-17-15z" fill="#FF7A59"/><path d="M74 34c4-5 8-9 13-12" stroke="#141414" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+    <!-- 15 deep green kept, bento accents on cream -->
+    <symbol id="i15" viewBox="0 0 108 108"><rect width="108" height="108" fill="#F6F1E7"/><path d="M33 30H68L36 66H66" fill="none" stroke="#0E5A45" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><rect x="52" y="64" width="34" height="24" rx="8" fill="#CDF45C"/><circle cx="78" cy="76" r="3.5" fill="#141414"/><path d="M72 20c12-1 18 4 17 15-11 1-18-3-17-15z" fill="#FF7A59"/><path d="M74 34c4-5 8-9 13-12" stroke="#141414" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+    <!-- 16 deep green base, lime Z -->
+    <symbol id="i16" viewBox="0 0 108 108"><rect width="108" height="108" fill="#0E5A45"/><path d="M33 30H68L36 66H66" fill="none" stroke="#F6F1E7" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><rect x="52" y="64" width="34" height="24" rx="8" fill="#CDF45C"/><circle cx="78" cy="76" r="3.5" fill="#0E5A45"/><path d="M72 20c12-1 18 4 17 15-11 1-18-3-17-15z" fill="#CDF45C"/><path d="M74 34c4-5 8-9 13-12" stroke="#0E5A45" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+    <!-- 17 Z whose bottom bar is the wallet, leaf as growth -->
+    <symbol id="i17" viewBox="0 0 108 108"><rect width="108" height="108" fill="#C9B8FF"/>
+      <path d="M30 28H70L40 62" fill="none" stroke="#141414" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="28" y="62" width="52" height="28" rx="10" fill="#141414"/>
+      <rect x="60" y="70" width="20" height="13" rx="6.5" fill="#CDF45C"/><circle cx="67" cy="76.5" r="2.8" fill="#141414"/>
+      <path d="M72 20c12-1 18 4 17 15-11 1-18-3-17-15z" fill="#FF7A59"/><path d="M74 34c4-5 8-9 13-12" stroke="#141414" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+    <!-- 18 bento tile Z: ink tile + wallet + leaf sprouting -->
+    <symbol id="i18" viewBox="0 0 108 108"><rect width="108" height="108" fill="#F6F1E7"/>
+      <rect x="16" y="16" width="76" height="76" rx="22" fill="#141414"/>
+      <path d="M33 30H68L36 66H66" fill="none" stroke="#F5F2EA" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><rect x="52" y="64" width="34" height="24" rx="8" fill="#CDF45C"/><circle cx="78" cy="76" r="3.5" fill="#141414"/><path d="M72 20c12-1 18 4 17 15-11 1-18-3-17-15z" fill="#CDF45C"/><path d="M74 34c4-5 8-9 13-12" stroke="#141414" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="icur" viewBox="0 0 108 108"><rect width="108" height="108" fill="#FAFAFA"/><image href="../app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.webp" x="0" y="0" width="108" height="108"/></symbol>
+  </defs>
+</svg>
+
+<div class="grid" id="grid"></div>
+
+<div class="phone">
+  <h3>Home screen preview (current vs 14 / 16)</h3>
+  <div class="apps" id="apps"></div>
+</div>
+
+<p class="pick">Batao kaunsa pasand aaya (number) — usko adaptive icon (foreground + background + monochrome) me implement kar dunga. Colors ya shape chahiye to wo bhi change ho jayega.</p>
+
+<script>
+const items=[
+ ['icur','Current icon','Abhi wala icon (reference). Dark green Z + wallet + leaf. Isme Z, wallet aur leaf (growth) idea achha hai, bas colours theme se match nahi karte.'],
+ ['i13','Current DNA: Ink','Wahi Z + wallet + leaf, par Ink base, bone Z, lime wallet/leaf — Bento dark tile jaisa.'],
+ ['i14','Current DNA: Lime','Lime base, ink Z, ink wallet, coral leaf. Sabse pop karta hai, leaf coral se alag dikhta hai.'],
+ ['i15','Current DNA: Cream','Purana deep green Z rakha, par cream base + lime wallet + coral leaf. Existing brand se sabse close.'],
+ ['i16','Current DNA: Green','Deep green base (purane brand color) par bone Z, lime wallet/leaf. Calm, zen feel.'],
+ ['i17','Wallet Z','Z ka niche wala hissa wallet ban gaya, lilac base, coral leaf = growth.'],
+ ['i18','Tile Z','Cream canvas par ink rounded tile ke andar Z + wallet + leaf. Pura Bento-card look.'],
+ ['i1','Ink Z','Dark ink base, lime Z, coral dot. Bold aur sabse alag dikhta hai — theme ke Ink tiles jaisa.'],
+ ['i2','Bento tiles','Seedha app ke bento layout ka icon: 4 colour tiles, ek dark tile me coin.'],
+ ['i3','Lime Z','Lime background, ink Z, coral coin. Home screen me bahut pop karta hai.'],
+ ['i4','Wallet','Lilac base, ink wallet, lime clasp. Purpose turant samajh aata hai.'],
+ ['i5','Zen ring','Ink base, ensō circle (zen), lime centre. Calm / minimal feel.'],
+ ['i7','Rise + track','Rising bars + trend line = spending ka graph. Dark base par lilac/sky/lime bars, coral trend.'],
+ ['i8','Budget ring','Cream base par budget progress ring ke andar ₹. "Kitna use hua" turant dikhta hai.'],
+ ['i9','Smart receipt','Lime base, ink receipt line-items ke saath, coral AI sparkle = smart, auto tracking.'],
+ ['i10','Spend finder','Magnifier ₹ coin par = har kharch ko dhoondhna/track karna. Sky blue base.'],
+ ['i11','SMS to ₹','SMS bubble me ₹ — app SMS se kharch khud pakadta hai. Ye ZenSpend ka unique feature hai.'],
+ ['i12','Split donut','50/30/20 plan ka donut chart, lilac base. Budgeting wala look.'],
+ ['i6','Tile Z','Cream base, lime + coral bars joined by ink diagonal = Z. Light theme friendly.']
+];
+const g=document.getElementById('grid');
+const use=(id,cls)=>`<div class="ic ${cls}"><svg><use href="#${id}"/></svg></div>`;
+const sized=(id,shape)=>`<div class="ic big ${shape}" style="overflow:hidden"><svg><use href="#${id}"/></svg></div>`;
+items.forEach(([id,name,desc],n)=>{
+  const sh=s=>`<div class="ic mid ${s}" style="overflow:hidden"><svg><use href="#${id}"/></svg></div>`;
+  const sm=s=>`<div class="ic sm ${s}" style="overflow:hidden"><svg><use href="#${id}"/></svg></div>`;
+  g.insertAdjacentHTML('beforeend',`
+   <div class="card"><h2><span class="num">${n+1}</span>${name}</h2><p>${desc}</p>
+    <div class="stage">${sized(id,'squircle')}</div>
+    <div class="row">${sh('circle')}${sh('squircle')}${sh('round')}${sm('squircle')}
+      <div class="ic xs squircle" style="overflow:hidden"><svg><use href="#${id}"/></svg></div></div>
+   </div>`);
+});
+const apps=document.getElementById('apps');
+const fake=['Phone','Chats','Photos','Maps'];
+const mix=['icur','i14','i16'];
+const html=[];
+fake.forEach(f=>html.push(`<div><div class="ph"></div>${f}</div>`));
+mix.forEach(id=>html.push(`<div><div class="ic squircle" style="width:56px;height:56px;overflow:hidden"><svg><use href="#${id}"/></svg></div>ZenSpend</div>`));
+html.push(`<div><div class="ph"></div>Mail</div>`);
+apps.innerHTML=html.join('');
+</script>
+</body>
+</html>

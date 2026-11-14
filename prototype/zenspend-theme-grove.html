@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZenSpend Grove Theme</title>
+<style>
+  /* Tokens — icon colours. Grove = Canopy's curved gradient header + Verdant's bento tiles. */
+  :root{
+    --forest:#0B5443; --forest2:#12775E; --emerald:#2E9B50; --leaf:#7CC84A; --lime:#B8E86B;
+    --mint:#CDEBD3; --sprout:#E6F3E1; --gold:#EFC04E; --clay:#E8704F; --sky:#9CD3EA;
+    --bg:#EEF4E9; --surface:#FFFFFF; --surface2:#E3EEDC; --line:#D3E2CA;
+    --text:#0F251D; --text2:#587064; --on-head:#F2FAEF;
+    --in:#1E9A4E; --out:#D9573A; --tr:#2E7CB8;
+    --tile-out:#F7DACF; --tile-out-text:#4A1D10; --tile-card:#F8E9BC;
+    --sh:0 10px 28px rgba(11,84,67,.13);
+  }
+  [data-theme="dark"]{
+    --bg:#07130E; --surface:#0F2019; --surface2:#16291F; --line:#203529;
+    --text:#E9F4EB; --text2:#8FA89B; --mint:#1B392C; --sprout:#12271E;
+    --in:#6EDC8F; --out:#FF8A6B; --tr:#7DBDF0;
+    --tile-out:#3B2119; --tile-out-text:#FFDACD; --tile-card:#3A3116; --sh:none;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;padding:28px 18px 60px;transition:.25s}
+  .bar{max-width:1180px;margin:0 auto 22px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center}
+  h1{font-size:28px;letter-spacing:-.02em}.sub{color:var(--text2);font-size:14px;margin-top:4px}
+  .tg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:4px}
+  .tg button{border:0;background:none;padding:8px 18px;border-radius:99px;font:600 13px inherit;color:var(--text2);cursor:pointer}.tg .on{background:var(--forest);color:#fff}
+  .wrap{max-width:1180px;margin:auto}
+  h2{font-size:14px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin:30px 0 12px}
+  .mix{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .mix div{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px;font-size:13px;color:var(--text2);line-height:1.5}
+  .mix b{display:block;color:var(--text);font-size:14px;margin-bottom:4px}
+  .pal{display:flex;flex-wrap:wrap;gap:10px}.sw{width:128px;height:82px;border-radius:20px;padding:12px;font-size:11px;display:flex;flex-direction:column;justify-content:flex-end}.sw b{font-size:13px}
+  .phones{display:flex;flex-wrap:wrap;gap:24px;justify-content:center}
+  .phone{width:320px;height:670px;border:8px solid #101010;border-radius:40px;background:var(--bg);position:relative;overflow:hidden;box-shadow:var(--sh)}
+
+  /* Canopy part: curved gradient header with leaves */
+  .head{background:linear-gradient(160deg,var(--forest),var(--forest2));color:var(--on-head);padding:20px 18px 78px;border-radius:0 0 38px 38px;position:relative;overflow:hidden}
+  .head:before,.head:after{content:"";position:absolute;background:var(--leaf);border-radius:50% 0 50% 50%;transform:rotate(-20deg);opacity:.16}
+  .head:before{width:140px;height:140px;right:-34px;top:-38px}.head:after{width:64px;height:64px;right:78px;top:56px;opacity:.1}
+  .hr{display:flex;justify-content:space-between;align-items:center;position:relative}.hr small{opacity:.75;font-size:12px}.hr h3{font-size:21px;letter-spacing:-.02em}
+  .ib{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.15);display:grid;place-items:center;font-size:14px}
+  .month{margin-top:14px;display:flex;justify-content:center;gap:16px;align-items:center;font-size:13px;font-weight:600;position:relative}.month span{opacity:.6}
+
+  /* Hero floats across the header edge (Canopy) but is a Verdant forest tile */
+  .hero{margin:-58px 14px 0;background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:16px;box-shadow:var(--sh);position:relative}
+  .hero small{color:var(--text2);font-size:12px}.hero .n{font-size:32px;font-weight:700;letter-spacing:-.03em;margin:2px 0 12px}
+  .pills{display:flex;gap:8px}.pill{flex:1;text-align:center;font-size:12px;font-weight:600;padding:10px;border-radius:99px;background:var(--sprout);color:var(--text)}
+  .pill.pri{background:var(--forest);color:#fff}
+
+  /* Verdant part: bento tiles */
+  .body{padding:12px 14px 100px}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .tile{border-radius:24px;padding:14px;min-height:94px;font-size:12px;display:flex;flex-direction:column;justify-content:space-between}.tile b{font-size:19px;letter-spacing:-.02em}
+  .t-in{background:var(--mint)}.t-out{background:var(--tile-out);color:var(--tile-out-text)}
+  .t-save{background:var(--surface);border:1px solid var(--line)}
+  .t-bud{background:var(--leaf);color:#0B2A20}.bar2{height:7px;border-radius:9px;background:#0b54431f;margin-top:8px;overflow:hidden}.bar2 i{display:block;height:100%;width:62%;background:var(--forest)}
+  .wide{grid-column:span 2;display:flex;flex-direction:row;align-items:center;gap:12px;background:var(--forest);color:var(--on-head);min-height:0}
+  .wide .ico{width:40px;height:40px;border-radius:14px;background:var(--leaf);color:#0B2A20;display:grid;place-items:center;font-size:18px}
+  .wide span{flex:1;font-size:13px;line-height:1.35}.wide span small{display:block;opacity:.7;font-size:11px}
+  .sec{display:flex;justify-content:space-between;margin:16px 2px 8px;font-size:14px;font-weight:700}.sec span{font-size:12px;color:var(--emerald);font-weight:600}
+  .row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:10px 12px;margin-bottom:8px}
+  .av{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;font-size:17px}
+  .m{flex:1;font-size:13px;font-weight:600}.m small{display:block;font-weight:400;color:var(--text2);font-size:11px;margin-top:2px}
+  .neg{color:var(--out);font-weight:700;font-size:13px}.pos{color:var(--in);font-weight:700;font-size:13px}
+
+  /* Verdant dock, Canopy leaf FAB */
+  .dock{position:absolute;left:14px;right:14px;bottom:14px;background:var(--surface);border:1px solid var(--line);border-radius:30px;padding:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--sh)}
+  .dock span{width:42px;height:42px;display:grid;place-items:center;color:var(--text2);border-radius:50%}
+  .dock .act{width:auto;padding:0 16px;background:var(--forest);color:#fff;font-size:13px;font-weight:600;border-radius:99px}
+  .dock .fab{background:var(--leaf);color:#0B2A20;font-size:24px;border-radius:16px;box-shadow:0 6px 14px rgba(46,155,80,.4)}
+
+  /* wallets */
+  .card{border-radius:26px;padding:18px;color:#fff;position:relative;overflow:hidden;min-height:140px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(135deg,var(--forest),var(--emerald))}
+  .card:after{content:"";position:absolute;right:-24px;bottom:-30px;width:130px;height:130px;border-radius:50% 0 50% 50%;background:var(--lime);opacity:.22;transform:rotate(-25deg)}
+  .card.gold{background:linear-gradient(135deg,#7E6000,var(--gold));min-height:104px}
+  .rings{display:flex;justify-content:center;margin:6px 0}.ring{width:140px;height:140px;border-radius:50%;background:conic-gradient(var(--emerald) 0 62%,var(--gold) 62% 74%,var(--line) 74% 100%);display:grid;place-items:center}
+  .ring div{width:104px;height:104px;border-radius:50%;background:var(--bg);display:grid;place-items:center;text-align:center;font-size:11px;color:var(--text2)}.ring b{display:block;font-size:22px;color:var(--text)}
+  .trk{height:7px;border-radius:7px;background:var(--line);margin-top:7px;overflow:hidden}.trk i{display:block;height:100%}
+  .btn{border:0;border-radius:99px;padding:12px 22px;font-weight:600;font-size:14px}.p{background:var(--forest);color:#fff}.a{background:var(--leaf);color:#0B2A20}.s{background:var(--mint);color:var(--text)}
+  .comp{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:20px}
+  .note{max-width:720px;color:var(--text2);font-size:14px;line-height:1.6;margin-top:14px}
+</style>
+</head>
+<body data-theme="light">
+<div class="bar">
+  <div><h1>ZenSpend · Grove</h1><p class="sub">Verdant + Canopy ka mix: curved leaf header, floating hero, uske neeche bento tiles aur floating dock.</p></div>
+  <div class="tg"><button class="on" onclick="t('light',this)">Light</button><button onclick="t('dark',this)">Dark</button></div>
+</div>
+<div class="wrap">
+  <h2>Kya kahan se liya</h2>
+  <div class="mix">
+    <div><b>Canopy se</b>Curved gradient header, leaf shapes, header ke upar floating hero card, gradient wallet cards.</div>
+    <div><b>Verdant se</b>Bento tiles (mint / clay / leaf), pill actions, floating pill dock, income/expense semantic colours.</div>
+    <div><b>Naya</b>Hero me pill actions, dark "Zen AI" wide tile, leaf-shaped FAB (rounded square), tile colours dark mode me bhi tonal.</div>
+  </div>
+
+  <h2>Palette</h2>
+  <div class="pal">
+    <div class="sw" style="background:#0B5443;color:#fff"><b>Forest</b>#0B5443</div>
+    <div class="sw" style="background:#2E9B50;color:#fff"><b>Emerald</b>#2E9B50</div>
+    <div class="sw" style="background:#7CC84A;color:#0B2A20"><b>Leaf</b>#7CC84A</div>
+    <div class="sw" style="background:#B8E86B;color:#0B2A20"><b>Lime</b>#B8E86B</div>
+    <div class="sw" style="background:#CDEBD3;color:#0B2A20"><b>Mint</b>#CDEBD3</div>
+    <div class="sw" style="background:#EFC04E;color:#3a2a00"><b>Gold</b>#EFC04E</div>
+    <div class="sw" style="background:#E8704F;color:#fff"><b>Clay</b>#E8704F</div>
+    <div class="sw" style="background:#9CD3EA;color:#0b2a3a"><b>Sky</b>#9CD3EA</div>
+  </div>
+
+  <h2>Screens</h2>
+  <div class="phones">
+    <!-- Dashboard -->
+    <div class="phone">
+      <div class="head"><div class="hr"><div><small>Good morning</small><h3>Dashboard</h3></div><div style="display:flex;gap:8px"><div class="ib">🔔</div><div class="ib">⚙</div></div></div>
+        <div class="month"><span>‹</span>November 2026<span>›</span></div></div>
+      <div class="hero"><small>Net worth</small><div class="n">₹26,622.60</div>
+        <div class="pills"><div class="pill pri">＋ Add</div><div class="pill">Wallets</div><div class="pill">Cards</div></div></div>
+      <div class="body">
+        <div class="tiles">
+          <div class="tile t-in"><span>Income</span><b>₹0</b></div>
+          <div class="tile t-out"><span>Spent</span><b>₹6,153.90</b></div>
+          <div class="tile t-save"><span>Saved</span><b>₹-6,153.90</b></div>
+          <div class="tile t-bud"><span>Budget left</span><b>₹21,846.10</b><div class="bar2"><i></i></div></div>
+          <div class="tile wide"><div class="ico">✨</div><span>Zen AI<small>Ask about your spending</small></span><span style="flex:0">→</span></div>
+        </div>
+        <div class="sec">Recent <span>See all</span></div>
+        <div class="row"><div class="av" style="background:var(--mint)">🛒</div><div class="m">Groceries<small>Today · SBI</small></div><div class="neg">-₹1,240</div></div>
+      </div>
+      <div class="dock"><span class="act">🏠 Home</span><span>🕘</span><span>👛</span><span>📊</span><span class="fab">+</span></div>
+    </div>
+
+    <!-- Wallets -->
+    <div class="phone">
+      <div class="head" style="padding-bottom:70px"><div class="hr"><div><small>Accounts</small><h3>Wallets</h3></div><div class="ib">＋</div></div></div>
+      <div class="hero"><small>Net worth</small><div class="n">₹26,622.60</div>
+        <div class="pills"><div class="pill" style="background:var(--mint)">Assets ₹26,622</div><div class="pill" style="background:var(--tile-out);color:var(--tile-out-text)">Debt ₹0</div></div></div>
+      <div class="body">
+        <div class="sec" style="margin-top:6px">All accounts</div>
+        <div class="card"><div style="display:flex;justify-content:space-between;font-size:12px;opacity:.85"><span>State Bank Of India</span><span>BANK</span></div><div><div style="font-size:12px;opacity:.8">Balance</div><div style="font-size:27px;font-weight:700">₹26,622.60</div></div></div>
+        <div style="height:10px"></div>
+        <div class="card gold"><div style="font-size:12px">HDFC Credit ·· 1234</div><div><div style="font-size:12px">Outstanding</div><div style="font-size:21px;font-weight:700">₹12,450</div></div></div>
+      </div>
+      <div class="dock"><span>🏠</span><span>🕘</span><span class="act">👛 Wallets</span><span>📊</span><span class="fab">+</span></div>
+    </div>
+
+    <!-- Budgets -->
+    <div class="phone">
+      <div class="head" style="padding-bottom:30px"><div class="hr"><div><small>November 2026</small><h3>Budgets</h3></div><div class="ib">＋</div></div></div>
+      <div class="body" style="padding-top:14px">
+        <div class="rings"><div class="ring"><div><span><b>62%</b>used</span></div></div></div>
+        <div class="tiles" style="margin-top:6px">
+          <div class="tile t-bud" style="min-height:70px"><span>Needs 50%</span><b>₹25,000</b></div>
+          <div class="tile t-in" style="min-height:70px"><span>Wants 30%</span><b>₹15,000</b></div>
+        </div>
+        <div class="sec">Categories</div>
+        <div class="row" style="display:block"><div style="display:flex;gap:10px;align-items:center"><div class="av" style="background:var(--mint)">🛒</div><div class="m">Food<small>₹3,100 of ₹5,000</small></div></div><div class="trk"><i style="width:62%;background:var(--emerald)"></i></div></div>
+        <div class="row" style="display:block"><div style="display:flex;gap:10px;align-items:center"><div class="av" style="background:var(--tile-card)">🚌</div><div class="m">Transport<small>₹1,900 of ₹2,000</small></div></div><div class="trk"><i style="width:95%;background:var(--gold)"></i></div></div>
+        <div class="row" style="display:block"><div style="display:flex;gap:10px;align-items:center"><div class="av" style="background:var(--tile-out)">🎬</div><div class="m">Fun<small>₹1,300 of ₹1,000</small></div></div><div class="trk"><i style="width:100%;background:var(--clay)"></i></div></div>
+      </div>
+      <div class="dock"><span>🏠</span><span>🕘</span><span>👛</span><span class="act">📊 Budgets</span><span class="fab">+</span></div>
+    </div>
+  </div>
+
+  <h2>Components</h2>
+  <div class="comp"><button class="btn p">Primary</button><button class="btn a">Accent</button><button class="btn s">Soft</button></div>
+  <p class="note">Grove me Canopy ki softness (curved header, leaf motifs) aur Verdant ki density (tiles) dono hain. Implement karna ho to header ek reusable component hoga (ZenHeader), baaki tiles/dock jo abhi hain wahi rahenge — sirf Color.kt ke tokens aur header add hoga.</p>
+</div>
+<script>function t(m,b){document.body.dataset.theme=m;document.querySelectorAll('.tg button').forEach(x=>x.classList.remove('on'));b.classList.add('on')}</script>
+</body>
+</html>

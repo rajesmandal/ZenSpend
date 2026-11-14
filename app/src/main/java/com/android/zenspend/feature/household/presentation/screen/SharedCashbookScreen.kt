@@ -36,6 +36,9 @@ fun SharedCashbookScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    var showRename by remember { mutableStateOf(false) }
+    var showLeave by remember { mutableStateOf(false) }
+    var memberToRemove by remember { mutableStateOf<HouseholdMember?>(null) }
 
     if (state.authState !is AuthState.Authenticated) {
         SharedCashbookSignInPrompt(onSignIn = onNavigateToLogin, onBack = onNavigateBack)
@@ -60,13 +63,19 @@ fun SharedCashbookScreen(
                 .padding(horizontal = Dimensions.ScreenPadding),
             verticalArrangement = Arrangement.spacedBy(Dimensions.TileGap)
         ) {
-            state.errorMessage?.let { message ->
-                item { ZenStatusBanner(message = message, isError = true) }
+            if (state.hasError) {
+                item {
+                    ZenStatusBanner(
+                        message = state.errorRaw ?: stringResource(state.errorRes ?: R.string.cashbook_msg_failed),
+                        isError = true
+                    )
+                }
             }
-            state.successMessage?.let { message ->
-                item { ZenStatusBanner(message = message) }
+            state.successRes?.let { res ->
+                item { ZenStatusBanner(message = stringResource(res)) }
             }
 
+            val me = (state.authState as AuthState.Authenticated).userId
             if (state.household == null) {
                 item {
                     PremiumFeatureGate(
@@ -90,26 +99,37 @@ fun SharedCashbookScreen(
                     )
                 }
             } else {
+                val household = state.household!!
+                val currentMember = state.members.find { it.userId == me }
+                val isOwner = currentMember?.role == HouseholdRole.OWNER
                 item {
-                    HouseholdHeaderCard(householdName = state.household!!.name)
+                    HouseholdHeaderCard(
+                        householdName = household.name,
+                        memberCount = state.members.size,
+                        memberLimit = household.memberLimit,
+                        canRename = isOwner,
+                        onRename = { showRename = true }
+                    )
                 }
-                item {
-                    ZenSectionHeader(title = stringResource(R.string.cashbook_members))
-                }
-                items(state.members) { member ->
+                item { ZenSectionHeader(title = stringResource(R.string.cashbook_members)) }
+                items(state.members, key = { it.userId }) { member ->
                     ZenMemberChip(
                         displayName = member.displayName,
-                        role = member.role.name.lowercase().replaceFirstChar { it.uppercase() },
-                        isCurrentUser = member.userId == (state.authState as AuthState.Authenticated).userId
+                        role = stringResource(
+                            if (member.role == HouseholdRole.OWNER) R.string.cashbook_role_owner
+                            else R.string.cashbook_role_member
+                        ),
+                        isCurrentUser = member.userId == me,
+                        onRemove = if (isOwner && member.userId != me) ({ memberToRemove = member }) else null
                     )
                 }
                 item {
                     HouseholdActions(
-                        currentMember = state.members.find {
-                            it.userId == (state.authState as AuthState.Authenticated).userId
-                        },
+                        isOwner = isOwner,
+                        isFull = state.members.size >= household.memberLimit,
+                        isLoading = state.isLoading,
                         onInvite = viewModel::createInvitation,
-                        onLeave = viewModel::leaveHousehold
+                        onLeave = { showLeave = true }
                     )
                 }
             }
@@ -124,6 +144,45 @@ fun SharedCashbookScreen(
         }
     }
 
+    if (showRename) {
+        var draft by remember { mutableStateOf(state.household?.name.orEmpty()) }
+        AlertDialog(
+            onDismissRequest = { showRename = false },
+            title = { Text(stringResource(R.string.cashbook_rename_title)) },
+            text = { ZenTextField(value = draft, onValueChange = { draft = it }, label = stringResource(R.string.cashbook_household_name)) },
+            confirmButton = {
+                TextButton(enabled = draft.isNotBlank(), onClick = { viewModel.renameHousehold(draft); showRename = false }) {
+                    Text(stringResource(R.string.cashbook_save))
+                }
+            },
+            dismissButton = { TextButton(onClick = { showRename = false }) { Text(stringResource(R.string.action_cancel)) } }
+        )
+    }
+    if (showLeave) {
+        AlertDialog(
+            onDismissRequest = { showLeave = false },
+            title = { Text(stringResource(R.string.cashbook_leave_title)) },
+            text = { Text(stringResource(R.string.cashbook_leave_body)) },
+            confirmButton = {
+                TextButton(onClick = { showLeave = false; viewModel.leaveHousehold() }) { Text(stringResource(R.string.cashbook_leave)) }
+            },
+            dismissButton = { TextButton(onClick = { showLeave = false }) { Text(stringResource(R.string.action_cancel)) } }
+        )
+    }
+    memberToRemove?.let { member ->
+        AlertDialog(
+            onDismissRequest = { memberToRemove = null },
+            title = { Text(stringResource(R.string.cashbook_remove_title, member.displayName)) },
+            text = { Text(stringResource(R.string.cashbook_remove_body)) },
+            confirmButton = {
+                TextButton(onClick = { memberToRemove = null; viewModel.removeMember(member.userId) }) {
+                    Text(stringResource(R.string.cashbook_remove_member))
+                }
+            },
+            dismissButton = { TextButton(onClick = { memberToRemove = null }) { Text(stringResource(R.string.action_cancel)) } }
+        )
+    }
+
     LaunchedEffect(state.lastInvitation) {
         state.lastInvitation?.let { invitation ->
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
@@ -135,6 +194,7 @@ fun SharedCashbookScreen(
                 )
             }
             context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.cashbook_invite_subject)))
+            viewModel.invitationShared()
         }
     }
 }
@@ -210,6 +270,12 @@ private fun JoinHouseholdSection(
             Spacer(Modifier.width(Dimensions.SpacingMedium))
             Text(stringResource(R.string.cashbook_join), style = MaterialTheme.typography.titleMedium)
         }
+        Spacer(Modifier.height(Dimensions.SpacingSmall))
+        Text(
+            stringResource(R.string.cashbook_paste_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         Spacer(Modifier.height(Dimensions.SpacingMedium))
         ZenTextField(
             value = token,
@@ -228,29 +294,51 @@ private fun JoinHouseholdSection(
 }
 
 @Composable
-private fun HouseholdHeaderCard(householdName: String) {
+private fun HouseholdHeaderCard(
+    householdName: String,
+    memberCount: Int,
+    memberLimit: Int,
+    canRename: Boolean,
+    onRename: () -> Unit
+) {
     ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Ink) {
-        ZenTileCaption(stringResource(R.string.dashboard_household_title))
-        Text(
-            householdName,
-            style = MaterialTheme.typography.headlineMedium
-        )
+        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                ZenTileCaption(stringResource(R.string.dashboard_household_title))
+                Text(householdName, style = MaterialTheme.typography.headlineMedium)
+                Text(
+                    stringResource(R.string.cashbook_members_count, memberCount, memberLimit),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            if (canRename) {
+                TextButton(onClick = onRename) { Text(stringResource(R.string.cashbook_rename)) }
+            }
+        }
     }
 }
 
 @Composable
 private fun HouseholdActions(
-    currentMember: HouseholdMember?,
+    isOwner: Boolean,
+    isFull: Boolean,
+    isLoading: Boolean,
     onInvite: () -> Unit,
     onLeave: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium)) {
-        if (currentMember?.role == HouseholdRole.OWNER) {
+        if (isOwner) {
             ZenPrimaryButton(
                 text = stringResource(R.string.cashbook_invite_partner),
                 onClick = onInvite,
+                enabled = !isFull && !isLoading,
                 modifier = Modifier.fillMaxWidth(),
                 icon = Icons.Default.Share
+            )
+            Text(
+                stringResource(if (isFull) R.string.cashbook_full else R.string.cashbook_invite_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 stringResource(R.string.cashbook_owner_cannot_leave),
@@ -261,6 +349,7 @@ private fun HouseholdActions(
             ZenSecondaryButton(
                 text = stringResource(R.string.cashbook_leave),
                 onClick = onLeave,
+                enabled = !isLoading,
                 modifier = Modifier.fillMaxWidth()
             )
         }

@@ -50,7 +50,8 @@ object SmsParser {
             accountLast4 = accountLast4,
             sender = sender,
             fingerprint = fingerprint,
-            confidence = calculateConfidence(accountLast4, merchant)
+            confidence = calculateConfidence(accountLast4, merchant),
+            isCard = isCardMessage(message)
         )
     }
 
@@ -115,6 +116,17 @@ object SmsParser {
         }
         abbrev.find(text)?.let { positions.add(it.range.first) }
         return positions.minOrNull() ?: -1
+    }
+
+    /**
+     * True for credit-card messages: "credit card" is named, or "card" appears without being a debit
+     * card and without an account ("a/c"). Debit-card SMS belong to a bank account, not a card.
+     */
+    internal fun isCardMessage(message: String): Boolean {
+        val lower = message.lowercase()
+        if (lower.contains("credit card")) return true
+        if (lower.contains("debit card") || lower.contains("a/c") || lower.contains("acct")) return false
+        return Regex("\\bcard\\b").containsMatchIn(lower)
     }
 
     private fun extractAccountLast4(message: String): String? {

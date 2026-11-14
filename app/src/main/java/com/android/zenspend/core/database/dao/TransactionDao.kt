@@ -7,6 +7,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TransactionDao {
+    /** Date of the oldest entry, or null when there are none. */
+    @Query("SELECT MIN(date) FROM transactions WHERE isDeleted = 0")
+    fun observeEarliestDate(): Flow<Long?>
+
     @Query("SELECT * FROM transactions WHERE isDeleted = 0 ORDER BY date DESC")
     fun getAllTransactions(): Flow<List<TransactionEntity>>
 

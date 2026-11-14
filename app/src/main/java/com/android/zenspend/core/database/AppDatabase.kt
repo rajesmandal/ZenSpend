@@ -16,6 +16,9 @@ import com.android.zenspend.core.database.entity.*
         CreditCardEntity::class,
         EMIEntity::class,
         EMIPaymentEntity::class,
+        PersonEntity::class,
+        PersonLoanEntity::class,
+        LoanReceiptEntity::class,
         RecurringTransactionEntity::class,
         TransactionEntity::class,
         BudgetEntity::class,
@@ -28,7 +31,7 @@ import com.android.zenspend.core.database.entity.*
         HouseholdMemberEntity::class,
         SyncCursorEntity::class
     ],
-    version = 8,
+    version = 10,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -39,6 +42,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun creditCardDao(): CreditCardDao
     abstract fun emiDao(): EMIDao
     abstract fun emiPaymentDao(): EMIPaymentDao
+    abstract fun peopleDao(): PeopleDao
     abstract fun recurringTransactionDao(): RecurringTransactionDao
     abstract fun budgetDao(): BudgetDao
     abstract fun tagDao(): TagDao
@@ -277,6 +281,53 @@ abstract class AppDatabase : RoomDatabase() {
                         "FOREIGN KEY(`emiId`) REFERENCES `emis`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
                 )
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_emi_payments_emiId` ON `emi_payments` (`emiId`)")
+            }
+        }
+
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `people` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`name` TEXT NOT NULL, " +
+                        "`phone` TEXT, " +
+                        "`note` TEXT, " +
+                        "`createdAt` INTEGER NOT NULL)"
+                )
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `person_loans` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`personId` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, " +
+                        "`principalAmount` INTEGER NOT NULL, " +
+                        "`installmentAmount` INTEGER NOT NULL, " +
+                        "`totalTenure` INTEGER NOT NULL, " +
+                        "`receivedInstallments` INTEGER NOT NULL, " +
+                        "`startDate` INTEGER NOT NULL, " +
+                        "`dueDay` INTEGER NOT NULL, " +
+                        "`isClosed` INTEGER NOT NULL, " +
+                        "`note` TEXT, " +
+                        "`createdAt` INTEGER NOT NULL, " +
+                        "FOREIGN KEY(`personId`) REFERENCES `people`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_person_loans_personId` ON `person_loans` (`personId`)")
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `person_loan_receipts` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`loanId` INTEGER NOT NULL, " +
+                        "`installmentNumber` INTEGER NOT NULL, " +
+                        "`amount` INTEGER NOT NULL, " +
+                        "`dueDate` INTEGER NOT NULL, " +
+                        "`receivedDate` INTEGER NOT NULL, " +
+                        "FOREIGN KEY(`loanId`) REFERENCES `person_loans`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_person_loan_receipts_loanId` ON `person_loan_receipts` (`loanId`)")
+            }
+        }
+
+        val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `sms_drafts` ADD COLUMN `isCard` INTEGER NOT NULL DEFAULT 0")
             }
         }
     }

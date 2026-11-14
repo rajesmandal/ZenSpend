@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.NotificationsNone
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material3.Icon
@@ -77,7 +78,9 @@ import com.android.zenspend.core.ui.theme.Dimensions
 import com.android.zenspend.core.ui.theme.PillShape
 import com.android.zenspend.core.ui.theme.ZenSpendTheme
 import com.android.zenspend.core.ui.theme.ZenTone
+import com.android.zenspend.core.ui.util.MonthChoices
 import com.android.zenspend.core.ui.util.formatWholeRupees
+import com.android.zenspend.core.ui.util.rememberEarliestEntryMillis
 import com.android.zenspend.core.ui.util.greetingText
 import com.android.zenspend.core.ui.util.relativeDateText
 import com.android.zenspend.feature.budget.domain.model.BudgetProgress
@@ -101,6 +104,7 @@ data class DashboardNavigation(
     val onWallets: () -> Unit = {},
     val onCreditCards: () -> Unit = {},
     val onEmis: () -> Unit = {},
+    val onPeople: () -> Unit = {},
     val onSmsDrafts: () -> Unit = {},
     val onAssistant: () -> Unit = {},
     val onSettings: () -> Unit = {},
@@ -184,19 +188,14 @@ fun DashboardContent(
                     }
                 }
 
-                item {
-                    MonthSelector(
-                        selectedMonth = state.selectedMonth,
-                        onMonthSelected = { onEvent(DashboardUiEvent.SelectMonth(it)) }
-                    )
-                }
-
                 // ---- Bento grid -------------------------------------------------
                 item {
                     BalanceTile(
                         balance = formatWholeRupees(summary.monthlySummary.savings),
                         income = formatWholeRupees(summary.monthlySummary.income),
-                        spent = formatWholeRupees(summary.monthlySummary.expense)
+                        spent = formatWholeRupees(summary.monthlySummary.expense),
+                        selectedMonth = state.selectedMonth,
+                        onMonthSelected = { onEvent(DashboardUiEvent.SelectMonth(it)) }
                     )
                 }
 
@@ -337,8 +336,7 @@ fun MonthSelector(
                 )
             }
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                for (back in 0 until Dimensions.MonthPickerCount) {
-                    val month = (now.clone() as Calendar).apply { add(Calendar.MONTH, -back) }
+                for (month in MonthChoices.build(now, rememberEarliestEntryMillis())) {
                     DropdownMenuItem(
                         text = { Text(format.format(month.time)) },
                         onClick = {
@@ -377,44 +375,40 @@ private fun BentoRow(content: @Composable androidx.compose.foundation.layout.Row
     )
 }
 
-/**
- * Balance card, kept minimal: this month's income minus spent. This month's income and
- * spent sit in two capsules whose centre line is the card's bottom edge (half in, half out).
- */
+/** Balance card: this month's income minus spent, with income and spent capsules fully inside it. */
 @Composable
 private fun BalanceTile(
     balance: String,
     income: String,
-    spent: String
+    spent: String,
+    selectedMonth: Calendar,
+    onMonthSelected: (Calendar) -> Unit
 ) {
-    val overhang = Dimensions.FlowCapsuleHeight / 2
-
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .padding(bottom = overhang)) {
-        ZenTile(
+    ZenTile(
+        modifier = Modifier.fillMaxWidth(),
+        tone = ZenTone.Ink,
+        contentPadding = PaddingValues(Dimensions.SpacingXLarge)
+    ) {
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            tone = ZenTone.Ink,
-            contentPadding = PaddingValues(Dimensions.SpacingXLarge)
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             ZenTileCaption(stringResource(R.string.dashboard_balance))
-            ZenTileValue(
-                text = stringResource(R.string.amount_rupees, balance),
-                style = AmountHero
-            )
-            Text(
-                text = stringResource(R.string.dashboard_balance_hint),
-                style = MaterialTheme.typography.labelMedium,
-                color = ZenSpendTheme.colors.tone(ZenTone.Ink).contentMuted
-            )
-            // Room for the top half of the capsules that straddle the bottom edge.
-            Spacer(Modifier.height(overhang + Dimensions.SpacingSmall))
+            CompactMonthChip(selectedMonth = selectedMonth, onMonthSelected = onMonthSelected)
         }
+        ZenTileValue(
+            text = stringResource(R.string.amount_rupees, balance),
+            style = AmountHero
+        )
+        Text(
+            text = stringResource(R.string.dashboard_balance_hint),
+            style = MaterialTheme.typography.labelMedium,
+            color = ZenSpendTheme.colors.tone(ZenTone.Ink).contentMuted
+        )
+        Spacer(Modifier.height(Dimensions.SpacingLarge))
         Row(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .offset(y = overhang)
-                .padding(horizontal = Dimensions.SpacingXLarge),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium)
         ) {
             FlowCapsule(
@@ -435,7 +429,51 @@ private fun BalanceTile(
     }
 }
 
-/** Pill with a ring in the screen background colour so it reads as cut out of the card edge. */
+/** Small "NOV 2026 ▾" chip for the balance card; tap to pick one of the last few months. */
+@Composable
+private fun CompactMonthChip(selectedMonth: Calendar, onMonthSelected: (Calendar) -> Unit) {
+    val format = remember { SimpleDateFormat("MMM yyyy", Locale.getDefault()) }
+    val now = remember { Calendar.getInstance() }
+    var expanded by remember { mutableStateOf(false) }
+    val earliest = rememberEarliestEntryMillis()
+    val ink = ZenSpendTheme.colors.tone(ZenTone.Ink)
+
+    Box {
+        Row(
+            modifier = Modifier
+                .clip(PillShape)
+                .background(ink.content.copy(alpha = 0.14f))
+                .clickable(role = Role.Button) { expanded = true }
+                .padding(start = Dimensions.SpacingMedium, end = Dimensions.SpacingSmall, top = 4.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = format.format(selectedMonth.time),
+                style = MaterialTheme.typography.labelMedium,
+                color = ink.content
+            )
+            Icon(
+                Icons.Default.ArrowDropDown,
+                contentDescription = stringResource(R.string.action_pick_month),
+                tint = ink.content,
+                modifier = Modifier.size(Dimensions.IconSizeSmall)
+            )
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            for (month in MonthChoices.build(now, earliest)) {
+                DropdownMenuItem(
+                    text = { Text(SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(month.time)) },
+                    onClick = {
+                        expanded = false
+                        onMonthSelected(month)
+                    }
+                )
+            }
+        }
+    }
+}
+
+/** Plain colour pill (no outline) sitting half in, half out of the card's bottom edge. */
 @Composable
 private fun FlowCapsule(
     tone: ZenTone,
@@ -448,7 +486,6 @@ private fun FlowCapsule(
     Row(
         modifier = modifier
             .height(Dimensions.FlowCapsuleHeight)
-            .border(Dimensions.FlowCapsuleRing, MaterialTheme.colorScheme.background, PillShape)
             .clip(PillShape)
             .background(colors.container)
             .padding(horizontal = Dimensions.SpacingLarge),
@@ -546,6 +583,7 @@ private fun QuickChips(emiBadge: Int, navigation: DashboardNavigation) {
         QuickChip(ZenTone.Sky, Icons.Default.AutoAwesome, stringResource(R.string.dashboard_chip_ai), null, navigation.onAssistant)
         QuickChip(ZenTone.Sun, Icons.Default.Sms, stringResource(R.string.dashboard_chip_sms), null, navigation.onSmsDrafts)
         QuickChip(ZenTone.Lilac, Icons.Default.ReceiptLong, stringResource(R.string.dashboard_emi_caption), emiBadge, navigation.onEmis)
+        QuickChip(ZenTone.Lime, Icons.Default.Person, stringResource(R.string.people_chip), null, navigation.onPeople)
         QuickChip(ZenTone.Coral, Icons.Default.CreditCard, stringResource(R.string.dashboard_quick_cards), null, navigation.onCreditCards)
     }
 }

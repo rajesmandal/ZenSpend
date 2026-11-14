@@ -12,7 +12,8 @@ fun SmsDraftEntity.toDomain() = SmsTransactionDraft(
     accountLast4 = accountLast4,
     sender = sender,
     fingerprint = fingerprint,
-    status = status
+    status = status,
+    isCard = isCard
 )
 
 fun SmsTransactionDraft.toEntity() = SmsDraftEntity(
@@ -24,5 +25,6 @@ fun SmsTransactionDraft.toEntity() = SmsDraftEntity(
     accountLast4 = accountLast4,
     sender = sender,
     fingerprint = fingerprint,
-    status = status
+    status = status,
+    isCard = isCard
 )

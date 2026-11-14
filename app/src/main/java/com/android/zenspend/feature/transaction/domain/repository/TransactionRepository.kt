@@ -25,6 +25,9 @@ interface TransactionRepository {
     suspend fun updateTransaction(transaction: Transaction)
     suspend fun deleteTransaction(transaction: Transaction)
     
+    /** Date of the oldest entry (null when empty); lets month pickers stop where the data starts. */
+    fun observeEarliestDate(): Flow<Long?> = kotlinx.coroutines.flow.flowOf(null)
+
     fun getTotalIncome(startDate: Long, endDate: Long): Flow<Long>
     fun getTotalExpense(startDate: Long, endDate: Long): Flow<Long>
     fun getCategorySpending(startDate: Long, endDate: Long): Flow<List<com.android.zenspend.feature.dashboard.domain.model.CategorySpending>>

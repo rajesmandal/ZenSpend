@@ -73,6 +73,7 @@ private fun requestedPermissions(): Array<String> =
 fun SmsDraftListScreen(
     onNavigateBack: () -> Unit,
     onNavigateToReview: (Long) -> Unit,
+    onAddCard: (bankName: String?, last4: String) -> Unit = { _, _ -> },
     viewModel: SmsDraftListViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -146,6 +147,13 @@ fun SmsDraftListScreen(
                         )
                     }
                 }
+                items(state.cardSuggestions, key = { "card-" + it.last4 }) { suggestion ->
+                    CardSuggestionTile(
+                        suggestion = suggestion,
+                        onAdd = { onAddCard(suggestion.bankName, suggestion.last4) },
+                        onDismiss = { viewModel.onEvent(SmsDraftListEvent.DismissCardSuggestion(suggestion.last4)) }
+                    )
+                }
                 items(state.drafts, key = { it.id }) { draft ->
                     SmsDraftCard(
                         draft = draft,
@@ -154,6 +162,42 @@ fun SmsDraftListScreen(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun CardSuggestionTile(
+    suggestion: com.android.zenspend.feature.creditcard.domain.suggestion.CardSuggestion,
+    onAdd: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    ZenTile(modifier = Modifier.fillMaxWidth(), tone = ZenTone.Lilac) {
+        ZenTileCaption(stringResource(R.string.sms_card_suggestion_caption))
+        Text(
+            text = stringResource(
+                R.string.sms_card_suggestion_title,
+                suggestion.bankName ?: stringResource(R.string.sms_card_suggestion_unknown_bank),
+                suggestion.last4
+            ),
+            style = MaterialTheme.typography.titleMedium
+        )
+        ZenTileCaption(
+            pluralStringResource(
+                R.plurals.sms_card_suggestion_count,
+                suggestion.transactionCount,
+                suggestion.transactionCount,
+                formatMinorUnits(suggestion.totalAmount)
+            )
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = Dimensions.SpacingMedium),
+            horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall)
+        ) {
+            ZenPrimaryButton(text = stringResource(R.string.sms_card_suggestion_add), onClick = onAdd, modifier = Modifier.weight(1f))
+            ZenSecondaryButton(text = stringResource(R.string.sms_card_suggestion_dismiss), onClick = onDismiss, modifier = Modifier.weight(1f))
         }
     }
 }

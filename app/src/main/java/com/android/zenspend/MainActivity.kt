@@ -22,7 +22,11 @@ import com.android.zenspend.core.navigation.Destination
 import com.android.zenspend.core.navigation.Navigator
 import com.android.zenspend.core.ui.theme.ZenSpendTheme
 import com.android.zenspend.feature.main.presentation.ZenSpendApp
+import androidx.lifecycle.lifecycleScope
+import com.android.zenspend.core.widget.WidgetActions
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -40,6 +44,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleInviteLink(intent)
+        handleWidgetAction(intent, coldStart = savedInstanceState == null)
         setContent {
             val themeMode by themePreferences.themeMode.collectAsState(initial = ThemeMode.SYSTEM)
             val darkTheme = when (themeMode) {
@@ -69,6 +74,17 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleInviteLink(intent)
+        handleWidgetAction(intent, coldStart = false)
+    }
+
+    /** A home-screen widget button: open the add-transaction screen. */
+    private fun handleWidgetAction(intent: Intent?, coldStart: Boolean) {
+        if (intent?.action != WidgetActions.ADD_TRANSACTION) return
+        // On a cold start the nav host is not listening yet, so give it a moment to appear.
+        lifecycleScope.launch {
+            if (coldStart) delay(NAV_READY_DELAY_MS)
+            navigator.navigate(Destination.AddTransaction)
+        }
     }
 
     private fun handleInviteLink(intent: Intent?) {
@@ -78,5 +94,9 @@ class MainActivity : ComponentActivity() {
             inviteLinkHolder.offer(token)
             navigator.navigate(Destination.SharedCashbook)
         }
+    }
+
+    private companion object {
+        const val NAV_READY_DELAY_MS = 700L
     }
 }

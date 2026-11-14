@@ -1,6 +1,12 @@
 package com.android.zenspend.feature.emi.presentation.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.Surface
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.unit.dp
+import com.android.zenspend.feature.emi.domain.LenderSuggestions
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -58,6 +64,7 @@ fun AddEditEMIScreen(
     creditCardId: Long,
     emiId: Long,
     onNavigateBack: () -> Unit,
+    onNavigateToAddCard: () -> Unit = {},
     viewModel: AddEMIViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -128,6 +135,11 @@ fun AddEditEMIScreen(
             if (isCard) {
                 if (state.cards.isEmpty()) {
                     ZenStatusBanner(message = stringResource(R.string.emi_form_no_cards))
+                    OutlinedButton(
+                        onClick = onNavigateToAddCard,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) { Text(stringResource(R.string.emi_form_add_card)) }
                 } else {
                     ZenSectionHeader(title = stringResource(R.string.emi_form_card))
                     ZenChipRow(
@@ -136,8 +148,10 @@ fun AddEditEMIScreen(
                         onSelected = { viewModel.handleEvent(AddEMIUiEvent.OnCardSelected(state.cards[it].id)) },
                         contentPadding = PaddingValues()
                     )
+                    TextButton(onClick = onNavigateToAddCard) { Text(stringResource(R.string.emi_form_add_card)) }
                 }
             } else {
+                var lenderFocused by remember { mutableStateOf(false) }
                 ZenTextField(
                     value = state.lenderName,
                     onValueChange = { viewModel.handleEvent(AddEMIUiEvent.OnLenderNameChange(it)) },
@@ -148,8 +162,44 @@ fun AddEditEMIScreen(
                             else -> R.string.emi_form_lender_other
                         }
                     ),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { lenderFocused = it.isFocused }
                 )
+                // Banks/NBFCs: every name containing what was typed; people: only names used before.
+                val suggestions = remember(state.lenderName, state.lenderType, state.savedLenders) {
+                    if (state.lenderType == EMILenderType.PERSON) {
+                        state.savedLenders.filter { it.contains(state.lenderName.trim(), ignoreCase = true) }
+                            .takeIf { state.lenderName.isNotBlank() && it.none { n -> n.equals(state.lenderName.trim(), true) } }
+                            .orEmpty()
+                    } else {
+                        LenderSuggestions.matching(state.lenderName, state.savedLenders)
+                    }
+                }
+                if (lenderFocused && suggestions.isNotEmpty()) {
+                    Surface(
+                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .heightIn(max = SUGGESTION_MAX_HEIGHT)
+                                .verticalScroll(rememberScrollState())
+                        ) {
+                            suggestions.forEach { name ->
+                                Text(
+                                    text = name,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { viewModel.handleEvent(AddEMIUiEvent.OnLenderNameChange(name)) }
+                                        .padding(horizontal = Dimensions.SpacingLarge, vertical = Dimensions.SpacingMedium)
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
             ZenTextField(
@@ -247,3 +297,4 @@ fun AddEditEMIScreen(
 }
 
 private const val DUE_DAY_MAX_DIGITS = 2
+private val SUGGESTION_MAX_HEIGHT = 240.dp
