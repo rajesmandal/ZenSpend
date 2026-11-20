@@ -21,6 +21,8 @@ import com.android.zenspend.feature.emi.data.repository.EMIRepositoryImpl
 import com.android.zenspend.feature.emi.domain.repository.EMIRepository
 import com.android.zenspend.feature.people.data.PeopleRepositoryImpl
 import com.android.zenspend.feature.people.domain.repository.PeopleRepository
+import com.android.zenspend.feature.split.data.SplitRepositoryImpl
+import com.android.zenspend.feature.split.domain.repository.SplitRepository
 import com.android.zenspend.feature.recurring.data.repository.RecurringTransactionRepositoryImpl
 import com.android.zenspend.feature.recurring.domain.repository.RecurringTransactionRepository
 import com.android.zenspend.feature.report.data.repository.ReportRepositoryImpl
@@ -80,6 +82,12 @@ abstract class RepositoryModule {
     abstract fun bindPeopleRepository(
         peopleRepositoryImpl: PeopleRepositoryImpl
     ): PeopleRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSplitRepository(
+        splitRepositoryImpl: SplitRepositoryImpl
+    ): SplitRepository
 
     @Binds
     @Singleton

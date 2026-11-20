@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.NotificationsNone
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Sms
@@ -105,6 +106,7 @@ data class DashboardNavigation(
     val onCreditCards: () -> Unit = {},
     val onEmis: () -> Unit = {},
     val onPeople: () -> Unit = {},
+    val onSplits: () -> Unit = {},
     val onSmsDrafts: () -> Unit = {},
     val onAssistant: () -> Unit = {},
     val onSettings: () -> Unit = {},
@@ -584,6 +586,7 @@ private fun QuickChips(emiBadge: Int, navigation: DashboardNavigation) {
         QuickChip(ZenTone.Sun, Icons.Default.Sms, stringResource(R.string.dashboard_chip_sms), null, navigation.onSmsDrafts)
         QuickChip(ZenTone.Lilac, Icons.Default.ReceiptLong, stringResource(R.string.dashboard_emi_caption), emiBadge, navigation.onEmis)
         QuickChip(ZenTone.Lime, Icons.Default.Person, stringResource(R.string.people_chip), null, navigation.onPeople)
+        QuickChip(ZenTone.Sky, Icons.Default.Groups, stringResource(R.string.split_chip), null, navigation.onSplits)
         QuickChip(ZenTone.Coral, Icons.Default.CreditCard, stringResource(R.string.dashboard_quick_cards), null, navigation.onCreditCards)
     }
 }

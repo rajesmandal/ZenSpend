@@ -57,6 +57,9 @@ import com.android.zenspend.feature.people.presentation.screen.LoanDetailsScreen
 import com.android.zenspend.feature.people.presentation.screen.LoanFormScreen
 import com.android.zenspend.feature.people.presentation.screen.PeopleScreen
 import com.android.zenspend.feature.people.presentation.screen.PersonDetailsScreen
+import com.android.zenspend.feature.split.presentation.screen.SplitExpenseFormScreen
+import com.android.zenspend.feature.split.presentation.screen.SplitGroupScreen
+import com.android.zenspend.feature.split.presentation.screen.SplitGroupsScreen
 import com.android.zenspend.feature.emi.presentation.screen.EMIDetailsScreen
 import com.android.zenspend.feature.emi.presentation.screen.EMIListScreen
 import com.android.zenspend.feature.recurring.presentation.screen.AddEditRecurringTransactionScreen
@@ -147,6 +150,7 @@ fun ZenSpendApp(
                                         onCreditCards = { navigator.navigate(Destination.CreditCards) },
                                         onEmis = { navigator.navigate(Destination.Emis) },
                                         onPeople = { navigator.navigate(Destination.People) },
+                                        onSplits = { navigator.navigate(Destination.Splits) },
                                         onSmsDrafts = { navigator.navigate(Destination.SmsDrafts) },
                                         onAssistant = { navigator.navigate(Destination.AiAssistant) },
                                         onSettings = { navigator.navigate(Destination.Settings) },
@@ -237,6 +241,27 @@ fun ZenSpendApp(
                                     onNavigateBack = { navigator.navigateUp() },
                                     onPersonClick = { id -> navigator.navigate(Destination.PersonDetails(id)) }
                                 )
+                            }
+                            composable(Destination.Splits.route) {
+                                SplitGroupsScreen(
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onGroupClick = { id -> navigator.navigate(Destination.SplitGroup(id)) }
+                                )
+                            }
+                            composable(Destination.SplitGroup.ROUTE) { entry ->
+                                SplitGroupScreen(
+                                    onNavigateBack = { navigator.navigateUp() },
+                                    onAddExpense = { id -> navigator.navigate(Destination.AddSplitExpense(id)) },
+                                    onEditExpense = { id -> navigator.navigate(Destination.EditSplitExpense(id)) }
+                                )
+                            }
+                            composable(Destination.AddSplitExpense.ROUTE) { entry ->
+                                val id = entry.arguments?.getString("groupId")?.toLongOrNull() ?: 0L
+                                SplitExpenseFormScreen(groupId = id, expenseId = 0L, onNavigateBack = { navigator.navigateUp() })
+                            }
+                            composable(Destination.EditSplitExpense.ROUTE) { entry ->
+                                val id = entry.arguments?.getString("expenseId")?.toLongOrNull() ?: 0L
+                                SplitExpenseFormScreen(groupId = 0L, expenseId = id, onNavigateBack = { navigator.navigateUp() })
                             }
                             composable(Destination.PersonDetails.ROUTE) {
                                 PersonDetailsScreen(

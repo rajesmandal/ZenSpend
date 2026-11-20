@@ -72,6 +72,23 @@ sealed class Destination(val route: String) {
         }
     }
 
+    object Splits : Destination("split_groups")
+    data class SplitGroup(val id: Long) : Destination("split_group/$id") {
+        companion object {
+            const val ROUTE = "split_group/{groupId}"
+        }
+    }
+    data class AddSplitExpense(val groupId: Long) : Destination("add_split_expense/$groupId") {
+        companion object {
+            const val ROUTE = "add_split_expense/{groupId}"
+        }
+    }
+    data class EditSplitExpense(val expenseId: Long) : Destination("edit_split_expense/$expenseId") {
+        companion object {
+            const val ROUTE = "edit_split_expense/{expenseId}"
+        }
+    }
+
     object Budgets : Destination("budgets_list")
     object AddBudget : Destination("add_budget")
     object BudgetPlan : Destination("budget_plan")

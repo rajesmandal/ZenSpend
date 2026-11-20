@@ -19,6 +19,11 @@ import com.android.zenspend.core.database.entity.*
         PersonEntity::class,
         PersonLoanEntity::class,
         LoanReceiptEntity::class,
+        SplitGroupEntity::class,
+        SplitMemberEntity::class,
+        SplitExpenseEntity::class,
+        SplitShareEntity::class,
+        SplitSettlementEntity::class,
         RecurringTransactionEntity::class,
         TransactionEntity::class,
         BudgetEntity::class,
@@ -31,7 +36,7 @@ import com.android.zenspend.core.database.entity.*
         HouseholdMemberEntity::class,
         SyncCursorEntity::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -43,6 +48,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun emiDao(): EMIDao
     abstract fun emiPaymentDao(): EMIPaymentDao
     abstract fun peopleDao(): PeopleDao
+    abstract fun splitDao(): SplitDao
     abstract fun recurringTransactionDao(): RecurringTransactionDao
     abstract fun budgetDao(): BudgetDao
     abstract fun tagDao(): TagDao
@@ -328,6 +334,60 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_9_10 = object : Migration(9, 10) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE `sms_drafts` ADD COLUMN `isCard` INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `split_groups` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`name` TEXT NOT NULL, " +
+                        "`createdAt` INTEGER NOT NULL)"
+                )
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `split_members` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`groupId` INTEGER NOT NULL, " +
+                        "`name` TEXT NOT NULL, " +
+                        "`isMe` INTEGER NOT NULL, " +
+                        "FOREIGN KEY(`groupId`) REFERENCES `split_groups`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_split_members_groupId` ON `split_members` (`groupId`)")
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `split_expenses` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`groupId` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, " +
+                        "`amount` INTEGER NOT NULL, " +
+                        "`paidBy` INTEGER NOT NULL, " +
+                        "`date` INTEGER NOT NULL, " +
+                        "`splitType` TEXT NOT NULL, " +
+                        "`note` TEXT, " +
+                        "`createdAt` INTEGER NOT NULL, " +
+                        "FOREIGN KEY(`groupId`) REFERENCES `split_groups`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_split_expenses_groupId` ON `split_expenses` (`groupId`)")
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `split_shares` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`expenseId` INTEGER NOT NULL, " +
+                        "`memberId` INTEGER NOT NULL, " +
+                        "`amount` INTEGER NOT NULL, " +
+                        "FOREIGN KEY(`expenseId`) REFERENCES `split_expenses`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_split_shares_expenseId` ON `split_shares` (`expenseId`)")
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `split_settlements` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`groupId` INTEGER NOT NULL, " +
+                        "`fromMember` INTEGER NOT NULL, " +
+                        "`toMember` INTEGER NOT NULL, " +
+                        "`amount` INTEGER NOT NULL, " +
+                        "`date` INTEGER NOT NULL, " +
+                        "FOREIGN KEY(`groupId`) REFERENCES `split_groups`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_split_settlements_groupId` ON `split_settlements` (`groupId`)")
             }
         }
     }

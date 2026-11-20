@@ -145,4 +145,37 @@ class MigrationTest {
 
         dbV7.close()
     }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate10To11CreatesSplitTablesAndKeepsData() {
+        val dbV10 = helper.createDatabase(TEST_DB, 10)
+        dbV10.execSQL("INSERT INTO people (name, createdAt) VALUES ('Ravi', 1000)")
+        dbV10.close()
+
+        val dbV11 = helper.runMigrationsAndValidate(TEST_DB, 11, true, AppDatabase.MIGRATION_10_11)
+
+        listOf("split_groups", "split_members", "split_expenses", "split_shares", "split_settlements").forEach { table ->
+            val c = dbV11.query("SELECT name FROM sqlite_master WHERE type='table' AND name='$table'")
+            assertTrue("missing $table", c.moveToFirst())
+            c.close()
+        }
+        val people = dbV11.query("SELECT name FROM people")
+        assertTrue(people.moveToFirst())
+        assertEquals("Ravi", people.getString(0))
+        people.close()
+
+        // The new tables accept a full group and cascade on delete.
+        dbV11.execSQL("PRAGMA foreign_keys = ON")
+        dbV11.execSQL("INSERT INTO split_groups (id, name, createdAt) VALUES (1, 'Trip', 1)")
+        dbV11.execSQL("INSERT INTO split_members (id, groupId, name, isMe) VALUES (1, 1, 'You', 1)")
+        dbV11.execSQL("INSERT INTO split_expenses (id, groupId, title, amount, paidBy, date, splitType, createdAt) VALUES (1, 1, 'Dinner', 100, 1, 1, 'EQUAL', 1)")
+        dbV11.execSQL("INSERT INTO split_shares (expenseId, memberId, amount) VALUES (1, 1, 100)")
+        dbV11.execSQL("DELETE FROM split_groups WHERE id = 1")
+        val left = dbV11.query("SELECT COUNT(*) FROM split_shares")
+        left.moveToFirst()
+        assertEquals(0, left.getInt(0))
+        left.close()
+        dbV11.close()
+    }
 }
